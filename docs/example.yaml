@@ -1,0 +1,305 @@
+# Example Oriel config with made-up entities. Every key is optional: delete what you do not have.
+type: "custom:oriel-shell"
+general:
+  weather: weather.home
+  people: [person.alex, person.sam]
+  people_display: initial
+  alarm: alarm_control_panel.house
+  front_door: binary_sensor.front_door
+home:
+  energy_card:
+    solar_power: sensor.solar_power
+    house_power: sensor.house_power
+    battery_soc: sensor.battery_level
+  today:
+    - label: Solar
+      icon: sun
+      entity: sensor.solar_energy_today
+    - label: Forecast
+      icon: cloud
+      entity: sensor.forecast_remaining_today
+    - label: Tomorrow
+      icon: sun
+      entity: sensor.forecast_tomorrow
+    - label: Import
+      icon: down
+      entity: sensor.grid_import_today
+      tone: bad
+    - label: Export
+      icon: up
+      entity: sensor.grid_export_today
+      tone: good
+    - label: Cost
+      icon: eur
+      entity: sensor.energy_cost_today
+      tone: bad
+    - label: Water
+      icon: drop
+      entity: sensor.water_today
+  price: input_number.electricity_price
+  quick_actions:
+    - type: script
+      label: "Dinner ready"
+      icon: dish
+      entity: script.dinner_ready
+      subtitle: Announce
+    - type: shopping
+    - type: more_info
+      entity: vacuum.robot
+      label: Vacuum
+    - type: more_info
+      entity: alarm_control_panel.house
+      label: Alarm
+  shopping: todo.shopping
+  room_panel:
+    title: Kitchen
+    motion: binary_sensor.kitchen_occupancy
+    lights:
+      - name: Ceiling
+        entity: light.kitchen
+      - name: Counter
+        entity: light.kitchen_counter
+      - name: Hood
+        entity: switch.kitchen_hood
+        icon: hood
+        all_off: false
+    heating:
+      - name: Downstairs
+        entity: climate.home
+      - name: Upstairs
+        entity: climate.upstairs
+    boost:
+      start: script.heating_boost
+      cancel: script.heating_boost_cancel
+      timer: timer.heating_boost
+      label: "1 hour"
+    appliances:
+      - name: Washer
+        icon: washer
+        colour: "#4aa3ff"
+        state: sensor.washer_state
+        finish: sensor.washer_finish
+      - name: Dishwasher
+        icon: dish
+        colour: "#ffb02e"
+        state: sensor.dishwasher_state
+      - name: Oven
+        icon: oven
+        colour: "#ff6a3d"
+        state: sensor.oven_state
+        temperature: sensor.oven_current_temp
+        setpoint: sensor.oven_target_temp
+    fridge:
+      door: binary_sensor.fridge_door
+      fridge_temp: sensor.fridge_temperature
+      freezer_temp: sensor.freezer_temperature
+  house:
+    floors:
+      - name: "Ground floor"
+        rooms:
+          - name: "Living room"
+            rect: [0, 0, 5, 6]
+            temperature: sensor.living_room_temperature
+            presence: binary_sensor.living_room_presence
+          - name: Kitchen
+            rect: [5, 0, 5, 3.5]
+            temperature: sensor.kitchen_temperature
+            presence: binary_sensor.kitchen_presence
+          - name: Hall
+            rect: [5, 3.5, 5, 2.5]
+      - name: "First floor"
+        rooms:
+          - name: Bedroom
+            rect: [0, 0, 5, 6]
+            temperature: sensor.bedroom_temperature
+            presence: binary_sensor.bedroom_presence
+          - name: "Bedroom 2"
+            rect: [5, 0, 5, 3.2]
+          - name: Bathroom
+            rect: [5, 3.2, 5, 2.8]
+energy:
+  solar_power: sensor.solar_power
+  pv_strings:
+    - name: East
+      entity: sensor.pv_east_power
+      panels: 8
+    - name: West
+      entity: sensor.pv_west_power
+      panels: 4
+  panels:
+    rows: 3
+    columns: 4
+  house_power: sensor.house_power
+  battery_power: sensor.battery_power
+  grid:
+    mode: entity
+    entity: sensor.grid_power
+    positive: import
+  battery:
+    soc: [sensor.battery_level]
+    capacity_kwh: 9.5
+    reserve_pct: 10
+  today:
+    solar_yield: sensor.solar_energy_today
+    grid_import: sensor.grid_import_today
+    grid_export: sensor.grid_export_today
+    net_cost: sensor.energy_cost_today
+  price: input_number.electricity_price
+  forecast:
+    days: [sensor.forecast_today, sensor.forecast_tomorrow, sensor.forecast_day_3, sensor.forecast_day_4]
+    remaining_today: sensor.forecast_remaining_today
+  consumers:
+    heat_pump:
+      power: sensor.heatpump_power
+      today: sensor.heat_pump_energy_today
+    appliances: [Washer, Dishwasher]
+  health:
+    inverter_online_from: [sensor.solar_power]
+    frequency: sensor.grid_frequency
+living:
+  title: "Living room"
+  presence: binary_sensor.living_room_presence
+  temperature: sensor.living_room_temperature
+  humidity: sensor.living_room_humidity
+  openings:
+    - name: Window
+      entity: binary_sensor.living_room_window
+      icon: window
+    - name: "Patio door"
+      entity: binary_sensor.patio_door
+      icon: door
+  blinds:
+    cover: cover.lounge_blinds
+  speaker:
+    media_player: media_player.living_room_speaker
+    label: Speaker
+  tv:
+    media_player: media_player.tv
+    inputs:
+      - label: "HDMI 1"
+        script: script.tv_hdmi_1
+        source: "HDMI 1"
+      - label: "HDMI 2"
+        script: script.tv_hdmi_2
+        source: "HDMI 2"
+  streamers:
+    devices:
+      - name: Streamer
+        media_player: media_player.streamer
+        remote: remote.streamer
+        launch: android
+  scenes:
+    - name: Relax
+      icon: fire
+      colour: "#e8892b"
+      scene: scene.relax
+    - name: Bright
+      icon: bulb
+      colour: "#e0a02e"
+      scene: scene.bright
+  lights:
+    - name: Ceiling
+      entity: light.living_room_ceiling
+      colour: true
+      render: ceiling
+    - name: "Floor lamp"
+      entity: light.living_room_lamp
+      icon: lamp
+      colour: true
+      render: floor_lamp
+  apps:
+    - name: Video
+      icon: play
+      colour: "#e5483d"
+      package: com.example.video
+    - name: Music
+      icon: music
+      colour: "#1ed760"
+      package: com.example.music
+    - name: Home
+      icon: close
+      close_all: true
+security:
+  openings:
+    - area: Doors
+      sensors:
+        - name: Front
+          label: "Front door"
+          entity: binary_sensor.front_door
+        - name: Patio
+          label: "Patio door"
+          entity: binary_sensor.patio_door
+    - area: "Living room"
+      sensors:
+        - name: Window
+          label: "Living room window"
+          entity: binary_sensor.living_room_window
+  presence:
+    - floor: "Ground floor"
+      rooms:
+        - name: "Living room"
+          entities: [binary_sensor.living_room_presence]
+        - name: Kitchen
+          entities: [binary_sensor.kitchen_presence]
+    - floor: "First floor"
+      rooms:
+        - name: Bedroom
+          entities: [binary_sensor.bedroom_presence]
+        - name: Landing
+          entities: [binary_sensor.landing_motion]
+          wording: motion
+  cameras:
+    - name: Front
+      camera: camera.front
+      motion: binary_sensor.front_motion
+      person: binary_sensor.front_person
+    - name: Garden
+      camera: camera.garden
+      motion: binary_sensor.garden_motion
+  doorbell: binary_sensor.doorbell
+  batteries:
+    - name: "Front door sensor"
+      entity: sensor.front_door_battery
+    - name: "Landing motion"
+      entity: sensor.landing_motion_battery
+  hubs:
+    - name: "Alarm hub"
+      entity: binary_sensor.alarm_hub_connected
+      ok_state: "on"
+      ok_label: Online
+vacuum:
+  vacuums:
+    - name: "Robot vacuum"
+      entity: vacuum.robot
+      settings:
+        - label: Suction
+          entity: select.robot_suction
+          kind: opt
+      schedule:
+        - automation: automation.vacuum_weekdays
+          label: "Weekdays at 10:00"
+          at: "10:00"
+          weekdays: [1, 2, 3, 4, 5]
+          detail: "when everyone is out"
+      last_run: sensor.robot_last_clean
+    - name: "Upstairs vacuum"
+      entity: vacuum.upstairs
+system:
+  host:
+    uptime: sensor.uptime
+    cpu: sensor.processor_use
+    memory: sensor.memory_use
+    disk: sensor.disk_use
+    cpu_temperature: sensor.processor_temperature
+  updates:
+    core: update.home_assistant_core_update
+  backups:
+    last: sensor.backup_last
+    next: sensor.backup_next
+  connections:
+    - name: Internet
+      entity: binary_sensor.internet
+      ok_state: "on"
+      ok_label: Online
+      other_label: Offline
+  debug_panel: true
