@@ -1,0 +1,8 @@
+{
+  "home": {
+    "room_panel": {
+      "lights": [{ "name": "Ceiling", "entity": "light.kitchen" }],
+      "heating": [{ "name": "Heating", "entity": "climate.home" }]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+# Creates the GitHub release HACS installs from. Runs on every push to main; does nothing unless the version in
+# package.json has no release yet. To release: bump the version (package.json, src/version.js, CHANGELOG.md),
+# merge to main, and this workflow builds, tests, tags and publishes. Never tag by hand.
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Read version
+        id: v
+        run: |
+          V=$(node -p "require('./package.json').version")
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          if git rev-parse "v$V" >/dev/null 2>&1; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.v.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.v.outputs.exists == 'false'
+        run: npm ci && npx playwright install --with-deps chromium
+      - if: steps.v.outputs.exists == 'false'
+        name: Build and test
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+          npm test
+      - if: steps.v.outputs.exists == 'false'
+        name: Release notes from CHANGELOG.md
+        run: |
+          awk -v v="${{ steps.v.outputs.version }}" '
+            $0 ~ "^## \\[?"v { on=1; next }
+            on && /^## / { exit }
+            on { print }' CHANGELOG.md > notes.md
+          test -s notes.md || echo "Release ${{ steps.v.outputs.version }}" > notes.md
+      - if: steps.v.outputs.exists == 'false'
+        name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "v${{ steps.v.outputs.version }}" dist/oriel.js --target "$GITHUB_SHA" --title "v${{ steps.v.outputs.version }}" --notes-file notes.md

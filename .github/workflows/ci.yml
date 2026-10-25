@@ -1,0 +1,28 @@
+# Runs on every pull request and every push that is not a tag: builds, checks dist/ is up to date, runs the tests.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build
+        run: npm run build
+      - name: dist/ must match the source
+        run: git diff --exit-code -- dist/ || (echo "dist/oriel.js is out of date. Run npm run build and commit it." && exit 1)
+      - name: Tests
+        run: npm test
