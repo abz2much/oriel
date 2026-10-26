@@ -9,3 +9,4 @@ dev/out/
 # owner-only tools (read the old private modules)
 dev/migrate.mjs
 dev/compare-original.mjs
+THEMES-PROMPT.md

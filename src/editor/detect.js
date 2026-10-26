@@ -1,6 +1,8 @@
 /* Editor helpers: dotted-path get/set, validation (missing or wrong-domain entities) and auto-detect suggestions.
    Nothing here changes the config by itself: the editor applies suggestions only after the user accepts them. */
 import { SECTIONS } from './schema.js';
+import { THEMES } from '../theme/themes.js';
+import { isHex } from '../theme/colour.js';
 
 export const isEntId = (v) => typeof v === 'string' && /^[a-z_]+\.[a-z0-9_]+$/.test(v);
 
@@ -39,7 +41,7 @@ function walkNode(node, obj, hass, where, out) {
     if (Array.isArray(arr)) arr.forEach((item, i) => walkNode(l.item, item, hass, where.concat([l.key, i]), out));
   });
 }
-/* Returns [{ where: [section, ...path to the object], field, id, kind: missing | domain | format, domains }] */
+/* Returns [{ where: [section, ...path to the object], field, id, kind: missing | domain | format | theme | accent, domains }] */
 export function validate(config, hass) {
   const out = [];
   SECTIONS.forEach((s) => {
@@ -47,6 +49,10 @@ export function validate(config, hass) {
     if (!obj) return;
     s.groups.forEach((g) => walkNode(g, obj, hass, [s.key], out));
   });
+  /* theme: an unknown id or a bad accent never breaks the tablet (it falls back), but the editor says so */
+  const g = (config && config.general) || {};
+  if (g.theme != null && g.theme !== '' && !THEMES[g.theme]) out.push({ where: ['general'], field: 'theme', id: String(g.theme), kind: 'theme' });
+  if (g.accent != null && g.accent !== '' && !isHex(String(g.accent))) out.push({ where: ['general'], field: 'accent', id: String(g.accent), kind: 'accent' });
   return out;
 }
 

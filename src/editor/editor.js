@@ -8,69 +8,96 @@ import { ED, t } from '../strings.js';
 import { normalise, entitiesIn } from '../config.js';
 import { PAGES } from '../core.js';
 import { esc } from '../util.js';
+import { HA } from '../theme/fixed.js';
+import { THEMES, DEFAULT_THEME, themeTokens } from '../theme/themes.js';
+import { ROLE, CLASSIC_PAGE } from '../theme/tokens.js';
+import { isHex } from '../theme/colour.js';
 
 const CSS = `
-:host{display:block;font-family:var(--paper-font-body1_-_font-family,Roboto,'Segoe UI',system-ui,sans-serif);color:var(--primary-text-color,#212121)}
+:host{display:block;font-family:var(--paper-font-body1_-_font-family,Roboto,'Segoe UI',system-ui,sans-serif);color:var(--primary-text-color,${HA.text})}
 *{box-sizing:border-box}
 .wrap{position:relative;display:flex;flex-direction:column;gap:8px}
 button{font:inherit;cursor:pointer}
-button:focus-visible,summary:focus-visible{outline:2px solid var(--primary-color,#03a9f4);outline-offset:2px}
-.warn{display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:rgba(240,180,41,.16);border-radius:10px;font-size:13px}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--primary-color,${HA.primary});outline-offset:2px}
+.warn{display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:${HA.noteBg};border-radius:10px;font-size:13px}
 .warn .top{display:flex;align-items:center;gap:10px}
 .warn .top span{flex:1}
 .warn ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
-.link{border:0;background:none;color:var(--primary-color,#03a9f4);font-weight:500;padding:6px 8px;border-radius:16px}
-.sec{border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;overflow:hidden;background:var(--card-background-color,#fff)}
+.link{border:0;background:none;color:var(--primary-color,${HA.primary});font-weight:500;padding:6px 8px;border-radius:16px}
+.sec{border:1px solid var(--divider-color,${HA.divider});border-radius:12px;overflow:hidden;background:var(--card-background-color,${HA.card})}
 .sh{display:flex;align-items:center;gap:8px;padding:0 6px 0 12px;min-height:56px}
 .sh .tg{flex:1;display:flex;align-items:center;gap:12px;border:0;background:none;color:inherit;text-align:left;padding:8px 0;min-height:56px}
-.num{width:30px;height:30px;border-radius:50%;background:rgba(3,169,244,.12);color:var(--primary-color,#03a9f4);display:grid;place-items:center;font-size:13px;font-weight:500;flex:none}
+.num{width:30px;height:30px;border-radius:50%;background:${HA.primaryTint};color:var(--primary-color,${HA.primary});display:grid;place-items:center;font-size:13px;font-weight:500;flex:none}
 .tt{display:flex;flex-direction:column;flex:1;min-width:0}
 .tt b{font-weight:500;font-size:15px}
-.tt small{font-size:12.5px;color:var(--secondary-text-color,#5f6368)}
-.chev{width:20px;text-align:center;color:var(--secondary-text-color,#5f6368)}
+.tt small{font-size:12.5px;color:var(--secondary-text-color,${HA.secondary})}
+.chev{width:20px;text-align:center;color:var(--secondary-text-color,${HA.secondary})}
 .ad{display:flex;align-items:center;gap:6px}
-.body{padding:4px 14px 14px;border-top:1px solid var(--divider-color,#eee);display:flex;flex-direction:column;gap:12px}
+.body{padding:4px 14px 14px;border-top:1px solid var(--divider-color,${HA.divider2});display:flex;flex-direction:column;gap:12px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;padding-top:10px}
-.tabs button{height:34px;padding:0 12px;border-radius:8px;border:0;background:var(--secondary-background-color,#eee);color:inherit;font-size:13px}
-.tabs button[aria-selected=true]{background:var(--primary-color,#03a9f4);color:var(--text-primary-color,#fff)}
-.hint{font-size:12.5px;color:var(--secondary-text-color,#5f6368);line-height:1.45}
+.tabs button{height:34px;padding:0 12px;border-radius:8px;border:0;background:var(--secondary-background-color,${HA.bg2});color:inherit;font-size:13px}
+.tabs button[aria-selected=true]{background:var(--primary-color,${HA.primary});color:var(--text-primary-color,${HA.onPrimary})}
+.grp{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--secondary-text-color,${HA.secondary});margin-top:6px}
+.fl{display:block;font-size:12.5px;color:var(--secondary-text-color,${HA.secondary});margin-bottom:6px}
+.dd{position:relative}
+.ddb{width:100%;min-height:56px;border:1px solid var(--divider-color,${HA.divider});border-radius:8px;background:var(--secondary-background-color,${HA.bg2});color:inherit;display:flex;align-items:center;gap:12px;padding:8px 12px;font:inherit;cursor:pointer;text-align:left}
+.ddb .nm,.opt .nm{flex:1;min-width:0}.ddb .nm b,.opt .nm b{display:block;font-weight:500}.ddb .nm span{font-size:12px;color:var(--secondary-text-color,${HA.secondary})}
+.ddl{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 4px);background:var(--card-background-color,${HA.card});border:1px solid var(--divider-color,${HA.divider});border-radius:10px;box-shadow:0 10px 30px ${HA.overlay};padding:6px;max-height:360px;overflow-y:auto}
+.opt{width:100%;display:flex;align-items:center;gap:12px;padding:7px 8px;border:0;border-radius:8px;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left}
+.opt:hover,.opt[aria-selected=true]{background:${HA.primaryTint}}
+.opt .tick{width:18px;color:var(--primary-color,${HA.primary});font-weight:700;text-align:center}
+.ddl .lh{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--secondary-text-color,${HA.secondary});padding:8px 8px 4px}
+.ttag{font-size:11px;padding:1px 7px;border-radius:9px;border:1px solid var(--divider-color,${HA.divider});color:var(--secondary-text-color,${HA.secondary})}
+.sw{width:58px;height:38px;border-radius:7px;position:relative;flex:none;overflow:hidden}
+.sw i{position:absolute;left:7px;top:8px;width:28px;height:22px;border-radius:5px}
+.sw u{position:absolute;right:6px;top:9px;width:14px;height:8px;border-radius:4px}
+.sw s{position:absolute;right:6px;bottom:8px;width:14px;height:8px;border-radius:3px}
+.acc{display:flex;gap:8px;align-items:center}
+.acc .pick{width:44px;height:44px;border-radius:8px;border:1px solid var(--divider-color,${HA.divider});padding:0;cursor:pointer;flex:none;position:relative;background:var(--secondary-background-color,${HA.bg2})}
+.acc .pick span{position:absolute;inset:6px;border-radius:5px}
+.acc .pick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.acc .ain{flex:1;min-width:0;height:44px;border:1px solid var(--divider-color,${HA.divider});border-radius:8px;background:var(--secondary-background-color,${HA.bg2});color:inherit;font:inherit;padding:0 12px}
+.acc .reset{border:0;background:none;color:var(--primary-color,${HA.primary});font:inherit;font-weight:500;cursor:pointer;padding:0 4px}
+.abad{color:${HA.noteText}}
+.ddb:focus-visible,.opt:focus-visible,.acc .pick:focus-within,.acc .ain:focus-visible,.acc .reset:focus-visible{outline:2px solid var(--primary-color,${HA.primary});outline-offset:2px}
+.hint{font-size:12.5px;color:var(--secondary-text-color,${HA.secondary});line-height:1.45}
 .notes{display:flex;flex-direction:column;gap:4px}
-.notes div{font-size:12.5px;color:#8a5a00;background:rgba(240,180,41,.14);border-radius:8px;padding:6px 10px}
+.notes div{font-size:12.5px;color:${HA.noteText};background:${HA.noteBg2};border-radius:8px;padding:6px 10px}
 .list{display:flex;flex-direction:column;gap:8px}
 .lh{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:500;padding-top:4px}
-.lh small{font-weight:400;font-size:12px;color:var(--secondary-text-color,#5f6368)}
-.item{border:1px solid var(--divider-color,#e0e0e0);border-radius:10px;background:var(--card-background-color,#fff)}
-.item.drag{opacity:.5}.item.over{border-color:var(--primary-color,#03a9f4)}
-.item.bad{border-color:#f0b429}
+.lh small{font-weight:400;font-size:12px;color:var(--secondary-text-color,${HA.secondary})}
+.item{border:1px solid var(--divider-color,${HA.divider});border-radius:10px;background:var(--card-background-color,${HA.card})}
+.item.drag{opacity:.5}.item.over{border-color:var(--primary-color,${HA.primary})}
+.item.bad{border-color:${HA.badLine}}
 .ih{display:flex;align-items:center;gap:2px;min-height:48px;padding:0 4px}
-.grip{width:24px;text-align:center;color:var(--secondary-text-color,#9e9e9e);cursor:grab;user-select:none}
+.grip{width:24px;text-align:center;color:var(--secondary-text-color,${HA.disabled});cursor:grab;user-select:none}
 .ih .lbl{flex:1;border:0;background:none;color:inherit;text-align:left;font-size:14px;padding:8px 6px;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ib{width:40px;height:40px;border:0;background:none;border-radius:20px;color:var(--secondary-text-color,#5f6368);display:grid;place-items:center}
+.ib{width:40px;height:40px;border:0;background:none;border-radius:20px;color:var(--secondary-text-color,${HA.secondary});display:grid;place-items:center}
 .ib:disabled{opacity:.3;cursor:default}
 .ib svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.ibody{padding:4px 12px 12px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--divider-color,#eee)}
-.add{height:44px;border:1px dashed var(--primary-color,#03a9f4);border-radius:10px;background:none;color:var(--primary-color,#03a9f4);font-weight:500}
+.ibody{padding:4px 12px 12px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--divider-color,${HA.divider2})}
+.add{height:44px;border:1px dashed var(--primary-color,${HA.primary});border-radius:10px;background:none;color:var(--primary-color,${HA.primary});font-weight:500}
 .add:disabled{opacity:.4;cursor:default}
 .acts{display:flex;gap:8px;flex-wrap:wrap}
-.acts button{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--primary-color,#03a9f4);background:none;color:var(--primary-color,#03a9f4);font-weight:500;font-size:13px}
+.acts button{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--primary-color,${HA.primary});background:none;color:var(--primary-color,${HA.primary});font-weight:500;font-size:13px}
 .state{padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.45}
-.state.ok{background:rgba(67,160,71,.14)}.state.no{background:rgba(219,68,55,.12)}
-.ov{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-start;justify-content:center;padding:24px 8px;z-index:5;border-radius:12px}
-.dlg{width:100%;max-width:720px;background:var(--card-background-color,#fff);border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;max-height:calc(100% - 20px);overflow:hidden}
+.state.ok{background:${HA.ok}}.state.no{background:${HA.no}}
+.ov{position:absolute;inset:0;background:${HA.overlay};display:flex;align-items:flex-start;justify-content:center;padding:24px 8px;z-index:5;border-radius:12px}
+.dlg{width:100%;max-width:720px;background:var(--card-background-color,${HA.card});border-radius:20px;box-shadow:0 20px 50px ${HA.overlay};display:flex;flex-direction:column;max-height:calc(100% - 20px);overflow:hidden}
 .dlg h3{margin:0;font-size:20px;font-weight:400;padding:18px 20px 4px}
 .dlg .hint{padding:0 20px 10px}
-.rows{overflow-y:auto;border-top:1px solid var(--divider-color,#e0e0e0)}
-.row{display:grid;grid-template-columns:44px minmax(0,150px) minmax(0,1fr);gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--divider-color,#f0f0f0)}
+.rows{overflow-y:auto;border-top:1px solid var(--divider-color,${HA.divider})}
+.row{display:grid;grid-template-columns:44px minmax(0,150px) minmax(0,1fr);gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--divider-color,${HA.divider3})}
 .row label{display:grid;place-items:center;width:44px;height:44px;cursor:pointer}
 .row input{width:18px;height:18px}
 .row b{font-weight:500;font-size:13.5px}
 .row .v{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13px}
-.row .v small{color:var(--secondary-text-color,#5f6368);font-size:11.5px}
-.row select{height:36px;max-width:100%;border:1px solid var(--divider-color,#bdbdbd);border-radius:6px;background:var(--card-background-color,#fff);color:inherit;font:inherit;font-size:13px;padding:0 6px}
+.row .v small{color:var(--secondary-text-color,${HA.secondary});font-size:11.5px}
+.row select{height:36px;max-width:100%;border:1px solid var(--divider-color,${HA.divider4});border-radius:6px;background:var(--card-background-color,${HA.card});color:inherit;font:inherit;font-size:13px;padding:0 6px}
 .foot{display:flex;align-items:center;gap:8px;padding:12px 16px}
-.foot span{flex:1;font-size:12.5px;color:var(--secondary-text-color,#5f6368)}
-.foot .pri{height:40px;padding:0 20px;border:0;border-radius:20px;background:var(--primary-color,#03a9f4);color:var(--text-primary-color,#fff);font-weight:500}
-.nohaform{padding:14px;border-radius:10px;background:rgba(240,180,41,.16);font-size:13.5px;line-height:1.5}
+.foot span{flex:1;font-size:12.5px;color:var(--secondary-text-color,${HA.secondary})}
+.foot .pri{height:40px;padding:0 20px;border:0;border-radius:20px;background:var(--primary-color,${HA.primary});color:var(--text-primary-color,${HA.onPrimary});font-weight:500}
+.nohaform{padding:14px;border-radius:10px;background:${HA.noteBg};font-size:13.5px;line-height:1.5}
 `;
 const SVG = {
   up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>',
@@ -181,8 +208,74 @@ export class OrielShellEditor extends HTMLElement {
       });
       body.appendChild(tabs);
     }
+    if (s.key === 'general') { body.appendChild(this._look()); body.insertAdjacentHTML('beforeend', `<div class="grp">${esc(ED.header)}</div>`); }
     if (g.actions) body.appendChild(this._actions(s, g));
     this._node(body, s.key, g, [s.key], '');
+    return box;
+  }
+
+  /* ---------- Look: theme dropdown with colour previews, and an accent colour ---------- */
+  _look() {
+    const gen = () => this._config.general || {};
+    const box = document.createElement('div'); box.className = 'look';
+    box.innerHTML = `<div class="grp">${esc(ED.look)}</div>
+      <div><span class="fl" id="thL">${esc(ED.theme)}</span><div class="dd"><button type="button" class="ddb" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="thL"></button><div class="ddl" role="listbox" aria-labelledby="thL" hidden></div></div></div>
+      <div><label class="fl" for="accIn">${esc(ED.accent)}</label><div class="acc"><span class="pick"><span></span><input type="color" aria-label="${esc(ED.accent_pick)}"></span><input class="ain" id="accIn" type="text" autocomplete="off" spellcheck="false" placeholder="${esc(ED.accent_ph)}"><button type="button" class="reset">${esc(ED.reset)}</button></div>
+      <div class="hint">${esc(ED.accent_hint)}</div><div class="hint abad" hidden></div></div>`;
+    const ddb = box.querySelector('.ddb'), list = box.querySelector('.ddl'), dd = box.querySelector('.dd');
+    const ain = box.querySelector('.ain'), col = box.querySelector('.pick input'), dot = box.querySelector('.pick span'), bad = box.querySelector('.abad');
+    const swatch = (id) => {
+      const t = themeTokens(id), r = (k) => `rgb(${t.role[k] || ROLE[k]})`, dark = THEMES[id].style === 'dark';
+      const stops = [...(t.role.page || CLASSIC_PAGE).matchAll(/(rgb\(\d+,\d+,\d+\)|#[0-9a-f]{6})\s+\d+%/gi)].map((m) => m[1]);
+      return `<span class="sw" aria-hidden="true" style="background:linear-gradient(160deg,${stops.join(',')})"><i style="background:rgba(${t.role.glass || ROLE.glass},${dark ? 0.35 : 0.55})"></i><u style="background:${r('accent')}"></u><s style="background:${r('dark-b')}"></s></span>`;
+    };
+    const tagOf = (id) => (THEMES[id].style === 'dark' ? ED.theme_dark : ED.theme_light);
+    const paintButton = () => {
+      const raw = gen().theme, id = THEMES[raw] ? raw : DEFAULT_THEME, unknown = raw != null && raw !== '' && !THEMES[raw];
+      ddb.innerHTML = `${swatch(id)}<span class="nm"><b>${esc(unknown ? ED.theme_unknown.split('{id}').join(raw) : THEMES[id].name)}</b><span>${esc(tagOf(id))}${id === DEFAULT_THEME ? ' · ' + esc(ED.theme_default) : ''}</span></span><span aria-hidden="true">▾</span>`;
+    };
+    const setOpen = (open) => {
+      list.hidden = !open; ddb.setAttribute('aria-expanded', String(open));
+      if (!open) return;
+      const cur = THEMES[gen().theme] ? gen().theme : DEFAULT_THEME, ids = Object.keys(THEMES);
+      const opt = (id) => `<button type="button" class="opt" role="option" data-id="${id}" aria-selected="${id === cur}"><span class="tick" aria-hidden="true">${id === cur ? '✓' : ''}</span>${swatch(id)}<span class="nm"><b>${esc(THEMES[id].name)}</b></span><span class="ttag">${esc(tagOf(id))}</span></button>`;
+      list.innerHTML = `<div class="lh">${esc(ED.theme_light)}</div>${ids.filter((i) => THEMES[i].style !== 'dark').map(opt).join('')}<div class="lh">${esc(ED.theme_dark)}</div>${ids.filter((i) => THEMES[i].style === 'dark').map(opt).join('')}`;
+      list.querySelectorAll('.opt').forEach((b) => b.addEventListener('click', () => {
+        setPath(this._config, 'general.theme', b.dataset.id === DEFAULT_THEME ? undefined : b.dataset.id);
+        this._emit(); setOpen(false); paintButton(); paintAccent(); ddb.focus();
+      }));
+      const sel = list.querySelector('[aria-selected="true"]'); if (sel) sel.focus();
+    };
+    const paintAccent = () => {
+      const a = gen().accent, v = a == null ? '' : String(a);
+      if (this.shadowRoot.activeElement !== ain) ain.value = v;
+      const t0 = themeTokens(THEMES[gen().theme] ? gen().theme : DEFAULT_THEME), shown = isHex(v) ? v : `rgb(${t0.role.accent || ROLE.accent})`;
+      dot.style.background = shown;
+      if (isHex(v)) col.value = v.length === 4 ? '#' + v.slice(1).replace(/./g, (c) => c + c) : v;
+      bad.hidden = !v || isHex(v); bad.textContent = v && !isHex(v) ? ED.accent_bad.split('{id}').join(v) : '';
+    };
+    const setAccent = (v, always) => {
+      v = String(v || '').trim();
+      if (!always && v && !isHex(v)) { paintAccent(); return; } /* half-typed: wait for a full colour or the change event */
+      setPath(this._config, 'general.accent', v || undefined); this._emit(); paintAccent();
+    };
+    ddb.addEventListener('click', () => setOpen(list.hidden));
+    box.addEventListener('keydown', (e) => {
+      if (list.hidden) return;
+      const opts = [...list.querySelectorAll('.opt')], i = opts.indexOf(this.shadowRoot.activeElement);
+      if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); ddb.focus(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); (opts[i + 1] || opts[0]).focus(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); (opts[i - 1] || opts[opts.length - 1]).focus(); }
+    });
+    /* one outside-click handler at a time: each render replaces the last */
+    if (this._lookOff) this.shadowRoot.removeEventListener('click', this._lookOff);
+    this._lookOff = (e) => { if (!list.hidden && !e.composedPath().includes(dd)) setOpen(false); };
+    this.shadowRoot.addEventListener('click', this._lookOff);
+    ain.addEventListener('input', () => setAccent(ain.value, false));
+    ain.addEventListener('change', () => setAccent(ain.value, true));
+    col.addEventListener('input', () => { ain.value = col.value; setAccent(col.value, true); });
+    box.querySelector('.reset').addEventListener('click', () => { ain.value = ''; setAccent('', true); });
+    paintButton(); paintAccent();
     return box;
   }
 
@@ -300,7 +393,7 @@ export class OrielShellEditor extends HTMLElement {
     if (!this._warnBox || !this._config) return;
     const ws = validate(this._config, this._hass);
     this._ws = ws;
-    const msg = (w) => t(w.kind === 'missing' ? 'w_missing' : w.kind === 'domain' ? 'w_domain' : 'w_format', { id: w.id, domains: (w.domains || []).join(' or ') });
+    const msg = (w) => t(w.kind === 'missing' ? 'w_missing' : w.kind === 'domain' ? 'w_domain' : w.kind === 'theme' ? 'w_theme' : w.kind === 'accent' ? 'w_accent' : 'w_format', { id: w.id, domains: (w.domains || []).join(' or ') });
     const where = (w) => [ED['sec.' + w.where[0]] || w.where[0]].concat(w.where.slice(1).filter((x) => typeof x === 'string').map(human)).join(' › ');
     const box = this._warnBox; box.innerHTML = '';
     box.style.display = ws.length ? '' : 'none';

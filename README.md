@@ -1,6 +1,6 @@
 # Oriel
 
-A wall-tablet dashboard for Home Assistant, in one custom card. Frosted taupe glass, a sage accent, and a 3D glass house on the home screen that shows who is in which room and where your power is flowing.
+A wall-tablet dashboard for Home Assistant, in one custom card. Frosted glass in eleven colour themes (taupe and sage by default), and a 3D glass house on the home screen that shows who is in which room and where your power is flowing.
 
 Every page and every section is optional. You set it up with a visual editor; YAML still works.
 
@@ -28,6 +28,43 @@ A page appears in the side rail only once at least one of its entities is set.
 
 All screenshots use made-up example data from the dev harness.
 
+## Themes
+
+Eleven colour themes. **Classic** is the default and is Oriel's original look. Pick one in the editor (**General › Theme**), or in YAML:
+
+```yaml
+general:
+  theme: ember        # a theme id from the table
+  accent: "#2457ff"   # optional: your own accent colour
+```
+
+| Theme | `theme` | Style | Colours |
+|---|---|---|---|
+| Classic | `classic` | Light | default: taupe glass, sage accent |
+| Midnight Signal | `midnight-signal` | Dark | navy, neon green |
+| Plum Dusk | `plum-dusk` | Dark | inkberry, peach |
+| Hearth | `hearth` | Dark, warm | clay brown, soft butter |
+| Forest Mint | `forest-mint` | Dark | forest graphite, acid mint |
+| Deep Teal | `deep-teal` | Dark | cyber teal, aqua foam |
+| Blueberry Cream | `blueberry-cream` | Dark | blueberry, cream soda |
+| Violet Mist | `violet-mist` | Light | mist grey, signal violet |
+| Berry Sky | `berry-sky` | Light | pale sky, raspberry |
+| Quantum Ice | `quantum-ice` | Light | ice glass, quantum blue |
+| Ember | `ember` | Light | porcelain, neon orange |
+
+<table>
+<tr><td><img src="docs/screenshots/themes/classic.jpg" alt="Classic theme"><br>Classic</td><td><img src="docs/screenshots/themes/midnight-signal.jpg" alt="Midnight Signal theme"><br>Midnight Signal</td><td><img src="docs/screenshots/themes/plum-dusk.jpg" alt="Plum Dusk theme"><br>Plum Dusk</td></tr>
+<tr><td><img src="docs/screenshots/themes/hearth.jpg" alt="Hearth theme"><br>Hearth</td><td><img src="docs/screenshots/themes/forest-mint.jpg" alt="Forest Mint theme"><br>Forest Mint</td><td><img src="docs/screenshots/themes/deep-teal.jpg" alt="Deep Teal theme"><br>Deep Teal</td></tr>
+<tr><td><img src="docs/screenshots/themes/blueberry-cream.jpg" alt="Blueberry Cream theme"><br>Blueberry Cream</td><td><img src="docs/screenshots/themes/violet-mist.jpg" alt="Violet Mist theme"><br>Violet Mist</td><td><img src="docs/screenshots/themes/berry-sky.jpg" alt="Berry Sky theme"><br>Berry Sky</td></tr>
+<tr><td><img src="docs/screenshots/themes/quantum-ice.jpg" alt="Quantum Ice theme"><br>Quantum Ice</td><td><img src="docs/screenshots/themes/ember.jpg" alt="Ember theme"><br>Ember</td></tr>
+</table>
+
+- **Accent override:** `general.accent` takes any hex colour. Oriel rebuilds the accent family from it (fills, toggles, accent text, and text on accent fills) so it stays readable.
+- **Fixed colours:** some colours stay the same in every theme because they carry meaning or are part of a picture. These are the alarm and vacuum state colours, energy sources (solar yellow, grid blue and so on), light colour swatches, camera overlays and the Living room illustration.
+- **Contrast:** every theme except Classic is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`). Classic keeps its original look, so some of its soft and coloured text is lower contrast than in the other themes.
+- **An unknown theme id** shows Classic on the tablet, and the editor warns you. An accent that is not a hex colour is ignored, with a warning.
+- **Future idea:** a dim mode for night. Neon accents (Midnight Signal, Forest Mint) can glare on a wall tablet in a dark room.
+
 ## Requirements
 
 - Home Assistant 2024.1 or newer (set as the minimum; older versions have not been tested).
@@ -47,7 +84,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.1.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.2.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -63,6 +100,7 @@ With nothing set you get the greeting, the clock, a plain glass house and the Sy
 - **Lists** (lights, tiles, cameras, rooms…) take any number of items: add, remove, drag to reorder, or use the up and down buttons.
 - **Auto-detect** looks at your entities (domain, device class, unit and words in the name) and suggests matches. Strong matches are ticked, weak ones are not. Nothing changes until you press **Apply**, and fields you have already filled are never touched.
 - **Warnings** appear as you type when an entity does not exist, is the wrong type for the field, or is not a valid entity ID. They never stop you saving; a missing entity just shows “–” on the tablet.
+- **Theme** (in General) is a dropdown of the themes with small colour previews, plus an accent colour. Changes show at once in the preview.
 - **Show code editor** (Home Assistant's own button) switches to YAML at any time.
 
 ## Configuration reference
@@ -95,6 +133,8 @@ nova: { ... }
 | `currency` | text | `auto` | `auto` uses Home Assistant's currency; or a code such as `GBP`. |
 | `settings_path` | text | `/config` | Where the System page's settings button goes. |
 | `kiosk_path` | text | current page | Dashboard path used by “Show header and sidebar”. |
+| `theme` | theme id | `classic` | Colour theme; see [Themes](#themes). An unknown id falls back to Classic. |
+| `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
 | `pages_order` | list | home, living, energy, security, vacuum, nova | Order of pages in the rail (YAML only). System always sits at the bottom. |
 
 ### home
@@ -289,6 +329,8 @@ npm run shots                     # screenshots of every page to dev/out/
 
 - `dev/mock.mjs` holds made-up states; `dev/configs/` holds the test configs (empty, minimal, full, Nova not installed).
 - `dev/fake-ha-form.js` is a plain stand-in for Home Assistant's `ha-form`, so the editor can be tested without Home Assistant. It does not look like the real thing.
+- Colours live in `src/theme/`: `tokens.js` (the CSS variables and Classic's values), `themes.js` (the themes and the rules that build them from two seed colours) and `fixed.js` (colours that never change). No other file holds a colour.
+- `node dev/theme-shots.mjs <theme ...>` screenshots every page and pop-up per theme with a frozen clock; `node dev/sheet.mjs <theme ...>` makes a contact sheet; `node dev/themediff.mjs <before> <after>` compares two runs pixel by pixel; `node dev/contrast.mjs` writes the contrast report.
 - User-facing text lives in `src/strings.js` (UK English). Pages live in `src/pages/`, the editor in `src/editor/`.
 - `dist/oriel.js` is committed, because HACS installs from it. CI fails if it is out of date.
 
