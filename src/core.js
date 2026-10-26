@@ -40,9 +40,10 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #hchips .pf.away{background:rgba(var(--oriel-ink),.25);color:rgb(var(--oriel-ink))}
 #hchips .chip .ic{width:18px;height:18px}
 #hdr-r{right:24px;top:20px;display:flex;gap:10px;align-items:center}
-#rail{left:20px;top:96px;width:56px;height:620px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
-#rail a{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:rgb(var(--oriel-ink));opacity:.7;cursor:pointer}
-#rail a.on{background:rgb(var(--oriel-raised));opacity:1;box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)} #rail .sp{flex:1}
+#rail{left:20px;top:96px;width:56px;max-height:620px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
+#rail .pl{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;align-self:stretch} #rail .pl.scroll{overflow-y:auto;scrollbar-width:none} #rail .pl.scroll::-webkit-scrollbar{display:none} #rail .end{margin-top:6px}
+#rail a{width:40px;height:40px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:rgb(var(--oriel-ink));opacity:.7;cursor:pointer}
+#rail a.on{background:rgb(var(--oriel-raised));opacity:1;box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)}
 #pages{display:contents}
 .page{position:absolute;inset:0;pointer-events:none}
 .page>*{pointer-events:auto}
@@ -134,7 +135,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 const HTML = `
 <div id="wrap"><div id="screen">
   <div id="hchips" class="abs"></div>
-  <div id="hdr-r" class="abs"><button class="round ghost" id="bAlarm" aria-label="${esc(S.alarm)}">${icon('shield')}</button><button class="round ghost" id="bDoor" aria-label="${esc(S.front_door)}">${icon('door')}</button></div>
+  <div id="hdr-r" class="abs"><button class="round ghost" id="bAlarm" aria-label="${esc(S.alarm)}">${icon('shield')}</button><button class="round ghost" id="bDoor" aria-label="${esc(S.front_door)}">${icon('door')}</button><button class="round ghost" id="bWin" aria-label="${esc(S.windows)}" title="${esc(S.windows)}">${icon('win')}</button></div>
   <nav id="rail" class="abs glass mid"></nav>
   <div id="pages">
   <div id="pgHome" class="page">
@@ -328,16 +329,18 @@ export class OrielShell extends HTMLElement {
       p.el.remove(); delete this._pages[k];
     });
     const rail = this.$('rail'); rail.innerHTML = '';
-    const mk = (d) => {
+    const pl = document.createElement('div'); pl.className = 'pl'; rail.appendChild(pl);
+    const mk = (d, box) => {
       const a = document.createElement('a'); a.innerHTML = icon(d.icon); a.dataset.k = d.key;
       const lab = typeof d.label === 'function' ? d.label.call(this, this._c) : d.label; a.setAttribute('aria-label', lab); a.title = lab;
       a.classList.toggle('on', d.key === this._page);
       this.tap(a, () => this._setPage(d.key)); a.setAttribute('role', 'button'); a.setAttribute('tabindex', '0');
-      rail.appendChild(a);
+      box.appendChild(a); return a;
     };
-    defs.filter((d) => this._pages[d.key] && !d.bottom).forEach(mk);
-    rail.insertAdjacentHTML('beforeend', '<div class="sp"></div>');
-    defs.filter((d) => this._pages[d.key] && d.bottom).forEach(mk);
+    defs.filter((d) => this._pages[d.key] && !d.bottom).forEach((d) => mk(d, pl));
+    defs.filter((d) => this._pages[d.key] && d.bottom).forEach((d) => mk(d, rail).classList.add('end'));
+    // page icons scroll only when they do not fit; until then nothing clips the "on" shadow
+    requestAnimationFrame(() => pl.classList.toggle('scroll', pl.scrollHeight > pl.clientHeight + 1));
     if (!this._pages[this._page]) this._setPage('home');
   }
   _setPage(key) {
@@ -362,6 +365,8 @@ export class OrielShell extends HTMLElement {
     this._pp = people.map((id) => { const s = document.createElement('span'); s.className = 'chip glass mid'; this.tap(s, () => this.moreInfo(id)); hc.appendChild(s); return { id, el: s }; });
     $('bAlarm').classList.toggle('hide', !isEnt(g.alarm)); $('bAlarm').addEventListener('click', () => this.moreInfo(g.alarm));
     $('bDoor').classList.toggle('hide', !isEnt(g.front_door)); $('bDoor').addEventListener('click', () => this.moreInfo(g.front_door));
+    const wins = (g.windows || []).filter(isEnt);
+    $('bWin').classList.toggle('hide', !wins.length); $('bWin').addEventListener('click', () => this.moreInfo(wins.find((id) => this.sv(id) === 'on') || wins[0]));
     // energy card
     const E = H.energy_card;
     $('energy').classList.toggle('hide', ![E.solar_power, E.house_power, E.battery_soc].some(isEnt));
@@ -677,6 +682,7 @@ export class OrielShell extends HTMLElement {
     const al = this.st(g.alarm), dr = this.st(g.front_door);
     $('bAlarm').classList.toggle('alert', !!al && al.state === 'triggered');
     $('bDoor').classList.toggle('alert', !!dr && dr.state === 'on');
+    $('bWin').classList.toggle('alert', (g.windows || []).some((id) => isEnt(id) && this.sv(id) === 'on'));
   }
   _updateHome() {
     const H = this._c.home, R = H.room_panel, E = H.energy_card, $ = this.$;

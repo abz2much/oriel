@@ -2,6 +2,14 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.5] - 2026-10-26
+
+### Changed
+- The side rail is only as tall as its icons, instead of a fixed 620 px with an empty middle. The System icon comes straight after the other pages, with a small extra gap. If there are ever more pages than fit, the page icons scroll inside the rail and System stays visible.
+
+### Added
+- Window button in the header, after the door button. Set `general.windows` to a list of window sensors. The button turns red when any of them is open, and a tap opens the first open window (or the first in the list). It is hidden when the list is empty. The editor has a "Window sensors" field in General, and auto-detect can suggest window and opening sensors.
+
 ## [0.2.4] - 2026-10-26
 
 ### Fixed

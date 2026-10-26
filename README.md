@@ -130,13 +130,14 @@ nova: { ... }
 | `people_display` | `initial` \| `name` \| `hidden` | `initial` | How people chips are labelled. |
 | `alarm` | entity (alarm_control_panel) | – | Header button; also the Security page's panel unless `security.alarm` is set. |
 | `front_door` | entity (binary_sensor) | – | Header door button; turns red when open. |
+| `windows` | list of entities (binary_sensor) | `[]` | Header window button; turns red when any window is open. A tap opens the first open window, or the first in the list. Hidden when empty. |
 | `clock` | true/false | `true` | Clock chip. |
 | `currency` | text | `auto` | `auto` uses Home Assistant's currency; or a code such as `GBP`. |
 | `settings_path` | text | `/config` | Where the System page's settings button goes. |
 | `kiosk_path` | text | current page | Dashboard path used by “Show header and sidebar”. |
 | `theme` | theme id | `classic` | Colour theme; see [Themes](#themes). An unknown id falls back to Classic. |
 | `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
-| `pages_order` | list | home, living, energy, security, vacuum, nova | Order of pages in the rail (YAML only). System always sits at the bottom. |
+| `pages_order` | list | home, living, energy, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
 
 ### home
 

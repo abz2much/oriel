@@ -18,6 +18,7 @@ export const S = {
   outside: 'Outside',
   alarm: 'Alarm',
   front_door: 'Front door',
+  windows: 'Windows',
   person_home: 'Home',
   person_away: 'Away',
 
@@ -581,7 +582,7 @@ export const ED = {
 
   // general
   'general.weather': 'Weather', 'general.weather_label': 'Weather label (empty: “Outside”)', 'general.people': 'People shown in the header',
-  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.clock': 'Show the clock',
+  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock',
   'general.currency': 'Currency (“auto” follows Home Assistant)', 'general.settings_path': 'Settings path', 'general.kiosk_path': 'Dashboard path for leaving kiosk mode',
 
   // home
