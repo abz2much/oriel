@@ -101,7 +101,7 @@ const openGeneral = () => R(() => { const s = [...window.__ed.shadowRoot.querySe
 await openGeneral(); await p.waitForTimeout(100);
 await R(() => window.__ed.shadowRoot.querySelector('.ddb').click()); await p.waitForTimeout(100);
 const nOpts = await R(() => window.__ed.shadowRoot.querySelectorAll('.ddl .opt').length);
-check('theme: dropdown lists every theme with a preview', nOpts === 11 && (await R(() => window.__ed.shadowRoot.querySelectorAll('.ddl .opt .sw').length)) === 11, nOpts + ' options');
+check('theme: dropdown lists every theme with a preview', nOpts === 12 && (await R(() => window.__ed.shadowRoot.querySelectorAll('.ddl .opt .sw').length)) === 12, nOpts + ' options');
 await p.screenshot({ path: (process.env.OUT || 'dev/out') + '/editor-theme.png', fullPage: true });
 await R(() => window.__ed.shadowRoot.querySelector('.ddl .opt[data-id="ember"]').click()); await p.waitForTimeout(100);
 out = await R(() => window.__out[window.__out.length - 1]);

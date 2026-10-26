@@ -2,6 +2,11 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.3] - 2026-10-26
+
+### Added
+- Pine Mist (`pine-mist`), a light theme: pale mint with a deep pine accent. Its page is shaded a little deeper than the other light themes so the white lines on cards and the house stand out more, as far as the contrast checks allow. Twelve themes in total.
+
 ## [0.2.2] - 2026-10-26
 
 ### Changed
