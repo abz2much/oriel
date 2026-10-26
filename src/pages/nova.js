@@ -366,14 +366,14 @@ const NovaExt = {
   },
   /* the reminders sensor's list: [{ label, time, repeat }]. Shared with the Family page. */
   _nvRemList() { const s = this.st(this._c.nova.entities.reminders); return s && Array.isArray(s.attributes.reminders) ? s.attributes.reminders : []; },
-  _nvRemRows(box, list, empty) {
+  _nvRemRows(box, list, empty, when) {
     const REP = { daily: S.daily_lc, weekly: S.weekly_lc, hourly: S.hourly_lc };
     box.innerHTML = '';
     if (!list.length) { box.innerHTML = `<div class="nvEmpty">${esc(empty)}</div>`; return; }
     list.forEach((r) => {
       const d = document.createElement('div'); d.className = 'nvRr'; d.innerHTML = '<span></span><small></small>';
       d.firstChild.textContent = String(r.label || '');
-      d.lastChild.textContent = this._nvWhen(r.time) + (r.repeat ? ' · ' + (REP[r.repeat] || String(r.repeat)) : '');
+      d.lastChild.textContent = (when ? when(r.time) : this._nvWhen(r.time)) + (r.repeat ? ' · ' + (REP[r.repeat] || String(r.repeat)) : '');
       box.appendChild(d);
     });
   },

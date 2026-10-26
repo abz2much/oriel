@@ -10,10 +10,11 @@ export const STATES = {
   'climate.first_floor': ['heat', { friendly_name: 'First floor', current_temperature: 18.5, temperature: 19, hvac_action: 'idle', min_temp: 5, max_temp: 30, hvac_modes: ['heat', 'off'] }],
   'climate.spare_room': ['unavailable', { friendly_name: 'Spare room' }],
   // family page
-  'todo.shopping': ['2', { friendly_name: 'Shopping list' }],
+  'todo.shopping': ['13', { friendly_name: 'Shopping list' }],
   'todo.chores': ['3', { friendly_name: 'Chores' }],
   'calendar.household': ['on', { friendly_name: 'Household' }], 'calendar.birthdays': ['off', { friendly_name: 'Birthdays' }], 'calendar.public_holidays': ['off', { friendly_name: 'Public holidays' }],
   'calendar.bin_black': ['off', { friendly_name: 'Black bin' }], 'calendar.bin_brown': ['off', { friendly_name: 'Brown bin' }], 'calendar.bin_green': ['off', { friendly_name: 'Green bin' }],
+  'sensor.nova_status': ['ready', {}], 'sensor.nova_suggestions': ['3', {}], 'sensor.nova_energy_note': ['Battery will be full by 2pm, a good time to run the dishwasher.', {}],
   'sensor.nova_reminders': ['2', { friendly_name: 'Next reminder', reminders: [{ label: 'Put the bins out', time: iso(60 * 4), repeat: 'weekly' }, { label: 'Call the dentist', time: iso(60 * 20) }] }],
   'person.alex': ['home', { friendly_name: 'Alex' }],
   'person.sam': ['not_home', { friendly_name: 'Sam' }],
@@ -158,7 +159,7 @@ export const CALLWS_SRC = `async (m) => {
     else { const h0 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()); for (let i = 0; i < 24; i++) { const d = new Date(h0.getTime() + i * 3600000); out.push({ datetime: d.toISOString(), condition: 'cloudy', temperature: 9 + 4 * Math.sin((d.getHours() - 8) / 24 * 2 * Math.PI), precipitation_probability: i % 5 === 0 ? 40 : 0 }); } }
     return { context: {}, response: { [m.target.entity_id]: { forecast: out } } };
   }
-  if (m && m.type === 'todo/item/list') return { items: m.entity_id === 'todo.chores' ? [ { uid: 'c1', summary: 'Water the plants', status: 'needs_action' }, { uid: 'c2', summary: 'Take out recycling', status: 'needs_action' }, { uid: 'c3', summary: 'Change bedding', status: 'needs_action' }, { uid: 'c4', summary: 'Wipe the hob', status: 'completed' } ] : [ { uid: '1', summary: 'Milk', status: 'needs_action' }, { uid: '2', summary: 'Bread', status: 'needs_action' }, { uid: '3', summary: 'Eggs', status: 'completed' } ] };
+  if (m && m.type === 'todo/item/list') return { items: m.entity_id === 'todo.chores' ? [ { uid: 'c1', summary: 'Water the plants', status: 'needs_action' }, { uid: 'c2', summary: 'Take out recycling', status: 'needs_action' }, { uid: 'c3', summary: 'Change bedding', status: 'needs_action' }, { uid: 'c4', summary: 'Wipe the hob', status: 'completed' } ] : ['Milk', 'Bread', 'Eggs', 'Bananas', 'Washing-up liquid', 'Pasta', 'Tomatoes', 'Cheese', 'Rice', 'Butter', 'Apples', 'Yoghurt', 'Coffee'].map((n, i) => ({ uid: 's' + i, summary: n, status: 'needs_action' })).concat([{ uid: 'd1', summary: 'Salt', status: 'completed' }, { uid: 'd2', summary: 'Flour', status: 'completed' }]) };
   if (m && m.type === 'logbook/get_events') return [];
   return {};
 }`;

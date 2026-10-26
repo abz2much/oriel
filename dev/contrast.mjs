@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import { THEMES, themeTokens } from '../src/theme/themes.js';
 import { ROLE, VARIANT, CLASSIC_PAGE } from '../src/theme/tokens.js';
 import { hex, mix, contrast } from '../src/theme/colour.js';
-import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC } from '../src/theme/fixed.js';
+import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC, BIN } from '../src/theme/fixed.js';
 
 const ids = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(THEMES);
 const P = (s) => s.split(',').map(Number);
@@ -53,6 +53,7 @@ function surfaces(v) {
   s['bad chip'] = v['bad-bg']; s['warn chip'] = v['warn-bg']; s['good pill'] = v['good-bg'];
   s['red pill'] = v['bad-bg-2']; s['amber pill'] = v['warn-bg-2'];
   s['dark chip'] = over(s['dark panel'], v['on-dark'], 0.1);
+  for (const k in BIN) s['bin ' + k] = hex(BIN[k]);
   s['room label'] = over(s.page, v.glass, 0.78);
   s['power tag'] = over(s.page, v.tag, 0.9);
   return s;
@@ -81,7 +82,8 @@ function pairs(v, dark, classic) {
   for (const k in STATE) add(`state "${k}" (large)`, st(STATE[k][1]), 1, 'glass mid', 3);
   /* Climate and Family: the add boxes, the ticked circle, the bin 'tomorrow' chip, chart lines on glass */
   add('placeholder (75%)', v.ink, 0.75, 'raised', 4.5); /* the ticked circle is ink-on-accent on accent-fill: the 'chip on' pair */
-  add('bin chip text', v.warn, 1, 'warn chip', 4.5); add('chart line: ink', v.ink, 0.85, 'glass', 3); add('chart line: accent-ink', v['accent-ink'], 1, 'glass', 3);
+  add('bin chip text', v.warn, 1, 'warn chip', 4.5); add('chart line: ink', v.ink, 0.85, 'glass', 3); add('chart line: bad-strong', v['bad-strong'], 1, 'glass', 3); add('hour bars (ink 62%)', v.ink, 0.62, 'glass', 3);
+  for (const k in BIN) { add(`bin tile text (${k})`, v['on-dark'], 1, 'bin ' + k, 4.5); } add('chart line: accent-ink', v['accent-ink'], 1, 'glass', 3);
   add('greeting (large)', v.ink, 1, 'page', 3);
   add('icon: accent-strong', v['accent-strong'], 1, 'glass', 3); add('icon: bad-strong', v['bad-strong'], 1, 'glass', 3); add('icon: good-mark', v['good-mark'], 1, 'glass', 3);
   return L;

@@ -13,3 +13,5 @@ THEMES-PROMPT.md
 .claude/
 NAV-WINDOW-PROMPT.md
 FAMILY-CLIMATE-PROMPT.md
+MOCKUPS-AND-README-PROMPT.md
+dev/compare-mockups.mjs
