@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.9] - 2026-10-26
+
+### Added
+- An amber "Offline · since 10:24" chip appears in the header when the connection to Home Assistant drops, and goes away when it is back. It uses Home Assistant's own connection events.
+
+### Changed
+- The side rail shows each page's name under its icon. It is a little wider (72 px); long names wrap onto two lines.
+- Vacuum page: with no map panel, the right-hand cards move into the middle column and widen, so the page no longer has an empty middle. The cards stack from the top. The state is no longer repeated as its own subtitle ("Docked / Docked").
+- Classic soft text is a touch stronger (78%) so it also passes on the lighter glass the rail uses.
+
 ## [0.2.8] - 2026-10-26
 
 ### Changed

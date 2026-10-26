@@ -43,11 +43,13 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #hchips .pf{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:500;background:rgb(var(--oriel-pill));color:rgb(var(--oriel-on-dark))}
 #hchips .pf.away{background:rgba(var(--oriel-ink),.25);color:rgb(var(--oriel-ink))}
 #hchips .chip .ic{width:18px;height:18px}
+#hchips .chip.off{background:rgb(var(--oriel-warn-bg));color:rgb(var(--oriel-warn));border-color:transparent;font-weight:500;padding:0 14px 0 12px}
 #hdr-r{right:24px;top:20px;display:flex;gap:10px;align-items:center}
-#rail{left:20px;top:96px;bottom:36px;height:fit-content;margin:auto 0;width:56px;max-height:668px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
+#rail{left:16px;top:96px;bottom:36px;height:fit-content;margin:auto 0;width:72px;max-height:668px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
 #rail .pl{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;align-self:stretch} #rail .pl.scroll{overflow-y:auto;scrollbar-width:none} #rail .pl.scroll::-webkit-scrollbar{display:none} #rail .end{margin-top:6px}
-#rail a{width:40px;height:40px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:rgb(var(--oriel-ink));opacity:.7;cursor:pointer}
-#rail a.on{background:rgb(var(--oriel-raised));opacity:1;box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)}
+#rail a{width:64px;min-height:52px;flex-shrink:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;box-sizing:border-box;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));cursor:pointer}
+#rail a.on{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink));box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)}
+#rail a .lb{font-size:12px;line-height:1.15;text-align:center;max-width:60px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
 #pages{display:contents}
 .page{position:absolute;inset:0;pointer-events:none}
 .page>*{pointer-events:auto}
@@ -213,10 +215,28 @@ export class OrielShell extends HTMLElement {
   disconnectedCallback() { this._teardown(); }
   set hass(h) {
     this._h = h;
+    this._watchConnection(h);
     if (this._camCard) this._camCard.hass = h;
     if (this._built) this._update();
   }
   get hass() { return this._h; }
+  /* Home Assistant's own connection events: an amber chip in the header while updates have stopped. */
+  _watchConnection(h) {
+    const conn = h && h.connection;
+    if (conn && conn !== this._conn && conn.addEventListener) {
+      if (this._conn && this._onConn) { this._conn.removeEventListener('disconnected', this._onConn.off); this._conn.removeEventListener('ready', this._onConn.on); }
+      this._conn = conn; this._onConn = { off: () => this._offline(true), on: () => this._offline(false) };
+      conn.addEventListener('disconnected', this._onConn.off); conn.addEventListener('ready', this._onConn.on);
+    }
+    if (h && h.connected === false) this._offline(true); else if (h && h.connected === true && this._offSince) this._offline(false);
+  }
+  _offline(down) {
+    if (down === true && !this._offSince) this._offSince = new Date();
+    if (down === false) this._offSince = null;
+    if (!this._off) return;
+    this._off.classList.toggle('hide', !this._offSince);
+    if (this._offSince) this._off.lastChild.textContent = t('offline_since', { t: hm(this._offSince) });
+  }
 
   /* ---------- build and teardown ---------- */
   _build() {
@@ -337,6 +357,7 @@ export class OrielShell extends HTMLElement {
     const mk = (d, box) => {
       const a = document.createElement('a'); a.innerHTML = icon(d.icon); a.dataset.k = d.key;
       const lab = typeof d.label === 'function' ? d.label.call(this, this._c) : d.label; a.setAttribute('aria-label', lab); a.title = lab;
+      const lb = document.createElement('span'); lb.className = 'lb'; lb.setAttribute('aria-hidden', 'true'); lb.textContent = lab; a.appendChild(lb);
       a.classList.toggle('on', d.key === this._page);
       this.tap(a, () => this._setPage(d.key)); a.setAttribute('role', 'button'); a.setAttribute('tabindex', '0');
       box.appendChild(a); return a;
@@ -365,6 +386,7 @@ export class OrielShell extends HTMLElement {
     this.tap(this._wx, () => this.moreInfo(g.weather)); hc.appendChild(this._wx);
     if (!isEnt(g.weather)) this._wx.classList.add('hide');
     this._clk = document.createElement('span'); this._clk.id = 'clk'; this._clk.className = 'chip glass mid'; hc.appendChild(this._clk);
+    this._off = document.createElement('span'); this._off.className = 'chip glass mid off hide'; this._off.setAttribute('role', 'status'); this._off.innerHTML = `${icon('offline')}<span></span>`; hc.appendChild(this._off); this._offline();
     if (!g.clock) this._clk.classList.add('hide');
     const people = g.people_display === 'hidden' ? [] : (g.people || []).filter(isEnt);
     this._pp = people.map((id) => { const s = document.createElement('span'); s.className = 'chip glass mid'; this.tap(s, () => this.moreInfo(id)); hc.appendChild(s); return { id, el: s }; });
