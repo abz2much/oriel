@@ -38,7 +38,7 @@ const CSS = `
 #pgSystem .pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;background:rgba(var(--oriel-glass),.6);white-space:nowrap}
 #pgSystem .pill.ok{background:rgb(var(--oriel-good-bg));color:rgb(var(--oriel-good-ink))} #pgSystem .pill.warn{background:rgb(var(--oriel-warn-bg-2));color:rgb(var(--oriel-warn-ink))} #pgSystem .pill.red{background:rgb(var(--oriel-bad-bg-2));color:rgb(var(--oriel-bad-ink-2))}
 #pgSystem .bar{height:8px;border-radius:4px;background:rgba(var(--oriel-ink),.12);margin:2px 0 6px;overflow:hidden}
-#pgSystem .bar i{display:block;height:100%;border-radius:4px;background:rgb(var(--oriel-good-bar));width:0;transition:width .4s}
+#pgSystem .bar i{display:block;height:100%;border-radius:4px;background:rgb(var(--oriel-good-bar));transform:translateX(-100%);transition:transform .4s}
 #pgSystem .bar i.mid{background:rgb(var(--oriel-warn-mark))} #pgSystem .bar i.hi{background:rgb(var(--oriel-bad-mark))}
 #pgSystem .btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:10px;border:1px solid rgba(var(--oriel-glass),.7);border-radius:18px;background:rgba(var(--oriel-glass),.5);color:rgb(var(--oriel-ink));font-size:14.5px;font-weight:500;cursor:pointer}
 #pgSystem .btn small{display:block;font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);margin-top:1px}
@@ -166,7 +166,7 @@ const SystemExt = {
     const bar = (k, unit, warn, hi) => {
       if (!isEnt(H[k])) return;
       const v = num(st(H[k])); set('sy_' + k, v == null ? '-' : (unit === '°C' ? Math.round(v) + '°C' : v.toFixed(v < 10 ? 1 : 0).replace(/\.0$/, '') + '%'));
-      const b = $('sy_' + k + 'B'); if (b) { b.style.width = (v == null ? 0 : Math.max(0, Math.min(100, v))) + '%'; b.className = v != null && v >= hi ? 'hi' : v != null && v >= warn ? 'mid' : ''; }
+      const b = $('sy_' + k + 'B'); if (b) { b.style.transform = `translateX(${(v == null ? 0 : Math.max(0, Math.min(100, v))) - 100}%)`; b.className = v != null && v >= hi ? 'hi' : v != null && v >= warn ? 'mid' : ''; }
     };
     bar('cpu', '%', 60, 85); bar('memory', '%', 75, 90); bar('disk', '%', 75, 90); bar('cpu_temperature', '°C');
     // connections

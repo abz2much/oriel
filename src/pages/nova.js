@@ -33,9 +33,10 @@ const CSS = `
 #pgNova .nvB{height:40px;border-radius:16px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.34);display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:rgb(var(--oriel-ink));padding:0 10px;white-space:nowrap}
 #pgNova .nvB:active{background:rgb(var(--oriel-raised))}
 #pgNova .nvB .ic{width:17px;height:17px}
-#pgNova .nvIn{height:34px;border-radius:17px;border:0;background:rgba(var(--oriel-glass),.6);padding:0 12px;font:inherit;font-size:12.5px;color:rgb(var(--oriel-ink));outline:none;min-width:0}
+#pgNova .nvIn{height:44px;border-radius:22px;border:0;background:rgba(var(--oriel-glass),.6);padding:0 12px;font:inherit;font-size:12.5px;color:rgb(var(--oriel-ink));min-width:0}
 #pgNova .nvEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),.62);padding-top:6px}
 #nvChat,#nvQuiet,#nvLock,#nvBrief,#nvRem,#nvSug{position:absolute}
+:is(#pgNova .nvB,#nvQs){position:relative} :is(#pgNova .nvB,#nvQs)::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
 #nvChat{left:100px;top:84px;width:560px;height:692px;padding:16px;display:flex;flex-direction:column;gap:10px;border-radius:28px}
 #nvChat .nvHd i{width:26px;height:26px;border-radius:50%;background:rgb(var(--oriel-raised));display:grid;place-items:center}
 #nvChat .nvHd i .ic{width:15px;height:15px}

@@ -28,8 +28,11 @@ const CSS = `
 button{font-family:inherit}
 button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid rgb(var(--oriel-accent-ink));outline-offset:2px}
 .round{width:44px;height:44px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer;color:rgb(var(--oriel-ink));padding:0;background:linear-gradient(145deg,rgb(var(--oriel-raised)),rgb(var(--oriel-raised-lo)));box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25),inset 0 -2px 4px rgba(var(--oriel-shadow-deep),.06)}
-.round:active{transform:scale(.94)} .round.sm{width:34px;height:34px} .round.ghost{background:rgba(var(--oriel-glass),.35);box-shadow:none;border:1px solid rgba(var(--oriel-glass),.5)}
+.round:active{transform:scale(.94)} .round.sm{width:34px;height:34px} #room .round.sm+.round.sm{margin-left:4px} .round.ghost{background:rgba(var(--oriel-glass),.35);box-shadow:none;border:1px solid rgba(var(--oriel-glass),.5)}
 .round.alert{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad-ink))}
+/* Touch: small controls get an invisible tap area of at least 44×44; it grows only on a side shorter than 44. */
+:is(.round,#hchips .chip,#rail a,#room .l,.boost,#fridge,#shop .clr,#bellX){position:relative}
+:is(.round,#hchips .chip,#rail a,#room .l,.boost,#fridge,#shop .clr,#bellX)::after,#nvPill::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:15px;font-size:13px;background:rgba(var(--oriel-glass),.35);border:1px solid rgba(var(--oriel-glass),.5);color:rgb(var(--oriel-ink))}
 .chip .ic{width:15px;height:15px} .chip.on{background:rgb(var(--oriel-accent-fill));color:rgb(var(--oriel-ink-on-accent));border-color:rgba(var(--oriel-glass),.6)}
 #hchips{left:100px;top:22px;display:flex;gap:8px;align-items:center}
@@ -58,7 +61,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #energy .now small{font-size:11px;color:rgba(var(--oriel-on-dark),.5);display:flex;align-items:center;gap:5px}
 #energy .now small i{width:6px;height:6px;border-radius:50%;display:block}
 #energy .now b{font-weight:200;font-size:22px;font-variant-numeric:tabular-nums;white-space:nowrap} #energy .now b em{font-style:normal;font-size:12px;color:rgba(var(--oriel-on-dark),.55);margin-left:2px}
-#energy .bat{height:5px;border-radius:3px;background:rgba(var(--oriel-on-dark),.14);margin-top:6px;overflow:hidden} #energy .bat i{display:block;height:100%;width:0;background:rgb(var(--oriel-accent));border-radius:3px;transition:width .6s}
+#energy .bat{height:5px;border-radius:3px;background:rgba(var(--oriel-on-dark),.14);margin-top:6px;overflow:hidden} #energy .bat i{display:block;height:100%;background:rgb(var(--oriel-accent));border-radius:3px;transform:translateX(-100%);transition:transform .6s}
 #energy .big{font-size:36px;font-weight:200;line-height:1;margin-top:16px;font-variant-numeric:tabular-nums} #energy .big small{font-size:14px;color:rgba(var(--oriel-on-dark),.6);margin-left:4px;font-weight:300}
 #energy .up{display:flex;gap:6px;align-items:center;margin-top:4px;font-size:12.5px;color:rgb(var(--oriel-accent));min-height:18px}
 #energy .ax{display:flex;justify-content:space-between;font-size:10.5px;color:rgba(var(--oriel-on-dark),.45);padding:0 2px;margin-top:3px}
@@ -103,21 +106,21 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 .fr{height:38px;border-radius:16px;background:rgba(var(--oriel-glass),.28);border:1px solid rgba(var(--oriel-glass),.5);display:flex;align-items:center;gap:10px;padding:0 12px;font-size:13px;cursor:pointer}
 .fr small{color:rgba(var(--oriel-ink),.62);margin-left:auto;font-size:12px} .fr .ic{width:20px;height:20px}
 .fr.alert{background:rgb(var(--oriel-bad-bg));border-color:rgb(var(--oriel-bad-line));box-shadow:0 0 16px 2px rgba(var(--oriel-bad-glow),.45)} .fr.alert small{color:rgb(var(--oriel-bad-ink));font-weight:500}
-#nova{flex:1;min-height:150px;padding:12px;display:flex;flex-direction:column;gap:8px}
+#nova{flex:1;min-height:150px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative}
 #nova .hd{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500}
 #nova .hd i{width:22px;height:22px;border-radius:50%;background:rgb(var(--oriel-raised));display:grid;place-items:center} #nova .hd i .ic{width:13px;height:13px}
 #log{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow:hidden;justify-content:flex-end}
 #log .msg{font-size:13px;line-height:1.3;background:rgba(var(--oriel-nova-glass),.5);border-radius:14px 14px 14px 4px;padding:7px 11px;align-self:flex-start;max-width:96%}
 #log .me{align-self:flex-end;background:rgba(var(--oriel-my-bubble),.85);color:rgb(var(--oriel-on-dark));border-radius:14px 14px 4px 14px}
 #nova form{display:flex;gap:6px;align-items:center;margin:0}
-#nova input{flex:1;min-width:0;height:36px;border-radius:18px;border:0;background:rgba(var(--oriel-nova-glass),.55);padding:0 14px;font:inherit;font-size:13px;color:rgb(var(--oriel-on-nova));outline:none}
-#nova input::placeholder{color:rgba(var(--oriel-on-nova),.7)} #nova .round{width:36px;height:36px} #nova .mic{background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark))}
+#nova input{flex:1;min-width:0;height:44px;border-radius:18px;border:0;background:rgba(var(--oriel-nova-glass),.55);padding:0 14px;font:inherit;font-size:13px;color:rgb(var(--oriel-on-nova))}
+#nova input::placeholder{color:rgba(var(--oriel-on-nova),.7)} #nova .round{width:44px;height:44px} #nova .mic{background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark))}
 #shop{position:absolute;inset:0;z-index:11;background:rgba(var(--oriel-scrim),.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
 #shop.show{display:flex}
 #shop .pn{width:480px;height:640px;padding:22px;display:flex;flex-direction:column;gap:14px;border-radius:28px;background:linear-gradient(150deg,rgba(var(--oriel-sheet-a),.97),rgba(var(--oriel-sheet-b),.97));box-shadow:0 30px 70px rgba(var(--oriel-shadow-deep),.5);color:rgb(var(--oriel-ink))}
 #shop .hd{display:flex;align-items:center;justify-content:space-between} #shop .hd b{font-size:24px;font-weight:400} #shop .hd span{font-size:13px;color:rgba(var(--oriel-ink),.6);margin-left:10px}
 #shop form{display:flex;gap:8px;margin:0}
-#shop input{flex:1;min-width:0;height:46px;border-radius:23px;border:1px solid rgba(var(--oriel-ink),.12);background:rgb(var(--oriel-raised));padding:0 18px;font:inherit;font-size:15px;color:rgb(var(--oriel-ink));outline:none}
+#shop input{flex:1;min-width:0;height:46px;border-radius:23px;border:1px solid rgba(var(--oriel-ink),.12);background:rgb(var(--oriel-raised));padding:0 18px;font:inherit;font-size:15px;color:rgb(var(--oriel-ink))}
 #shop ul{list-style:none;margin:0;padding:0;flex:1;overflow-y:auto}
 #shop li{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:16px;background:rgba(var(--oriel-glass),.6);margin-bottom:6px;font-size:15px;cursor:pointer}
 #shop .ck{width:24px;height:24px;border-radius:50%;border:2px solid rgba(var(--oriel-ink),.3);flex:none;display:grid;place-items:center}
@@ -339,8 +342,9 @@ export class OrielShell extends HTMLElement {
     };
     defs.filter((d) => this._pages[d.key] && !d.bottom).forEach((d) => mk(d, pl));
     defs.filter((d) => this._pages[d.key] && d.bottom).forEach((d) => mk(d, rail).classList.add('end'));
-    // page icons scroll only when they do not fit; until then nothing clips the "on" shadow
-    requestAnimationFrame(() => pl.classList.toggle('scroll', pl.scrollHeight > pl.clientHeight + 1));
+    // page icons scroll only when they do not fit; until then nothing clips the "on" shadow or the tap areas.
+    // Measured from the icons themselves: the invisible tap areas would count as overflow in scrollHeight.
+    requestAnimationFrame(() => { const a = pl.firstElementChild, z = pl.lastElementChild; pl.classList.toggle('scroll', !!a && z.offsetTop + z.offsetHeight - a.offsetTop > pl.clientHeight + 1); });
     if (!this._pages[this._page]) this._setPage('home');
   }
   _setPage(key) {
@@ -690,10 +694,12 @@ export class OrielShell extends HTMLElement {
     $('vSolar').textContent = sol != null ? (sol / 1000).toFixed(2) : '–';
     $('vHome').textContent = pw != null ? (pw / 1000).toFixed(2) : '–';
     $('vBat').textContent = bat != null ? Math.round(bat) : '–';
-    $('batBar').style.width = (bat != null ? clamp(bat, 0, 100) : 0) + '%';
+    $('batBar').style.transform = `translateX(${(bat != null ? clamp(bat, 0, 100) : 0) - 100}%)`;
     const price = this.num(H.price); $('price').textContent = price != null ? t('per_kwh', { price: this.money(price) }) : '–';
     this._cells.forEach(({ d, b, lab }) => {
       const f = this.fmt(d.entity); b.innerHTML = `${esc(f.n)}${f.u ? `<em>${esc(f.u)}</em>` : ''}`;
+      // a negative cost is money earned, so good and bad swap
+      const neg = (this.num(d.entity) || 0) < 0; b.parentNode.classList.toggle('good', d.tone === 'good' ? !neg : d.tone === 'bad' && neg); b.parentNode.classList.toggle('bad', d.tone === 'bad' ? !neg : d.tone === 'good' && neg);
       if (!d.label) lab.textContent = this.name(d.entity);
     });
     this._qa.forEach((q) => {

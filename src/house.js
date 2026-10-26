@@ -119,12 +119,13 @@ addMethods({
       if (outline || r.pill === false || !r.name || (!isEnt(r.temperature) && !isEnt(r.presence))) return;
       const z = fi ? Z1 + H + 8 : 8, base = pt((q.x0 + q.x1) / 2, (q.y0 + q.y1) / 2, z), off = Array.isArray(r.pill_offset) ? r.pill_offset : [0, 0];
       const g0 = el('g', { class: 'pill', role: 'button', tabindex: 0 }, svg);
+      const hit = el('rect', { y: -10, height: 50, fill: 'transparent' }, g0); // invisible, makes the tap area at least 44px tall on screen
       const rect = el('rect', { height: 30, rx: 15, fill: 'rgba(var(--oriel-glass),.78)', stroke: 'rgba(var(--oriel-glass),.9)' }, g0);
       const dot = el('circle', { cx: 16, cy: 15, r: 4, fill: 'rgb(var(--oriel-off-2))' }, g0);
       const tx = el('text', { x: 28, y: 19.5, 'font-size': 12.5, 'font-family': 'Outfit,sans-serif', 'font-weight': 500, fill: 'rgb(var(--oriel-ink))' }, g0);
       const sx = el('text', { y: 19.5, 'font-size': 12.5, 'font-family': 'Outfit,sans-serif', 'font-weight': 300, fill: 'rgb(var(--oriel-house-label))' }, g0);
       tx.textContent = r.name;
-      const obj = { r, g: g0, rect, s: sx, dot, p: [base[0] + (+off[0] || 0), base[1] + (+off[1] || 0)] };
+      const obj = { r, g: g0, rect, hit, s: sx, dot, p: [base[0] + (+off[0] || 0), base[1] + (+off[1] || 0)] };
       this.tap(g0, () => this.moreInfo(isEnt(r.temperature) ? r.temperature : r.presence));
       this._layoutPill(obj, '');
       this._pills.push(obj);
@@ -209,6 +210,7 @@ addMethods({
     };
     const tag = (key, name, ent) => {
       const w = 112, h = 40, g0 = el('g', { class: 'ftag', style: 'cursor:pointer' }, f), P = anchor[key];
+      el('rect', { y: -4, width: w, height: h + 8, fill: 'transparent' }, g0); // invisible, makes the tap area at least 44px tall on screen
       el('rect', { width: w, height: h, rx: 15, fill: 'rgba(var(--oriel-tag),.9)', stroke: 'rgba(var(--oriel-on-dark),.18)' }, g0);
       el('circle', { cx: 12, cy: 12, r: 3.6, fill: COL[key] }, g0);
       const tx = el('text', { x: 21, y: 16, 'font-size': 11, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgba(var(--oriel-on-dark),.72)' }, g0); tx.textContent = name;
@@ -274,7 +276,7 @@ addMethods({
   _layoutPill(o, sub) {
     const n = o.r.name, w = n.length * 7.4 + (sub ? sub.length * 7 + 14 : 0) + 38, k = this._pk || 1;
     o.g.setAttribute('transform', `translate(${o.p[0].toFixed(1)},${o.p[1].toFixed(1)}) scale(${k}) translate(${(-w / 2).toFixed(1)},-15)`);
-    o.rect.setAttribute('width', w.toFixed(1));
+    o.rect.setAttribute('width', w.toFixed(1)); o.hit.setAttribute('width', w.toFixed(1));
     o.s.setAttribute('x', (28 + n.length * 7.4 + 8).toFixed(1));
     o.s.textContent = sub; o.sub = sub;
   },
