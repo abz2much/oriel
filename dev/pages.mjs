@@ -41,7 +41,7 @@ const sr = (page, fn, arg) => page.evaluate(({ src, arg }) => new Function('r', 
   check('no service calls just by showing the pages', (await page.evaluate(() => window.__calls.length)) === 0);
   const seg = await sr(page, (r) => r.querySelectorAll('#clHistBody svg path[stroke-dasharray=""]').length);
   check('history: an unavailable stretch leaves a gap (the line is in two pieces, no zero)', seg === 2, 'pieces: ' + seg);
-  const cnt = await sr(page, (r) => ({ days: r.querySelectorAll('#clDays .d').length, hours: r.querySelectorAll('#clHours .h').length, rows: r.querySelectorAll('#clThRows .tr').length, leg: r.querySelectorAll('#clLg > span').length, rooms: r.querySelectorAll('#clRl .rr').length }));
+  const cnt = await sr(page, (r) => ({ days: r.querySelectorAll('#clDays .d').length, hours: r.querySelectorAll('#clHours i').length, rows: r.querySelectorAll('#clThRows .tr').length, leg: r.querySelectorAll('#clLg > span').length, rooms: r.querySelectorAll('#clRl .rr').length }));
   check('climate: 5 days, 12 hours, 3 thermostats, 3 legend entries, 3 house rooms', JSON.stringify(cnt) === '{"days":5,"hours":12,"rows":3,"leg":3,"rooms":3}', JSON.stringify(cnt));
   // thermostat +: the entity's step (0.5), sent after the debounce
   await sr(page, (r) => r.querySelectorAll('#clThRows .tr')[0].querySelectorAll('button')[1].click());
@@ -55,12 +55,24 @@ const sr = (page, fn, arg) => page.evaluate(({ src, arg }) => new Function('r', 
   await go(page, 'family');
   const api = await page.evaluate(() => window.__api);
   check('calendar: REST calendars/<entity>?start=&end= for each calendar and bin, no raw "+"', api.length === 6 && api.every((u) => /^calendars\/calendar\.[a-z_]+\?start=[^&+]+&end=[^&+]+$/.test(u)), api.length + ' requests');
-  const fam = await sr(page, (r) => ({ ev: r.querySelectorAll('#fmCal .ev').length, none: r.querySelectorAll('#fmCal .none').length, allday: r.querySelectorAll('#fmCal .ad').length, bins: r.querySelectorAll('#fmBins .bn').length, soon: r.querySelector('#fmBins .bn.soon .dy').textContent, rem: r.querySelectorAll('#fmRem .nvRr').length }));
+  const fam = await sr(page, (r) => ({ ev: r.querySelectorAll('#fmCal .ev').length, none: r.querySelectorAll('#fmCal .none').length, allday: [...r.querySelectorAll('#fmCal .ev')].filter((e) => /All day/.test(e.textContent)).length, bins: r.querySelectorAll('#fmBins .bn').length, soon: r.querySelector('#fmBins .bn.soon .dy').textContent, rem: r.querySelectorAll('#fmRem .nvRr').length }));
   check('family: events listed, all-day marked, tomorrow bin says "Tomorrow", Nova off → no reminders card', fam.ev >= 7 && fam.allday >= 3 && fam.bins === 3 && /Tomorrow/.test(fam.soon) && fam.rem === 0, JSON.stringify(fam));
+  // rows are never cut: with 15 items some are left out and "+ N more" says how many
+  const cut = await sr(page, (r) => {
+    const out = {};
+    for (const id of ['fmShop', 'fmCal', 'fmTodo']) {
+      const card = r.getElementById(id), box = card.querySelector('.fit'), b = box.getBoundingClientRect();
+      const rows = [...box.querySelectorAll('li, [data-ev]')].filter((x) => !x.classList.contains('hide'));
+      out[id] = { rows: rows.length, cut: rows.filter((x) => x.getBoundingClientRect().bottom > b.bottom + 1).length, more: (card.querySelector('.mn, .more') || {}).textContent };
+    }
+    return out;
+  });
+  check('lists never show a cut row (every visible row sits inside its card)', Object.values(cut).every((c) => c.cut === 0), JSON.stringify(cut));
+  check('shopping list with 15 items shows "+ N more" instead of cutting', /\+ \d+ more/.test(cut.fmShop.more || '') && cut.fmShop.rows < 15, JSON.stringify(cut.fmShop));
   // shopping card: add, tick, clear done
   await sr(page, (r) => { const i = r.querySelector('#fmShop input'); i.value = 'Tea'; r.querySelector('#fmShop form').dispatchEvent(new Event('submit', { cancelable: true })); });
-  await sr(page, (r) => r.querySelector('#fmShop .fmList li').click());
-  await sr(page, (r) => r.querySelector('#fmShop .clr').click());
+  await sr(page, (r) => r.querySelector('#fmShop .fmList li:not(.hide)').click());
+  await sr(page, (r) => r.querySelector('#fmShop .lnk').click());
   const todo = await page.evaluate(() => window.__calls.filter((c) => c[0] === 'todo').map((c) => c[1] + ':' + c[2].entity_id));
   check('shopping card: add_item, update_item, remove_completed_items on the shopping list', todo.join() === 'add_item:todo.shopping,update_item:todo.shopping,remove_completed_items:todo.shopping', todo.join());
   await sr(page, (r) => r.querySelector('#fmTodo .fmList li').click());
@@ -78,6 +90,16 @@ const sr = (page, fn, arg) => page.evaluate(({ src, arg }) => new Function('r', 
     check('Home shopping pop-up still lists and adds', pop.rows >= 3 && added === 1, JSON.stringify(pop));
   }
   check('no console errors or warnings with data', errors.length === 0, errors.join(' | '));
+  await page.close();
+}
+
+// ---- Bin tiles scale from one to four bins without overflowing the card
+for (const n of [1, 2, 4]) {
+  const cfg = structuredClone(full); cfg.family.bins = full.family.bins.concat([{ entity: 'calendar.bin_black', label: 'Glass', colour: '#3366cc' }]).slice(0, n);
+  if (n === 2) cfg.family.bins = cfg.family.bins.slice(0, 2);
+  const { page } = await open(cfg); await go(page, 'family');
+  const r = await sr(page, (rt) => { const card = rt.getElementById('fmBins').getBoundingClientRect(), t = [...rt.querySelectorAll('#fmBinRows .bn')].map((x) => x.getBoundingClientRect()); return { n: t.length, inside: t.every((b) => b.bottom <= card.bottom + 1 && b.right <= card.right + 1 && b.left >= card.left - 1), rows: new Set(t.map((b) => Math.round(b.top))).size }; });
+  check(`bins: ${n} bin${n > 1 ? 's' : ''} → ${n} tiles, inside the card` + (n === 4 ? ', two rows' : ', one row'), r.n === n && r.inside && r.rows === (n === 4 ? 2 : 1), JSON.stringify(r));
   await page.close();
 }
 
@@ -119,13 +141,14 @@ const sr = (page, fn, arg) => page.evaluate(({ src, arg }) => new Function('r', 
 {
   const { page } = await open(full, { 'weather.home': { entity_id: 'weather.home', state: 'cloudy', attributes: { temperature: 9, supported_features: 2, friendly_name: 'Home' } } });
   await go(page, 'climate');
-  const v = await sr(page, (r) => ['clDaysBox', 'clHoursBox', 'clHL'].map((i) => (r.getElementById(i).classList.contains('hide') ? 0 : 1)).join(''));
+  const v = await sr(page, (r) => ['clDays', 'clHoursBox'].map((i) => (r.getElementById(i).classList.contains('hide') ? 0 : 1)).join(''));
   const fcs = await page.evaluate(() => window.__msgs.filter((m) => m.service === 'get_forecasts').map((m) => m.service_data.type).join());
-  check('hourly-only weather: no 5-day row, no high/low, only the hourly forecast is requested', v === '010' && fcs === 'hourly', v + ' ' + fcs);
+  const hl = await sr(page, (r) => r.getElementById('clWxL').textContent);
+  check('hourly-only weather: no 5-day row, no high/low, only the hourly forecast is requested', v === '01' && fcs === 'hourly' && !/High|Low/.test(hl), v + ' ' + fcs + ' ' + hl);
   await page.close();
   const none = await open(full, { 'weather.home': { entity_id: 'weather.home', state: 'cloudy', attributes: { temperature: 9, friendly_name: 'Home' } } });
   await go(none.page, 'climate');
-  const v2 = await sr(none.page, (r) => ['clDaysBox', 'clHoursBox'].map((i) => (r.getElementById(i).classList.contains('hide') ? 0 : 1)).join(''));
+  const v2 = await sr(none.page, (r) => ['clDays', 'clHoursBox'].map((i) => (r.getElementById(i).classList.contains('hide') ? 0 : 1)).join(''));
   const f2 = await none.page.evaluate(() => window.__msgs.filter((m) => m.service === 'get_forecasts').length);
   check('weather with no supported_features: both forecast rows hidden, no forecast calls', v2 === '00' && f2 === 0, v2 + ' ' + f2); await none.page.close();
 }

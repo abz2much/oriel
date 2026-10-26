@@ -4,7 +4,7 @@ A wall-tablet dashboard for Home Assistant, in one custom card. Frosted glass in
 
 Every page and every section is optional. You set it up with a visual editor; YAML still works.
 
-![Oriel home screen with example data](docs/screenshots/full-home.jpg)
+![Oriel home screen with example data](https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-home.jpg)
 
 ## What you get
 
@@ -23,9 +23,10 @@ Every page and every section is optional. You set it up with a visual editor; YA
 A page appears in the side rail only once at least one of its entities is set.
 
 <table>
-<tr><td><img src="docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
-<tr><td><img src="docs/screenshots/full-security.jpg" alt="Security page"></td><td><img src="docs/screenshots/full-vacuum.jpg" alt="Vacuum page"></td></tr>
-<tr><td><img src="docs/screenshots/full-system.jpg" alt="System page with the debug panel"></td><td><img src="docs/screenshots/empty-home.jpg" alt="Home with nothing configured"></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-climate.jpg" alt="Climate page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-family.jpg" alt="Family page"></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-security.jpg" alt="Security page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-vacuum.jpg" alt="Vacuum page"></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-system.jpg" alt="System page with the debug panel"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/empty-home.jpg" alt="Home with nothing configured"></td></tr>
 </table>
 
 All screenshots use made-up example data from the dev harness.
@@ -56,15 +57,15 @@ general:
 | Ember | `ember` | Light | porcelain, neon orange |
 
 <table>
-<tr><td><img src="docs/screenshots/themes/classic.jpg" alt="Classic theme"><br>Classic</td><td><img src="docs/screenshots/themes/midnight-signal.jpg" alt="Midnight Signal theme"><br>Midnight Signal</td><td><img src="docs/screenshots/themes/plum-dusk.jpg" alt="Plum Dusk theme"><br>Plum Dusk</td></tr>
-<tr><td><img src="docs/screenshots/themes/cocoa-bark.jpg" alt="Cocoa Bark theme"><br>Cocoa Bark</td><td><img src="docs/screenshots/themes/forest-mint.jpg" alt="Forest Mint theme"><br>Forest Mint</td><td><img src="docs/screenshots/themes/deep-teal.jpg" alt="Deep Teal theme"><br>Deep Teal</td></tr>
-<tr><td><img src="docs/screenshots/themes/slate-harbour.jpg" alt="Slate Harbour theme"><br>Slate Harbour</td><td><img src="docs/screenshots/themes/violet-mist.jpg" alt="Violet Mist theme"><br>Violet Mist</td><td><img src="docs/screenshots/themes/berry-sky.jpg" alt="Berry Sky theme"><br>Berry Sky</td></tr>
-<tr><td><img src="docs/screenshots/themes/quantum-ice.jpg" alt="Quantum Ice theme"><br>Quantum Ice</td><td><img src="docs/screenshots/themes/pine-mist.jpg" alt="Pine Mist theme"><br>Pine Mist</td><td><img src="docs/screenshots/themes/ember.jpg" alt="Ember theme"><br>Ember</td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/classic.jpg" alt="Classic theme"><br>Classic</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/midnight-signal.jpg" alt="Midnight Signal theme"><br>Midnight Signal</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/plum-dusk.jpg" alt="Plum Dusk theme"><br>Plum Dusk</td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/cocoa-bark.jpg" alt="Cocoa Bark theme"><br>Cocoa Bark</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/forest-mint.jpg" alt="Forest Mint theme"><br>Forest Mint</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/deep-teal.jpg" alt="Deep Teal theme"><br>Deep Teal</td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/slate-harbour.jpg" alt="Slate Harbour theme"><br>Slate Harbour</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/violet-mist.jpg" alt="Violet Mist theme"><br>Violet Mist</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/berry-sky.jpg" alt="Berry Sky theme"><br>Berry Sky</td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/quantum-ice.jpg" alt="Quantum Ice theme"><br>Quantum Ice</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/pine-mist.jpg" alt="Pine Mist theme"><br>Pine Mist</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/ember.jpg" alt="Ember theme"><br>Ember</td></tr>
 </table>
 
 - **Accent override:** `general.accent` takes any hex colour. Oriel rebuilds the accent family from it (fills, toggles, accent text, and text on accent fills) so it stays readable.
 - **Fixed colours:** some colours stay the same in every theme because they carry meaning or are part of a picture. These are the alarm and vacuum state colours, energy sources (solar yellow, grid blue and so on), light colour swatches, camera overlays and the Living room illustration.
-- **Contrast:** every theme except Classic is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`). Classic keeps its original look, so some of its soft and coloured text is lower contrast than in the other themes.
+- **Contrast:** every theme, Classic included, is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`, 64 checks per theme). Classic keeps its look, with slightly stronger soft text and darker green, amber and red text than the original so that it passes too.
 - **An unknown theme id** shows Classic on the tablet, and the editor warns you. An accent that is not a hex colour is ignored, with a warning.
 - **Future idea:** a dim mode for night. Neon accents (Midnight Signal, Forest Mint) can glare on a wall tablet in a dark room.
 
@@ -87,7 +88,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.2.3` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.3.1` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -99,7 +100,7 @@ With nothing set you get the greeting, the clock, a plain glass house and the Sy
 
 ## The editor
 
-- **Sections** fold open and closed: General, Home, Living room, Energy, Security, Vacuum, System, Nova. Big sections have tabs.
+- **Sections** fold open and closed: General, Home, Living room, Energy, Climate, Family, Security, Vacuum, System, Nova. Big sections have tabs.
 - **Lists** (lights, tiles, cameras, rooms…) take any number of items: add, remove, drag to reorder, or use the up and down buttons.
 - **Auto-detect** looks at your entities (domain, device class, unit and words in the name) and suggests matches. Strong matches are ticked, weak ones are not. Nothing changes until you press **Apply**, and fields you have already filled are never touched.
 - **Warnings** appear as you type when an entity does not exist, is the wrong type for the field, or is not a valid entity ID. They never stop you saving; a missing entity just shows “–” on the tablet.
@@ -207,7 +208,7 @@ The page appears once any entity here is set. Every card hides when nothing in i
 | `weather` | entity (weather) | One weather entity. Current temperature, condition, feels like (`apparent_temperature`), wind, humidity. Forecasts are read with `weather.get_forecasts`: the 5-day row and high/low need the entity to support daily forecasts, the next-12-hours chart needs hourly ones (`supported_features`). Rows it cannot do are hidden. Rain chance shows only when the forecast has `precipitation_probability`. |
 | `thermostats` | list | `entity` (climate), `name`, `step`. − and + move the target by `step`; empty uses the thermostat's `target_temp_step`, else 0.5. Each also gets a line in the last-12-hours graph (up to 4 lines). |
 | `boost` | object | `start`, `cancel`, `timer`, `switch`, `label`: the same as `home.room_panel.boost`. Leave it empty to use the Home room panel boost; the button sits under the thermostats. |
-| `rooms` | list | `name`, `temperature` (sensor). Empty: the temperature sensors of the rooms on the Home house plan. Missing or unavailable sensors show a dash. |
+| `rooms` | list | `name`, `temperature` (sensor). Empty: the temperature sensors of the rooms on the Home house plan. Bars run 12 to 24 °C. Missing or unavailable sensors show a dash. |
 
 The last-12-hours graph asks Home Assistant for the thermostat history **with attributes** (`current_temperature` is an attribute), as hourly averages. Unavailable and unknown readings leave a gap, never a zero.
 
@@ -218,7 +219,7 @@ The page appears once any entity here is set.
 | Key | Type | What it does |
 |---|---|---|
 | `shopping` | entity (todo) | Shopping list card: tick items, add one, “Clear done”, a count. It is the same list and the same code as the Home shopping pop-up. |
-| `todo` | entity (todo) | A second to-do list. The card is built only when this is set, so it needs a second list in Home Assistant. |
+| `todo` | entity (todo) | A second to-do list; you can tick items (no add box). The card is built only when this is set, so it needs a second list in Home Assistant. |
 | `calendars` | list, up to 8 | `entity` (calendar), `name`. Merged and sorted into Today, Tomorrow and This week (the next 5 days after tomorrow). All-day events are marked. Read with the calendar REST API. |
 | `bins` | list | `entity` (calendar), `label`, `colour` (`black`, `brown`, `green` or a hex such as `#3366cc`). Shows the next collection as “Today”, “Tomorrow” or “Thu 6”. Today's and tomorrow's are highlighted with the word as well as the colour. |
 | `reminders` | true/false | Default `true`. Shows Nova's reminders (from `nova.entities.reminders`); only when `nova.enabled` is on. |
@@ -310,7 +311,7 @@ Nova is a separate Home Assistant integration: a general AI assistant that answe
 
 Oriel uses Nova only when `nova.enabled: true` **and** Nova is found in Home Assistant (its `nova` services exist). Then it adds the Nova page, a status pill in the header and a chat panel on Home. If Nova is turned on but not installed, the Nova page says “Nova not detected” and nothing is sent to it.
 
-![Nova page when Nova is turned on but not installed](docs/screenshots/nova-not-installed-nova.jpg)
+![Nova page when Nova is turned on but not installed](https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/nova-not-installed-nova.jpg)
 
 What Oriel uses from Nova: the websocket commands `nova/chat` and `nova/chat_new`, the services `nova.nap`, `nova.shush`, `nova.unshush`, `nova.lockdown`, `nova.briefing`, `nova.add_reminder`, `nova.suggestion_accept`, `nova.suggestion_dismiss`, and the sensors you list under `nova.entities`.
 
@@ -324,9 +325,10 @@ What Oriel uses from Nova: the websocket commands `nova/chat` and `nova/chat_new
 
 ## Privacy and safety
 
-- No remote requests: the Outfit font is bundled in the file, icons are inline SVG, and nothing is loaded from the internet.
+- No remote requests: the Outfit font is bundled in the file, icons are inline SVG, and nothing is loaded from the internet. (Only this README's pictures load from GitHub, when you read it in GitHub or HACS; the card itself never does.)
 - The Security and Energy pages are read-only. Oriel never arms, disarms, unlocks or opens anything.
 - Vacuum starts, room cleaning and resets always ask for confirmation, with an extra warning at night.
+- Climate and Family change only what you ask for: a thermostat target, the heating boost, and ticking, adding or clearing items on your shopping and to-do lists. Nothing there touches alarms, locks or doors.
 - No names are shown for who changed the alarm, only whether it was automatic.
 
 ## Troubleshooting
@@ -354,11 +356,11 @@ All controls are real buttons with labels, there is a visible focus ring for key
 npm install
 npx playwright install chromium   # once, for the harness
 npm run build                     # dist/oriel.js (minified); npm run dev for a readable build
-npm test                          # version check, card in every dev config, editor checks
+npm test                          # version and README checks, card in every dev config, editor checks, Climate and Family page checks
 npm run shots                     # screenshots of every page to dev/out/
 ```
 
-- `dev/mock.mjs` holds made-up states; `dev/configs/` holds the test configs (empty, minimal, full, Nova not installed).
+- `dev/mock.mjs` holds made-up states, forecasts, history and calendars; `dev/configs/` holds the test configs (empty, minimal, full, full with Nova, Nova not installed, and partial, which has some cards missing). `node dev/pages.mjs` checks the Climate and Family pages: the history and forecast requests, thermostat steps, the to-do lists, the calendar calls and that no list shows a cut row.
 - `dev/fake-ha-form.js` is a plain stand-in for Home Assistant's `ha-form`, so the editor can be tested without Home Assistant. It does not look like the real thing.
 - Colours live in `src/theme/`: `tokens.js` (the CSS variables and Classic's values), `themes.js` (the themes and the rules that build them from two seed colours) and `fixed.js` (colours that never change). No other file holds a colour.
 - `node dev/theme-shots.mjs <theme ...>` screenshots every page and pop-up per theme with a frozen clock; `node dev/sheet.mjs <theme ...>` makes a contact sheet; `node dev/themediff.mjs <before> <after>` compares two runs pixel by pixel; `node dev/contrast.mjs` writes the contrast report.

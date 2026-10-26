@@ -2,6 +2,26 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.3.1] - 2026-10-26
+
+### Changed
+- Climate and Family now follow the approved mockups: same column positions and widths, card order, card titles and pills, type sizes (17 px titles, 56 px weather number, 34 px thermostat target), row heights and spacing.
+- Family: Shopping list on the left; Calendar with Bins under it in the middle; To-do with Reminders under it on the right. Bins are coloured tiles side by side (they wrap to two rows for four bins). Today's and tomorrow's tile also gets a ring and a bell, and says "Today" or "Tomorrow" instead of a date. The Family rail icon is the mockup's list icon.
+- Thermostats show the target large with − and + at its sides, and "action · now 20.5°" under the name. The weather card shows the condition in a pill and one line each for feels like, wind, high, low, rain chance and humidity. Rooms bars run 12 to 24 °C.
+- Cards are as tall as their contents, so a card with few rows no longer leaves a large empty glass area.
+- A list never shows a half row: rows that do not fit are left out and a "+ N more" line says how many (Shopping, To-do, Calendar, Reminders).
+- The To-do card ticks items only (no add box or Clear done), as in the mockup.
+
+### Documentation
+- All README pictures are regenerated from the dev harness (the rail now shows Climate and Family), with new Climate and Family pictures, and the gallery is four rows of two.
+- README fixes: the manual install `?v=` now matches the version, the contrast note says Classic passes, the editor lists Climate and Family, and the Development section lists the new test configs and page checks.
+- README images use absolute `raw.githubusercontent.com` URLs, because HACS strips relative image paths. `npm test` now fails if the README `?v=` is not the current version or a README image is not such a URL to a file that exists.
+- New dev config `full-nova` (the full config with Nova on) for the Family and Climate pictures.
+
+### Fixed
+- A last row cut off above "Clear done" on a long list.
+- Contrast: bin tile text, the hour bars and the chart lines are checked in all 12 themes (64 checks each).
+
 ## [0.3.0] - 2026-10-26
 
 ### Added

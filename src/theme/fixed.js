@@ -40,7 +40,7 @@ export const CAM = {
 };
 
 /* Bin collection colours: they say which bin it is, so every theme keeps them. */
-export const BIN = { black: '#2a2a2a', brown: '#7a4e2d', green: '#3f7a3a' };
+export const BIN = { black: '#2b2724', brown: '#7a5a3c', green: '#3f7a3a' }; /* the mockup's colours; green darker (mockup #4f8a45) so 12 px light text reaches 4.5:1 in every theme */
 
 /* Vacuum extras that are not state hues. */
 export const VAC = { worn: '#e0604a', activeRoom: 'rgba(79,168,184,.55)' };

@@ -22,16 +22,16 @@ for (const name of names) {
   await page.setContent('<!doctype html><html><head></head><body style="margin:0;background:#2a2420"><oriel-shell style="display:block;width:100vw"></oriel-shell></body></html>');
   await page.addScriptTag({ content: bundle, type: 'module' });
   await page.waitForFunction(() => customElements.get('oriel-shell'));
-  await page.evaluate(({ cfg, st, ws, api }) => {
+  await page.evaluate(({ cfg, st, ws, api, nova }) => {
     window.__calls = []; window.__ws = []; window.__api = [];
     const e = document.querySelector('oriel-shell');
     e.setConfig(cfg);
     e.hass = {
-      states: st, services: { light: {}, climate: {}, script: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP', components: [] },
+      states: st, services: Object.assign({ light: {}, climate: {}, script: {} }, nova ? { nova: {} } : {}), language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP', components: [] },
       callService: (d, s, data) => { window.__calls.push([d, s, data]); return Promise.resolve(); },
       callWS: eval('(' + ws + ')'), callApi: eval('(' + api + ')'),
     };
-  }, { cfg, st: mkStates(), ws: CALLWS_SRC, api: CALLAPI_SRC });
+  }, { cfg, st: mkStates(), ws: CALLWS_SRC, api: CALLAPI_SRC, nova: name === 'full-nova' }); /* only full-nova has Nova installed */
   await page.waitForTimeout(700);
   const keys = await page.evaluate(() => [...document.querySelector('oriel-shell').shadowRoot.querySelectorAll('#rail a[data-k]')].map((a) => a.dataset.k));
   for (const k of keys) {

@@ -777,3 +777,11 @@ Object.assign(ED, {
 });
 Object.assign(S, { weather_title: 'Weather', stale_data: 'Out of date' });
 Object.assign(S, { now_label: 'Now' });
+
+Object.assign(S, {
+  feels_short: 'Feels {t}°', wind_x: 'Wind {w}', high_x: 'High {h}°', low_x: 'Low {l}°', rain_x: 'Rain {p}%', humidity_x: 'Humidity {h}%',
+  temperature_pill: 'Temperature', thermostats_pill: 'Thermostats',
+  more_n: '+ {n} more', n_calendars: '{n} calendars',
+  bins_sub: 'From your waste collection calendars', from_nova: 'From Nova',
+  hour_n: 'Hour {h}',
+});
