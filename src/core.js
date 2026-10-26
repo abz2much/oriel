@@ -40,7 +40,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #hchips .pf.away{background:rgba(var(--oriel-ink),.25);color:rgb(var(--oriel-ink))}
 #hchips .chip .ic{width:18px;height:18px}
 #hdr-r{right:24px;top:20px;display:flex;gap:10px;align-items:center}
-#rail{left:20px;top:96px;width:56px;max-height:620px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
+#rail{left:20px;top:96px;bottom:36px;height:fit-content;margin:auto 0;width:56px;max-height:668px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
 #rail .pl{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;align-self:stretch} #rail .pl.scroll{overflow-y:auto;scrollbar-width:none} #rail .pl.scroll::-webkit-scrollbar{display:none} #rail .end{margin-top:6px}
 #rail a{width:40px;height:40px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:rgb(var(--oriel-ink));opacity:.7;cursor:pointer}
 #rail a.on{background:rgb(var(--oriel-raised));opacity:1;box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)}
