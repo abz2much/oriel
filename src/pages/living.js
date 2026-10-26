@@ -71,6 +71,11 @@ const CSS = `
 .sc .ic{width:22px;height:22px}.sc.on{background:rgba(var(--oriel-glass),.7);box-shadow:0 0 0 1.5px var(--c),0 0 16px 2px var(--c)}.sc.on .ic{color:var(--c);filter:saturate(1.4) brightness(.8)}
 #lrLights{width:410px;padding:14px}
 #lrLgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+#lrLgrid .lt:last-child:nth-child(odd){grid-column:1/-1}
+#lrDv{width:388px;display:flex;gap:6px;align-items:stretch}
+#lrDv .lt{flex:1 1 0;height:auto;min-height:62px;gap:4px}
+#lrDv .nm{display:flex;flex-wrap:wrap;column-gap:6px;min-width:0;white-space:normal}#lrDv .nm small{margin-left:0}
+#lrDv .nm>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .lt{height:62px;border-radius:18px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.3);padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;transition:box-shadow .2s;text-align:left;color:rgb(var(--oriel-ink));min-width:0}
 .lt .r{display:flex;justify-content:space-between;align-items:center}.lt .ic{width:20px;height:20px}.lt .nm{font-size:13px;white-space:nowrap}.lt .nm small{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-size:12px;margin-left:6px}
 .lt.on{background:rgba(var(--oriel-glass),.66);box-shadow:0 0 0 1.5px var(--c),0 0 16px 2px var(--c)}.lt.on .tg{background:rgb(var(--oriel-accent-strong))}.lt.on .tg::after{left:14px}.lt.on .bi{color:var(--c);filter:brightness(.8) saturate(1.5)}
@@ -122,6 +127,7 @@ const HTML = () => `<div id="lrScroll"><div class="lrc">
     <div id="lrNow" class="abs dark"><div class="top"><div class="lrap" id="lrAp">${icon('play')}</div><div class="tx"><b id="lrNowT">–</b><span id="lrNowSub">–</span></div><button type="button" class="round sm" id="lrTvP" aria-label="${esc(S.tv_power)}">${icon('alloff')}</button><button type="button" class="round" id="lrPp" aria-label="${esc(S.play_pause)}">${icon('pause')}</button></div>
       <div class="mm" id="lrMm"><div class="l">${esc(S.movie_mode)}<small id="lrMmS">${esc(S.off)}</small></div><button type="button" id="lrMmStart" class="go">${esc(S.start)}</button><button type="button" id="lrMmEnd">${esc(S.end)}</button></div>
       <div class="hdmi" id="lrHdRow"><span>${esc(S.tv_input)}</span><span id="lrHd" style="display:contents"></span></div></div>
+    <div id="lrDv" class="abs"></div>
     <div id="lrApps" class="abs glass"><div class="hd"><span>${esc(S.apps)}</span><small>${esc(S.apps_hint)}</small></div><div class="g" id="lrAg"></div></div>
     <div id="lrRemote" class="abs glass mid"><div id="lrDpad"></div><div id="lrRbtn"></div></div></div></div>`;
 
@@ -210,13 +216,13 @@ const LivingExt = {
       $('lrLgrid').appendChild(d);
       return { l, d, sub: d.querySelector('small') };
     });
-    const useSel = isEnt(c.streamers.selector) && devices.length > 1;
+    const useSel = isEnt(c.streamers.selector) && devices.length > 0;
     L.dv = (useSel ? devices : []).map((dv) => {
       const d = document.createElement('div'); d.className = 'lt dv'; d.style.setProperty('--c', 'rgb(var(--oriel-accent-strong))');
       d.innerHTML = `<div class="r"><span class="bi">${icon(dv.icon || 'tv')}</span><span class="rr"><span class="ck">${icon('check')}</span><span class="tg"></span></span></div><span class="nm"><span></span><small></small></span>`;
       d.querySelector('.nm span').textContent = dv.name || this.name(dv.media_player);
       this.tap(d, () => { this.override('dev', dv.option, 3000); this.call('input_select', 'select_option', { entity_id: c.streamers.selector, option: dv.option }); this._updateLiving(); });
-      $('lrLgrid').appendChild(d);
+      $('lrDv').appendChild(d);
       return { dv, d, sub: d.querySelector('small') };
     });
     $('lrAllOff').addEventListener('click', () => {
@@ -224,7 +230,8 @@ const LivingExt = {
       this.call('homeassistant', 'turn_off', { entity_id: lights.map((l) => l.entity) }); this._updateLiving();
     });
     $('lrAllOff').classList.toggle('hide', !lights.length);
-    $('lrLights').classList.toggle('hide', !lights.length && !L.dv.length);
+    $('lrLights').classList.toggle('hide', !lights.length);
+    $('lrDv').classList.toggle('hide', !L.dv.length);
     // tune panel
     const pn = $('lrPanel');
     pn.innerHTML = `<div class="ph"><span id="lrPn">–</span><small>${esc(S.tune_hint)}</small></div><div><div class="lab">${esc(S.brightness)}</div><div class="pr" id="lrPb"></div></div><div><div class="lab">${esc(S.white)}</div><div class="pr" id="lrPw"></div></div><div><div class="lab">${esc(S.colour)}</div><div class="swr" id="lrPc"></div></div>`;

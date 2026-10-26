@@ -170,7 +170,7 @@ for (const n of [1, 2, 4]) {
     'media_player.tv': { entity_id: 'media_player.tv', state: 'off', attributes: { friendly_name: 'TV', source: 'HDMI 1' } },
   };
   const read = (page) => sr(page, (r) => {
-    const tile = (n) => [...r.querySelectorAll('#lrLgrid .dv')].find((d) => d.textContent.includes(n));
+    const tile = (n) => [...r.querySelectorAll('#lrDv .dv')].find((d) => d.textContent.includes(n));
     const sh = tile('Shield'), st = tile('Streamer');
     return { appsOn: r.querySelectorAll('#lrAg .at.on').length, run: r.getElementById('lrAp').classList.contains('run'), title: r.getElementById('lrNowT').textContent, sub: r.getElementById('lrNowSub').textContent,
       hdOn: r.querySelectorAll('#lrHd button.on').length, tvAct: r.getElementById('lrTvP').classList.contains('act'),
@@ -182,7 +182,7 @@ for (const n of [1, 2, 4]) {
   check('living, all off: no app tile glows and Now Playing says nothing is running (stale activity and app_id ignored)', o.appsOn === 0 && !o.run && o.title === 'Nothing running', JSON.stringify(o));
   check('living, all off: selected Shield shows "Off" with an outline and a tick, not the green "Active"', !o.sh.on && o.sh.cur && o.sh.txt === 'Off' && o.sh.pressed === 'true' && o.sh.tick !== 'none' && !o.st.on && !o.st.cur && o.st.pressed === 'false', JSON.stringify(o.sh));
   check('living, all off: no HDMI input is highlighted from a stale source, TV button not active, line says TV off', o.hdOn === 0 && !o.tvAct && /TV off/.test(o.sub) && /Shield · Off/.test(o.sub), JSON.stringify([o.hdOn, o.tvAct, o.sub]));
-  await sr(a.page, (r) => [...r.querySelectorAll('#lrLgrid .dv')].find((d) => d.textContent.includes('Streamer')).click());
+  await sr(a.page, (r) => [...r.querySelectorAll('#lrDv .dv')].find((d) => d.textContent.includes('Streamer')).click());
   const sel = await a.page.evaluate(() => window.__calls.filter((c) => c[0] === 'input_select'));
   check('living: tapping a streamer tile still selects it', sel.length === 1 && sel[0][2].option === 'Streamer' && sel[0][2].entity_id === 'input_select.tv_remote', JSON.stringify(sel));
   check('living, all off: no errors', a.errors.length === 0, a.errors.join(' | ')); await a.page.close();
@@ -205,6 +205,58 @@ for (const n of [1, 2, 4]) {
   const n = await read(b.page);
   check('living, Shield on: Video glows, tile green with "Active", HDMI 1 and TV button active', n.appsOn === 1 && n.run && n.title === 'Video' && n.sh.on && !n.sh.cur && n.sh.txt === 'Active' && n.hdOn === 1 && n.tvAct, JSON.stringify(n));
   await b.page.close();
+  // streamer row above Apps (outside the Lights card), with 0 / 1 / 2 / 3 devices
+  const dvs = (n) => Array.from({ length: n }, (_, i) => ({ name: 'Stream ' + (i + 1), option: 'S' + (i + 1), media_player: 'media_player.s' + (i + 1), remote: 'remote.s' + (i + 1), launch: 'android' }));
+  const geo = (page) => sr(page, (r) => {
+    const row = r.getElementById('lrDv'), q = (id) => r.getElementById(id).getBoundingClientRect(), tiles = [...row.querySelectorAll('.lt')];
+    const bx = tiles.map((t) => t.getBoundingClientRect());
+    return { hidden: row.classList.contains('hide'), inLights: r.querySelectorAll('#lrLights .dv').length, n: tiles.length, above: q('lrDv').bottom <= q('lrApps').top && q('lrDv').top >= q('lrNow').bottom,
+      rowW: Math.round(q('lrDv').width), widths: bx.map((t) => Math.round(t.width)), tops: bx.map((t) => Math.round(t.top)), h: bx.map((t) => Math.round(t.height)), over: bx.some((t) => t.right > q('lrDv').right + 1),
+      fits: tiles.every((t) => { const nm = t.querySelector('.nm'); return nm.scrollWidth <= nm.clientWidth + 1 && nm.getBoundingClientRect().bottom <= t.getBoundingClientRect().bottom - 5; }) };
+  });
+  for (const n of [0, 1, 2, 3]) {
+    const k = JSON.parse(JSON.stringify(cfg)); k.living.streamers = { selector: 'input_select.tv_remote', devices: dvs(n) };
+    const st = Object.assign({}, off, { 'input_select.tv_remote': { entity_id: 'input_select.tv_remote', state: 'S1', attributes: {} } });
+    const g = await open(k, st); await go(g.page, 'living'); const o2 = await geo(g.page);
+    const ok = n === 0 ? o2.hidden && o2.n === 0 : !o2.hidden && o2.n === n && o2.inLights === 0 && o2.above && !o2.over && new Set(o2.tops).size === 1 && o2.h.every((h) => h >= 62) && o2.fits && o2.widths.every((w) => Math.abs(w - (o2.rowW - 6 * (n - 1)) / n) <= 1);
+    check(`living, ${n} streamer${n === 1 ? '' : 's'}: ${n ? 'row sits between Now Playing and Apps, not in Lights, ' + (n === 1 ? 'one wide tile' : n + ' equal tiles on one line') + ', text fits, tiles at least 62px' : 'row hidden'}`, ok && g.errors.length === 0, JSON.stringify(o2) + g.errors.join('|'));
+    await g.page.close();
+  }
+  // lights grid: odd count -> last tile spans both columns; even stays two columns; the Sync box has no render and works as a colour light
+  const lg = (count, withSync) => {
+    const k = JSON.parse(JSON.stringify(cfg));
+    k.living.lights = [['A', 'light.a', true, 'uplighter'], ['B', 'light.b', true, 'floor_lamp'], ['C', 'light.c', true, 'ceiling'], ['D', 'switch.d', false, 'wall']].map(([name, entity, colour, render]) => ({ name, entity, icon: 'bulb', colour, render }));
+    if (withSync) k.living.lights.push({ name: 'Sync box', entity: 'light.sync_box_2', icon: 'tv', colour: true });
+    k.living.lights = k.living.lights.slice(0, count); return k;
+  };
+  const lightSt = { 'light.a': { entity_id: 'light.a', state: 'on', attributes: { brightness: 128, rgb_color: [255, 0, 0], color_mode: 'rgb' } }, 'light.b': { entity_id: 'light.b', state: 'off', attributes: {} },
+    'light.c': { entity_id: 'light.c', state: 'off', attributes: {} }, 'switch.d': { entity_id: 'switch.d', state: 'off', attributes: {} },
+    'light.sync_box_2': { entity_id: 'light.sync_box_2', state: 'off', attributes: { friendly_name: 'Sync Box', supported_color_modes: ['color_temp', 'rgb'], effect_list: ['Aurora', 'Party'], effect: null, color_mode: null, brightness: null, rgb_color: null, color_temp_kelvin: null } } };
+  const widths = (page) => sr(page, (r) => [...r.querySelectorAll('#lrLgrid .lt')].map((t) => Math.round(t.getBoundingClientRect().width)));
+  for (const [count, sync, last] of [[5, true, true], [4, false, false], [3, false, true], [1, false, true]]) {
+    const g = await open(lg(count, sync), Object.assign({}, off, lightSt)); await go(g.page, 'living'); const w = await widths(g.page);
+    const wide = w[w.length - 1] > w[0] * 1.9 || w.length === 1, rest = w.slice(0, -1).every((x) => x === w[0]);
+    check(`living, ${count} lights: ${last ? 'last tile spans both columns' : 'all tiles stay half width'}`, last ? wide && rest : w.every((x) => x === w[0]) && w[0] < 220, JSON.stringify(w)); await g.page.close();
+  }
+  {
+    const g = await open(lg(5, true), Object.assign({}, off, lightSt)); await go(g.page, 'living');
+    const t0 = await sr(g.page, (r) => { const t = [...r.querySelectorAll('#lrLgrid .lt')][4]; return { txt: t.querySelector('small').textContent, nm: t.querySelector('.nm span').textContent, tune: !!t.querySelector('.tune'), on: t.classList.contains('on') }; });
+    check('living, Sync box (off, attributes null, no render): tile says Off, has a tune button, no errors', t0.txt === 'Off' && t0.nm === 'Sync box' && t0.tune && !t0.on && g.errors.length === 0, JSON.stringify([t0, g.errors]));
+    await sr(g.page, (r) => [...r.querySelectorAll('#lrLgrid .lt')][4].querySelector('.tune').click());
+    const pn = await sr(g.page, (r) => ({ title: r.getElementById('lrPn').textContent, sel: [...r.querySelectorAll('#lrLgrid .lt')][4].classList.contains('sel'), hidden: r.getElementById('lrPanel').classList.contains('hide') }));
+    check('living, Sync box: the tune button opens the same tune panel (brightness, white, colour) for it', pn.title === 'Sync box' && pn.sel && !pn.hidden, JSON.stringify(pn));
+    await sr(g.page, (r) => { r.querySelectorAll('#lrPb button')[2].click(); r.querySelectorAll('#lrPc button')[0].click(); });
+    const cs = await g.page.evaluate(() => window.__calls.filter((c) => c[2] && c[2].entity_id === 'light.sync_box_2'));
+    check('living, Sync box: brightness 50% and a colour go to light.sync_box_2 as light.turn_on, never an effect', cs.length === 2 && cs.every((c) => c[0] === 'light' && c[1] === 'turn_on' && !('effect' in c[2])) && cs[0][2].brightness_pct === 50 && Array.isArray(cs[1][2].rgb_color), JSON.stringify(cs));
+    await sr(g.page, (r) => [...r.querySelectorAll('#lrLgrid .lt')][4].click());
+    const tg = await g.page.evaluate(() => window.__calls.filter((c) => c[0] === 'homeassistant'));
+    check('living, Sync box: tapping the tile toggles it (tuned on just before, so this turns it off)', tg.length === 1 && tg[0][1] === 'turn_off' && tg[0][2].entity_id === 'light.sync_box_2', JSON.stringify(tg));
+    await g.page.close();
+    const on2 = Object.assign({}, off, lightSt, { 'light.sync_box_2': { entity_id: 'light.sync_box_2', state: 'on', attributes: { color_mode: 'rgb', brightness: 153, rgb_color: [229, 72, 61] } } });
+    const h = await open(lg(5, true), on2); await go(h.page, 'living');
+    const t1 = await sr(h.page, (r) => { const t = [...r.querySelectorAll('#lrLgrid .lt')][4]; return { txt: t.querySelector('small').textContent, on: t.classList.contains('on') }; });
+    check('living, Sync box on: tile shows brightness and colour like the other lights (60% · Red)', t1.on && t1.txt === '60% · Red', JSON.stringify(t1) + h.errors.join('|')); await h.page.close();
+  }
 }
 
 // ---- Home: "Coming up" card (replaces the Nova card), the Nova chat panel is gone from Home
