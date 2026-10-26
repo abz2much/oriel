@@ -176,7 +176,7 @@ const STATUS_ROLES = ['warn-bg', 'bad-bg', 'bad-strong'];
 const CLASSIC_READABLE = {
   role: { 'accent-ink': '41,69,18', good: '41,69,18', warn: '84,57,0', bad: '108,41,20', 'accent-strong': '72,94,43', 'bad-strong': '159,47,36' },
   variant: { 'good-mark': '72,94,43' },
-  extra: { soft: '.75', 'soft-page': '.86', 'soft-on-accent': '.7' },
+  extra: { soft: '.78', 'soft-page': '.86', 'soft-on-accent': '.7' },
 };
 
 /* Full token values for a theme id, as triplet strings ({ role, variant }). An accent override rebuilds the accent

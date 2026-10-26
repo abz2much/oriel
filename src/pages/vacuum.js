@@ -278,11 +278,11 @@ const VacuumExt = {
   _vcLayout() {
     const S0 = this._vc, $ = S0.$;
     let y = 84;
-    const put = (n, h) => { if (!n || n.classList.contains('hide')) return; if (y + h > 776) { n.classList.add('hide'); return; } n.style.top = y + 'px'; y += h + 12; };
+    // without the map panel the right column moves into its space and widens, so the middle is not left empty
+    const wide = $('vcMapP').classList.contains('hide'), x = wide ? 446 : 812, w = wide ? 810 : 444;
+    const put = (n, h) => { if (!n || n.classList.contains('hide')) return; if (y + h > 776) { n.classList.add('hide'); return; } n.style.top = y + 'px'; n.style.left = x + 'px'; n.style.width = w + 'px'; y += h + 12; };
     put($('vcMaint'), 240); put($('vcSta'), 236);
     S0.f1.forEach((f) => put(f.q('vcF1'), 192));
-    // with only compact cards and no map, the cards may as well sit at the bottom as before
-    if ($('vcMaint').classList.contains('hide') && $('vcSta').classList.contains('hide') && S0.f1.length === 1) S0.f1[0].q('vcF1').style.top = '584px';
     let yl = 414;
     const putL = (n, h) => { if (n.classList.contains('hide')) return; n.style.top = yl + 'px'; yl += h + 12; };
     putL($('vcSet'), 152); putL($('vcSch'), 198);
@@ -399,7 +399,7 @@ const VacuumExt = {
     else if (cls.key === 'cleaning' && !bad(room) && room !== undefined) sub = cls.sub + ' · ' + room;
     else if (cls.key === 'paused' && !bad(room) && room !== undefined) sub = t('paused_in', { room });
     else if (!active && (A.stBad.length || A.over)) sub = A.stBad.slice(0, 2).map((x) => x.replace(': ' + S.missing_lc, ' ' + S.missing_lc)).concat(A.over ? [t('base_cleaned_ago', { n: A.days })] : []).slice(0, 2).join(' · ');
-    $('vcSub').textContent = sub;
+    $('vcSub').textContent = sub === wl ? '' : sub; // never repeat the title
     const pr = $('vcProg'), showP = prog !== null && active; pr.style.visibility = showP ? 'visible' : 'hidden'; pr.firstChild.style.transform = `translateX(${showP ? Math.max(0, Math.min(100, prog)) - 100 : -100}%)`;
     let last;
     if (showP) last = t('progress_pct', { n: Math.round(prog) }) + (!bad(room) && room !== undefined && !d.st ? t('now_in', { room }) : '');

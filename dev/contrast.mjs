@@ -64,7 +64,7 @@ function pairs(v, dark, classic) {
   const L = [];
   const add = (label, fg, a, surf, target) => L.push([label, fg, a, surf, target]);
   for (const s of ['page', 'glass', 'glass mid', 'cell', 'on fill', 'raised', 'sheet', 'room label']) add('text', v.ink, 1, s, 4.5);
-  for (const s of ['page', 'glass', 'cell', 'sheet']) { const a = s === 'page' ? v.softPage : v.soft; add(`soft text (${Math.round(a * 100)}%)`, v.ink, a, s, 4.5); }
+  for (const s of ['page', 'glass', 'glass mid', 'cell', 'sheet']) { const a = s === 'page' ? v.softPage : v.soft; add(`soft text (${Math.round(a * 100)}%)`, v.ink, a, s, 4.5); }
   for (const s of ['glass', 'cell']) { add('accent text', v['accent-ink'], 1, s, 4.5); add('good', v.good, 1, s, 4.5); add('warn', v.warn, 1, s, 4.5); add('bad', v.bad, 1, s, 4.5); }
   add('alert text', v['bad-ink'], 1, 'bad chip', 4.5); add('bad', v.bad, 1, 'bad chip', 4.5); add('warn', v.warn, 1, 'warn chip', 4.5);
   add('good pill text', v['good-ink'], 1, 'good pill', 4.5); add('red pill text', v['bad-ink-2'], 1, 'red pill', 4.5); add('amber pill text', v['warn-ink'], 1, 'amber pill', 4.5);

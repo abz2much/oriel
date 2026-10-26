@@ -435,6 +435,7 @@ export const S = {
   nothing_to_report_short: 'Nothing to report',
   ready: 'Ready',
   offline: 'Offline',
+  offline_since: 'Offline · since {t}',
   online: 'Online',
   d_switch: 'Switches',
   d_sensor: 'Sensors',
