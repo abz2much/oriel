@@ -25,26 +25,26 @@ const CSS = `
 #pgSystem .abs{position:absolute}
 #pgSystem .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #pgSystem .hd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;gap:8px}
-#pgSystem .hd small{font-size:11.5px;font-weight:400;color:rgba(31,26,23,.62)}
-#pgSystem .dark .hd small{color:rgba(255,255,255,.6)}
+#pgSystem .hd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62)}
+#pgSystem .dark .hd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgSystem .card{padding:16px 18px;overflow:hidden}
 #pgSystem .big{font-size:30px;font-weight:200;line-height:1.1;margin:8px 0 4px;display:flex;align-items:center;gap:10px}
-#pgSystem .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13.5px;padding:7px 0;border-top:1px solid rgba(31,26,23,.09);min-height:34px}
+#pgSystem .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13.5px;padding:7px 0;border-top:1px solid rgba(var(--oriel-ink),.09);min-height:34px}
 #pgSystem .row.nb{border-top:0}
-#pgSystem .row>span{color:rgba(31,26,23,.68);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pgSystem .row>span{color:rgba(var(--oriel-ink),.68);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pgSystem .row>b{font-weight:500;white-space:nowrap}
-#pgSystem .dark .row{border-top-color:rgba(255,255,255,.12)} #pgSystem .dark .row>span{color:rgba(255,255,255,.65)}
+#pgSystem .dark .row{border-top-color:rgba(var(--oriel-on-dark),.12)} #pgSystem .dark .row>span{color:rgba(var(--oriel-on-dark),.65)}
 #pgSystem .tap{cursor:pointer}
-#pgSystem .pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;background:rgba(255,255,255,.6);white-space:nowrap}
-#pgSystem .pill.ok{background:#dcebc4;color:#2f4a14} #pgSystem .pill.warn{background:#f3dca6;color:#5a3d06} #pgSystem .pill.red{background:#f0c4b8;color:#6a1f0f}
-#pgSystem .bar{height:8px;border-radius:4px;background:rgba(31,26,23,.12);margin:2px 0 6px;overflow:hidden}
-#pgSystem .bar i{display:block;height:100%;border-radius:4px;background:#8fb55a;width:0;transition:width .4s}
-#pgSystem .bar i.mid{background:#d9a441} #pgSystem .bar i.hi{background:#c0573a}
-#pgSystem .btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:10px;border:1px solid rgba(255,255,255,.7);border-radius:18px;background:rgba(255,255,255,.5);color:#1f1a17;font-size:14.5px;font-weight:500;cursor:pointer}
-#pgSystem .btn small{display:block;font-size:11.5px;font-weight:400;color:rgba(31,26,23,.62);margin-top:1px}
-#pgSystem .btn:active{background:rgba(255,255,255,.8)}
+#pgSystem .pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;background:rgba(var(--oriel-glass),.6);white-space:nowrap}
+#pgSystem .pill.ok{background:rgb(var(--oriel-good-bg));color:rgb(var(--oriel-good-ink))} #pgSystem .pill.warn{background:rgb(var(--oriel-warn-bg-2));color:rgb(var(--oriel-warn-ink))} #pgSystem .pill.red{background:rgb(var(--oriel-bad-bg-2));color:rgb(var(--oriel-bad-ink-2))}
+#pgSystem .bar{height:8px;border-radius:4px;background:rgba(var(--oriel-ink),.12);margin:2px 0 6px;overflow:hidden}
+#pgSystem .bar i{display:block;height:100%;border-radius:4px;background:rgb(var(--oriel-good-bar));width:0;transition:width .4s}
+#pgSystem .bar i.mid{background:rgb(var(--oriel-warn-mark))} #pgSystem .bar i.hi{background:rgb(var(--oriel-bad-mark))}
+#pgSystem .btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:10px;border:1px solid rgba(var(--oriel-glass),.7);border-radius:18px;background:rgba(var(--oriel-glass),.5);color:rgb(var(--oriel-ink));font-size:14.5px;font-weight:500;cursor:pointer}
+#pgSystem .btn small{display:block;font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);margin-top:1px}
+#pgSystem .btn:active{background:rgba(var(--oriel-glass),.8)}
 #pgSystem button{font-family:inherit}
-#syToast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:#1f1a17;color:#fff;border-radius:18px;padding:10px 18px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
+#syToast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));border-radius:18px;padding:10px 18px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
 #syToast.on{opacity:1}
 #syHA{left:100px;top:84px;width:380px;height:214px} #syHost{left:100px;top:312px;width:380px;height:232px} #syConn{left:100px;top:558px;width:380px;height:150px}
 #syAtt{left:496px;top:84px;width:400px;height:300px} #syNova{left:496px;top:398px;width:400px;height:262px}

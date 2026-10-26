@@ -5,18 +5,19 @@ import { registerPage } from '../core.js';
 import { S, t } from '../strings.js';
 import { hasEntities } from '../config.js';
 import { isEnt, pad, hm, bad, sameDay, esc } from '../util.js';
+import { STATE, CAM } from '../theme/fixed.js';
 
 const STATES = {
-  disarmed: { l: 'alarm_disarmed', c: '#b9dc8a', t: '#4a6b24', an: 'scBreathe 4s' },
-  armed_home: { l: 'alarm_armed_home', c: '#4fa8b8', t: '#1d6672', an: 'scPulse 3s' },
-  armed_night: { l: 'alarm_armed_night', c: '#4fa8b8', t: '#1d6672', an: 'scPulse 3s' },
-  armed_away: { l: 'alarm_armed_away', c: '#b5503a', t: '#8a3322', an: 'scPulse 3s' },
-  armed_vacation: { l: 'alarm_armed_vacation', c: '#b5503a', t: '#8a3322', an: 'scPulse 3s' },
-  armed_custom_bypass: { l: 'alarm_armed_custom', c: '#4fa8b8', t: '#1d6672', an: 'scPulse 3s' },
-  arming: { l: 'alarm_arming', c: '#ffc247', t: '#8a5f00', an: 'scPulse 1s' },
-  pending: { l: 'alarm_pending', c: '#ffc247', t: '#8a5f00', an: 'scPulse 1s' },
-  triggered: { l: 'alarm_triggered', c: '#c0392b', t: '#8a1f12', an: 'scStrobe .5s' },
-  unknown: { l: 'alarm_unknown', c: '#9a9088', t: '#5f5750', an: 'none' },
+  disarmed: { l: 'alarm_disarmed', c: STATE.green[0], t: STATE.green[1], an: 'scBreathe 4s' },
+  armed_home: { l: 'alarm_armed_home', c: STATE.teal[0], t: STATE.teal[1], an: 'scPulse 3s' },
+  armed_night: { l: 'alarm_armed_night', c: STATE.teal[0], t: STATE.teal[1], an: 'scPulse 3s' },
+  armed_away: { l: 'alarm_armed_away', c: STATE.away[0], t: STATE.away[1], an: 'scPulse 3s' },
+  armed_vacation: { l: 'alarm_armed_vacation', c: STATE.away[0], t: STATE.away[1], an: 'scPulse 3s' },
+  armed_custom_bypass: { l: 'alarm_armed_custom', c: STATE.teal[0], t: STATE.teal[1], an: 'scPulse 3s' },
+  arming: { l: 'alarm_arming', c: STATE.amber[0], t: STATE.amber[1], an: 'scPulse 1s' },
+  pending: { l: 'alarm_pending', c: STATE.amber[0], t: STATE.amber[1], an: 'scPulse 1s' },
+  triggered: { l: 'alarm_triggered', c: STATE.red[0], t: STATE.red[1], an: 'scStrobe .5s' },
+  unknown: { l: 'alarm_unknown', c: STATE.grey[0], t: STATE.grey[1], an: 'none' },
 };
 const P = {
   shield: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z', door: 'M6 21V4a1 1 0 011-1h10a1 1 0 011 1v17M4 21h16M14 12h.01', win: 'M5 3h14v18H5zM12 3v18M5 12h14',
@@ -32,15 +33,15 @@ const CSS = `
 #scWrap>*{pointer-events:auto}
 #pgSecurity .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #pgSecurity .scHd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;gap:8px}
-#pgSecurity .scHd small{font-size:11.5px;font-weight:400;color:rgba(31,26,23,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pgSecurity .dark .scHd small{color:rgba(255,255,255,.6)}
+#pgSecurity .scHd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pgSecurity .dark .scHd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgSecurity .chip{height:26px;font-size:12px;padding:0 10px;white-space:nowrap;position:relative;cursor:pointer}
 #pgSecurity .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:-9px;bottom:-9px}
-#pgSecurity .chip.bad{background:#ffd9cf;color:#9a3a1d;border-color:#f2b5a3}
-#pgSecurity .chip.ok{background:rgba(185,220,138,.55)}
-#pgSecurity .chip.warn{background:#ffe9b8;color:#7a5200;border-color:#f0cf85}
-#pgSecurity .chip.dk{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff}
-#pgSecurity .chip.dk.bad{background:#ffd9cf;color:#9a3a1d}
+#pgSecurity .chip.bad{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad));border-color:rgb(var(--oriel-bad-line-2))}
+#pgSecurity .chip.ok{background:rgba(var(--oriel-ok-fill),.55);color:rgb(var(--oriel-ink))}
+#pgSecurity .chip.warn{background:rgb(var(--oriel-warn-bg));color:rgb(var(--oriel-warn));border-color:rgb(var(--oriel-warn-line))}
+#pgSecurity .chip.dk{background:rgba(var(--oriel-on-dark),.1);border-color:rgba(var(--oriel-on-dark),.18);color:rgb(var(--oriel-on-dark))}
+#pgSecurity .chip.dk.bad{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad))}
 #scHero,#scDoors,#scMotion,#scCams,#scEv,#scHealth{border-radius:28px}
 #scHero{left:100px;top:84px;width:420px;height:314px;padding:18px 22px;overflow:hidden;transition:background .6s}
 #scHero::before{content:"";position:absolute;inset:0;border-radius:28px;pointer-events:none;animation:var(--an,none) ease-in-out infinite}
@@ -48,61 +49,61 @@ const CSS = `
 @keyframes scPulse{0%,100%{box-shadow:inset 0 0 22px color-mix(in srgb,var(--gc) 25%,transparent)}50%{box-shadow:inset 0 0 60px color-mix(in srgb,var(--gc) 65%,transparent)}}
 @keyframes scStrobe{0%,100%{box-shadow:inset 0 0 14px color-mix(in srgb,var(--gc) 30%,transparent)}50%{box-shadow:inset 0 0 90px color-mix(in srgb,var(--gc) 95%,transparent)}}
 @media (prefers-reduced-motion:reduce){#scHero::before{animation:none!important;box-shadow:inset 0 0 0 4px var(--gc)}}
-#scHero.alert{background:#ffd9cf}
+#scHero.alert{background:rgb(var(--oriel-bad-bg))}
 #scState{font-size:54px;font-weight:200;line-height:1;margin-top:20px;cursor:pointer;white-space:nowrap}
 #scSub{font-size:15px;margin-top:10px;font-weight:300;min-height:40px;line-height:1.3;overflow:hidden;max-height:40px}
-#scWho{font-size:12.5px;color:rgba(31,26,23,.62);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scWho{font-size:12.5px;color:rgba(var(--oriel-ink),.62);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #scNova{margin-top:10px;overflow:hidden;display:none}
 #scNova.on{display:block}
-#scNova .scNh{font-size:11.5px;color:rgba(31,26,23,.62);font-weight:500}
+#scNova .scNh{font-size:11.5px;color:rgba(var(--oriel-ink),.62);font-weight:500}
 #scNova .scNl{font-size:12.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 #scPanels{position:absolute;left:22px;right:22px;bottom:20px;display:flex;gap:6px;flex-wrap:wrap}
 #scDoors{left:536px;top:84px;width:440px;height:314px;padding:16px}
 #scAreas{margin-top:6px}
-.scAr{display:grid;grid-template-columns:112px 1fr;align-items:center;min-height:27px;font-size:13px;border-bottom:1px solid rgba(31,26,23,.07)}
+.scAr{display:grid;grid-template-columns:112px 1fr;align-items:center;min-height:27px;font-size:13px;border-bottom:1px solid rgba(var(--oriel-ink),.07)}
 .scAr:last-child{border:0}
-.scAr .scN{color:rgba(31,26,23,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scAr .scN{color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scAr .scS{display:flex;gap:6px;flex-wrap:nowrap}
-.scSn{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:rgba(255,255,255,.55);font-size:11.5px;position:relative;cursor:pointer;white-space:nowrap}
+.scSn{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:rgba(var(--oriel-glass),.55);font-size:11.5px;position:relative;cursor:pointer;white-space:nowrap}
 .scSn::after{content:"";position:absolute;left:-3px;right:-3px;top:-10px;bottom:-10px}
-.scSn i{width:7px;height:7px;border-radius:50%;background:#7da24a;display:block}
-.scSn.open{background:#ffd9cf;color:#9a3a1d}.scSn.open i{background:#c0392b}
-.scSn.off{opacity:.5}.scSn.off i{background:#9a9088}
-#scDoors.hot .scSn.open{box-shadow:0 0 0 1.5px #c0392b}
+.scSn i{width:7px;height:7px;border-radius:50%;background:rgb(var(--oriel-good-mark));display:block}
+.scSn.open{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad))}.scSn.open i{background:rgb(var(--oriel-bad-strong))}
+.scSn.off{opacity:.5}.scSn.off i{background:rgb(var(--oriel-off))}
+#scDoors.hot .scSn.open{box-shadow:0 0 0 1.5px rgb(var(--oriel-bad-strong))}
 #scMotion{left:992px;top:84px;width:264px;height:314px;padding:16px;overflow:hidden}
 .scMr{display:flex;align-items:center;justify-content:space-between;height:24px;font-size:13px;cursor:pointer;gap:6px}
 .scMr span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.scMr small{color:rgba(31,26,23,.62);font-size:11.5px;white-space:nowrap}
-.scMr.on small{color:#4a6b24;font-weight:500}.scMr.on.hot small{color:#c0392b}
-.scMh{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(31,26,23,.62);margin:8px 0 1px}
-.scMr.mut{color:rgba(31,26,23,.62)}
+.scMr small{color:rgba(var(--oriel-ink),.62);font-size:11.5px;white-space:nowrap}
+.scMr.on small{color:rgb(var(--oriel-good-2));font-weight:500}.scMr.on.hot small{color:rgb(var(--oriel-bad-strong))}
+.scMh{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(var(--oriel-ink),.62);margin:8px 0 1px}
+.scMr.mut{color:rgba(var(--oriel-ink),.62)}
 #scCams{left:100px;top:410px;width:1156px;height:190px;padding:14px 16px}
 #scCamRow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
-.scCam{height:132px;border-radius:20px;position:relative;overflow:hidden;background:linear-gradient(150deg,#4a423b,#2a2420);color:#fff;cursor:pointer}
+.scCam{height:132px;border-radius:20px;position:relative;overflow:hidden;background:linear-gradient(150deg,${CAM.tileA},${CAM.tileB});color:${CAM.text};cursor:pointer}
 .scCam img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-.scCam .scLive{position:absolute;inset:0;background:#0c0b0a;display:none;color:#fff;font-size:12px;align-items:center;justify-content:center}
+.scCam .scLive{position:absolute;inset:0;background:${CAM.video};display:none;color:${CAM.text};font-size:12px;align-items:center;justify-content:center}
 .scCam.live .scLive{display:flex}
 .scCam .scLive>*{width:100%;height:100%;display:block}
-.scCam .scL{position:absolute;left:12px;top:9px;font-size:13px;text-shadow:0 1px 4px rgba(0,0,0,.6);z-index:3;white-space:nowrap}
-.scCam .scTm{position:absolute;left:12px;bottom:10px;font-size:11px;color:rgba(255,255,255,.75);text-shadow:0 1px 4px rgba(0,0,0,.6);z-index:3;white-space:nowrap}
-.scCam .scBt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:25px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;color:#fff;cursor:pointer;padding:0;z-index:4}
-.scCam.live .scBt{top:auto;bottom:8px;left:auto;right:8px;transform:none;width:44px;height:44px;border-radius:22px;background:rgba(0,0,0,.55)}
+.scCam .scL{position:absolute;left:12px;top:9px;font-size:13px;text-shadow:0 1px 4px ${CAM.shadow};z-index:3;white-space:nowrap}
+.scCam .scTm{position:absolute;left:12px;bottom:10px;font-size:11px;color:${CAM.soft};text-shadow:0 1px 4px ${CAM.shadow};z-index:3;white-space:nowrap}
+.scCam .scBt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:25px;background:${CAM.btn};border:1px solid ${CAM.btnLine};display:grid;place-items:center;color:${CAM.text};cursor:pointer;padding:0;z-index:4}
+.scCam.live .scBt{top:auto;bottom:8px;left:auto;right:8px;transform:none;width:44px;height:44px;border-radius:22px;background:${CAM.btnLive}}
 .scCam .scBd{position:absolute;right:8px;top:8px;display:flex;gap:4px;z-index:3}
 .scCam.live .scBd{display:none}
-.scCam .scBd span{height:20px;padding:0 8px;border-radius:10px;font-size:10.5px;background:rgba(255,255,255,.18);display:flex;align-items:center}
-.scCam .scBd span.on{background:#c0392b}
+.scCam .scBd span{height:20px;padding:0 8px;border-radius:10px;font-size:10.5px;background:${CAM.chip};display:flex;align-items:center}
+.scCam .scBd span.on{background:${CAM.live}}
 .scCam.off{opacity:.55}.scCam.off .scBt{display:none}
 #scEv{left:100px;top:612px;width:560px;height:164px;padding:14px 16px;overflow:hidden}
 .scEvr{display:grid;grid-template-columns:48px 20px 1fr;gap:8px;align-items:center;height:24px;font-size:12.5px;cursor:pointer}
-.scEvr .scT{color:rgba(31,26,23,.62);font-variant-numeric:tabular-nums}
+.scEvr .scT{color:rgba(var(--oriel-ink),.62);font-variant-numeric:tabular-nums}
 .scEvr .scX{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.scEvr.hi{color:#9a3a1d}
-.scEmpty{font-size:12.5px;color:rgba(31,26,23,.62);padding-top:6px}
+.scEvr.hi{color:rgb(var(--oriel-bad))}
+.scEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),.62);padding-top:6px}
 #scHealth{left:676px;top:612px;width:580px;height:164px;padding:14px 16px}
 #scHg{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:8px;font-size:12.5px}
 .scHb{display:flex;align-items:center;justify-content:space-between;height:23px;cursor:pointer;gap:6px}
 .scHb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.scHb b{font-weight:400;white-space:nowrap}.scHb b.lo{color:#ffb08f}
+.scHb b{font-weight:400;white-space:nowrap}.scHb b.lo{color:rgb(var(--oriel-bad-on-dark))}
 `;
 const HTML = () => `<div id="scWrap">
   <div id="scHero" class="abs glass mid">
@@ -375,7 +376,7 @@ const SecurityExt = {
     const hero = $('scHero');
     hero.style.setProperty('--gc', T.c); hero.style.setProperty('--an', T.an);
     hero.classList.toggle('alert', s === 'triggered');
-    $('scState').textContent = S[T.l]; $('scState').style.color = T.t;
+    $('scState').textContent = S[T.l]; $('scState').style.color = this._stateText(T.t);
     $('scClock').textContent = t('updated_at', { t: hm(now) });
     const rows = S0.open, open = [], missing = [];
     rows.forEach((r) => { const v = this.sv(r.it.entity); if (v === 'on') open.push(r); else if (bad(v)) missing.push(r); });

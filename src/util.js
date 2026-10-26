@@ -12,9 +12,12 @@ export const isEnt = (id) => typeof id === 'string' && /^[a-z_]+\.[a-z0-9_]+$/.t
 export const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+/* SVG paint can't read CSS variables from an attribute, so themed paint goes on the inline style instead. */
+const PAINT = { fill: 1, stroke: 1, 'stop-color': 1 };
+export function paint(e, k, v) { e.style.setProperty(k, v); }
 export function el(tag, attrs, parent) {
   const e = document.createElementNS(NS, tag);
-  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  for (const k in attrs) { const v = attrs[k]; if (PAINT[k] && typeof v === 'string' && v.includes('var(')) paint(e, k, v); else e.setAttribute(k, v); }
   if (parent) parent.appendChild(e);
   return e;
 }
