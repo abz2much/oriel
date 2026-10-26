@@ -542,5 +542,59 @@
       }
     ],
     "debug_panel": true
+  },
+  "climate": {
+    "weather": "weather.home",
+    "thermostats": [
+      {
+        "entity": "climate.ground_floor",
+        "name": "Ground floor",
+        "step": 0.5
+      },
+      {
+        "entity": "climate.first_floor",
+        "name": "First floor",
+        "step": 0.5
+      },
+      {
+        "entity": "climate.spare_room",
+        "name": "Spare room"
+      }
+    ]
+  },
+  "family": {
+    "shopping": "todo.shopping",
+    "todo": "todo.chores",
+    "calendars": [
+      {
+        "entity": "calendar.household",
+        "name": "Household"
+      },
+      {
+        "entity": "calendar.birthdays",
+        "name": "Birthdays"
+      },
+      {
+        "entity": "calendar.public_holidays",
+        "name": "Holidays"
+      }
+    ],
+    "bins": [
+      {
+        "entity": "calendar.bin_black",
+        "label": "Black bin",
+        "colour": "black"
+      },
+      {
+        "entity": "calendar.bin_brown",
+        "label": "Brown bin",
+        "colour": "brown"
+      },
+      {
+        "entity": "calendar.bin_green",
+        "label": "Green bin",
+        "colour": "green"
+      }
+    ]
   }
 }

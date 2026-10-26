@@ -182,6 +182,29 @@ export const SECTIONS = [
     ],
   },
   {
+    key: 'climate',
+    groups: [
+      { key: 'weather', fields: [ent('weather', 'weather', {})] },
+      {
+        key: 'thermostats',
+        fields: [
+          ent('boost.start', 'script', { w: ['boost'] }), ent('boost.cancel', 'script', { w: ['boost', 'cancel'] }),
+          ent('boost.timer', 'timer', { w: ['boost'] }), ent('boost.switch', ['switch', 'input_boolean'], { w: ['boost'] }), txt('boost.label'),
+        ],
+        lists: [{ key: 'thermostats', label: (i) => i.name || i.entity, detect: 'thermostats', item: { fields: [txt('name'), ent('entity', 'climate'), num('step', 0.1, 5, 0.1)] } }],
+      },
+      { key: 'rooms', lists: [{ key: 'rooms', label: (i) => i.name || i.temperature, detect: 'rooms', item: { fields: [txt('name'), ent('temperature', 'sensor', TEMP)] } }] },
+    ],
+  },
+  {
+    key: 'family',
+    groups: [
+      { key: 'lists', fields: [ent('shopping', 'todo', { w: ['shopping'] }), ent('todo', 'todo', { w: ['todo', 'to_do', 'chores', 'tasks'] }), bool('reminders')] },
+      { key: 'calendars', lists: [{ key: 'calendars', max: 8, label: (i) => i.name || i.entity, detect: 'calendars', item: { fields: [txt('name'), ent('entity', 'calendar')] } }] },
+      { key: 'bins', lists: [{ key: 'bins', label: (i) => i.label || i.entity, detect: 'bins', item: { fields: [txt('label'), ent('entity', 'calendar'), txt('colour')] } }] },
+    ],
+  },
+  {
     key: 'security',
     groups: [
       {

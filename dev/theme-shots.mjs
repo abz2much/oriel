@@ -10,7 +10,7 @@ import { chromium } from 'playwright';
 const T0 = new Date('2026-10-20T10:30:00').getTime();
 const RealDate = Date;
 globalThis.Date = class extends RealDate { constructor(...a) { super(...(a.length ? a : [T0])); } static now() { return T0; } };
-const { mkStates, CALLWS_SRC } = await import('./mock.mjs'); /* after the freeze: mock.mjs reads the time on load */
+const { mkStates, CALLWS_SRC, CALLAPI_SRC } = await import('./mock.mjs'); /* after the freeze: mock.mjs reads the time on load */
 
 const themes = process.argv.slice(2).length ? process.argv.slice(2) : [''];
 const OUT = process.env.OUT || 'dev/out/themes';
@@ -18,7 +18,7 @@ const bundle = fs.readFileSync(process.env.BUNDLE || 'dist/oriel.js', 'utf8');
 const CONFIG = process.env.CONFIG || 'full';
 const base = JSON.parse(fs.readFileSync(`dev/configs/${CONFIG}.json`, 'utf8'));
 base.general = base.general || {};
-if (CONFIG === 'full') base.nova = { enabled: true, entities: { status: 'sensor.nova_status', suggestions: 'sensor.nova_suggestions', energy_note: 'sensor.nova_energy_note' } };
+if (CONFIG === 'full') base.nova = { enabled: true, entities: { status: 'sensor.nova_status', suggestions: 'sensor.nova_suggestions', reminders: 'sensor.nova_reminders', energy_note: 'sensor.nova_energy_note' } };
 const extra = {
   'sensor.nova_status': { state: 'ready', attributes: {} },
   'sensor.nova_suggestions': { state: '3', attributes: {} },
@@ -27,13 +27,13 @@ const extra = {
 
 /* [shot name, page key, optional JS run inside the shadow root to open a pop-up] */
 const ALL = [
-  ['home', 'home'], ['living', 'living'], ['energy', 'energy'], ['security', 'security'], ['vacuum', 'vacuum'], ['nova', 'nova'], ['system', 'system'],
+  ['home', 'home'], ['living', 'living'], ['energy', 'energy'], ['climate', 'climate'], ['family', 'family'], ['security', 'security'], ['vacuum', 'vacuum'], ['nova', 'nova'], ['system', 'system'],
   ['home-shop', 'home', 'r.getElementById("shop").classList.add("show")'],
   ['home-bell', 'home', 'r.getElementById("bell").classList.add("show")'],
   ['vacuum-confirm', 'vacuum', 'r.getElementById("vcConf").classList.add("show")'],
   ['nova-confirm', 'nova', 'r.getElementById("nvConf").classList.add("show")'],
 ];
-const SHOTS = CONFIG === 'full' ? ALL : ALL.filter(([n]) => n === 'home' || n === 'system');
+const SHOTS = CONFIG === 'full' ? ALL : ALL.filter(([n]) => ['home', 'system'].concat(CONFIG === 'partial' ? ['climate', 'family'] : []).includes(n));
 
 const browser = await chromium.launch();
 let failed = 0;
@@ -53,16 +53,16 @@ for (const theme of themes) {
     await page.addScriptTag({ content: bundle, type: 'module' });
     await page.clock.runFor(100);
     await page.waitForFunction(() => customElements.get('oriel-shell'));
-    await page.evaluate(({ cfg, st, ws }) => {
-      window.__calls = []; window.__ws = [];
+    await page.evaluate(({ cfg, st, ws, api }) => {
+      window.__calls = []; window.__ws = []; window.__api = [];
       const e = document.querySelector('oriel-shell');
       e.setConfig(cfg);
       e.hass = {
         states: st, services: { light: {}, climate: {}, script: {}, nova: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP', components: ['nova'] },
         callService: (d, s, data) => { window.__calls.push([d, s, data]); return Promise.resolve(); },
-        callWS: eval('(' + ws + ')'), callApi: async () => ({}),
+        callWS: eval('(' + ws + ')'), callApi: eval('(' + api + ')'),
       };
-    }, { cfg, st: Object.assign(mkStates(), extra), ws: CALLWS_SRC });
+    }, { cfg, st: Object.assign(mkStates(), extra), ws: CALLWS_SRC, api: CALLAPI_SRC });
     await page.clock.runFor(500);
     await page.evaluate((k) => document.querySelector('oriel-shell')._setPage(k), key);
     await page.clock.runFor(300);

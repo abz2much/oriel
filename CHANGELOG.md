@@ -2,6 +2,19 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.3.0] - 2026-10-26
+
+### Added
+- **Climate page** (thermometer in the rail). Weather card with feels like, wind, humidity, high and low, a 5-day row and a next-12-hours chart, read with `weather.get_forecasts` and hidden row by row when the entity does not support daily or hourly forecasts. Thermostats card with − and + in the thermostat's own step, hvac action and target, and the heating boost. A last-12-hours line graph of each thermostat's current temperature (hourly averages, gaps for unavailable readings, a legend, and a different dash and marker per line so colour is never the only cue). A Rooms card with a bar per room and the coldest and warmest named. New `climate` config section.
+- **Family page** (people icon in the rail). Shopping list card (tick, add, “Clear done”, count), a merged calendar for today, tomorrow and this week with all-day events marked, bin collections with the next date and a highlighted “Tomorrow” (the word as well as the colour), an optional second to-do list, and Nova's reminders when Nova is on. New `family` config section.
+- Visual editor: Climate and Family sections with entity pickers, warnings for missing or wrong-type entities and Auto-detect that applies only when accepted. Both sections feed the debug panel.
+- Dev harness: made-up data for both pages, a `partial` config with a card missing, theme screenshots of both pages, and `dev/pages.mjs` (run by `npm test`), which checks the history request, the forecast calls, the thermostat step, boost, the to-do lists, the calendar requests and Nova gating.
+
+### Changed
+- Rail order is now Home, Living room, Energy, Climate, Family, Security, Vacuum, Nova, with System last.
+- The shopping pop-up, the Family lists, the heating boost, the thermostat step and the Nova reminder rows now share one implementation each. The Home shopping pop-up and room panel work as before. The heating step now falls back to the thermostat's `target_temp_step` before 0.5 when `step` is not set.
+- Contrast checks cover the new text, the add boxes and the chart lines in all 12 themes.
+
 ## [0.2.9] - 2026-10-26
 
 ### Added

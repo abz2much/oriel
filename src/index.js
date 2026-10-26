@@ -5,6 +5,8 @@ import { BANNER } from './theme/fixed.js';
 import './house.js';
 import './pages/living.js';
 import './pages/energy.js';
+import './pages/climate.js';
+import './pages/family.js';
 import './pages/security.js';
 import './pages/vacuum.js';
 import './pages/system.js';

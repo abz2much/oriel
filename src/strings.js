@@ -697,3 +697,83 @@ Object.assign(S, {
   use_for: 'Use suggestion for {f}',
   add_n_items: 'Add {n} new',
 });
+
+/* ---------- Climate and Family pages ---------- */
+Object.assign(S, {
+  page_climate: 'Climate',
+  page_family: 'Family',
+
+  // climate: weather
+  feels_like: 'Feels like {t}°',
+  wind: 'Wind',
+  humidity: 'Humidity',
+  high_low: '{h}° / {l}°',
+  high_low_label: 'High / low',
+  high_only: 'High {h}°',
+  low_only: 'Low {l}°',
+  next_5_days: 'Next 5 days',
+  next_12_hours: 'Next 12 hours',
+  rain_chance: '{p}% chance of rain',
+  forecast_loading: 'Loading the forecast…',
+  forecast_unavailable: 'Forecast not available',
+  temp_label: 'Temperature {t}°',
+  // climate: thermostats, history, rooms
+  thermostats: 'Thermostats',
+  target_x: 'Target {t}°',
+  last_12_hours: 'Last 12 hours',
+  hourly_average: 'Hourly average',
+  no_history: 'No temperature history yet',
+  history_unavailable: 'History not available',
+  rooms: 'Rooms',
+  coldest_x: 'Coldest: {n}, {t}°',
+  warmest_x: 'Warmest: {n}, {t}°',
+  // family
+  calendar: 'Calendar',
+  tomorrow_cap: 'Tomorrow',
+  this_week: 'This week',
+  all_day: 'All day',
+  nothing_planned: 'Nothing planned',
+  calendar_unavailable: 'Calendar not available',
+  bins: 'Bins',
+  bin_today: 'Today',
+  bin_tomorrow: 'Tomorrow',
+  bin_none: 'No collection found',
+  bin_black: 'Black bin',
+  bin_brown: 'Brown bin',
+  bin_green: 'Green bin',
+  todo_list: 'To do',
+  n_to_do: '{n} to do',
+  clear_done: 'Clear done',
+  nothing_to_do: 'Nothing to do',
+  next_reminders: 'Next reminders',
+});
+export const HVAC = { heating: 'Heating', cooling: 'Cooling', idle: 'Idle', off: 'Off', drying: 'Drying', fan: 'Fan', defrosting: 'Defrosting', preheating: 'Preheating' };
+export const WX = {
+  'clear-night': 'Clear night', cloudy: 'Cloudy', exceptional: 'Exceptional', fog: 'Fog', hail: 'Hail', lightning: 'Lightning', 'lightning-rainy': 'Thunderstorms',
+  partlycloudy: 'Partly cloudy', pouring: 'Pouring', rainy: 'Rain', snowy: 'Snow', 'snowy-rainy': 'Sleet', sunny: 'Sunny', windy: 'Windy', 'windy-variant': 'Windy',
+};
+
+Object.assign(ED, {
+  'sec.climate': 'Climate', 'sec.family': 'Family',
+  'hint.climate': 'Weather, thermostats, the last 12 hours and room temperatures. The page appears in the side rail once any entity here is set. Each card hides when nothing in it is set.',
+  'hint.family': 'Shopping list, calendar, bin collections and a second to-do list. The page appears in the side rail once any entity here is set. Reminders come from Nova and show only when Nova is on.',
+  'g.climate.weather': 'Weather', 'g.climate.thermostats': 'Thermostats', 'g.climate.rooms': 'Rooms',
+  'g.family.lists': 'Lists', 'g.family.calendars': 'Calendars', 'g.family.bins': 'Bins',
+  'climate.weather': 'Weather',
+  'help.climate.weather': 'One weather entity. The 5-day row and the next-12-hours chart need it to support daily and hourly forecasts; rows it cannot do are hidden.',
+  'climate.thermostats': 'Thermostats', 'climate.thermostats.entity': 'Thermostat', 'climate.thermostats.step': 'Step (°; empty: the thermostat’s own, else 0.5)',
+  'climate.boost.start': 'Boost: start script', 'climate.boost.cancel': 'Boost: cancel script', 'climate.boost.timer': 'Boost: timer', 'climate.boost.switch': 'Boost: switch', 'climate.boost.label': 'Boost: label (e.g. 1 hour)',
+  'help.climate.boost.start': 'Leave the boost fields empty to use the Home room panel boost.',
+  'climate.rooms': 'Rooms (empty: the rooms on the Home house plan)', 'climate.rooms.temperature': 'Temperature sensor',
+  'add.climate.thermostats': 'Add thermostat', 'add.climate.rooms': 'Add room',
+  'family.shopping': 'Shopping list (to-do)',
+  'help.family.shopping': 'The same list as the Home shopping pop-up. Ticking, adding and “Clear done” change the real list.',
+  'family.todo': 'Second to-do list',
+  'help.family.todo': 'Needs a second to-do list in Home Assistant. With none set, this card is not built.',
+  'family.reminders': 'Show Nova reminders (only when Nova is on)',
+  'family.calendars': 'Calendars (merged, up to 8)', 'family.calendars.entity': 'Calendar',
+  'family.bins': 'Bin collections', 'family.bins.entity': 'Collection calendar', 'family.bins.label': 'Label (e.g. Black bin)', 'family.bins.colour': 'Colour (black, brown, green or a hex such as #3366cc)',
+  'add.family.calendars': 'Add calendar', 'add.family.bins': 'Add bin',
+});
+Object.assign(S, { weather_title: 'Weather', stale_data: 'Out of date' });
+Object.assign(S, { now_label: 'Now' });

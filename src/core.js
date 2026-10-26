@@ -184,7 +184,7 @@ const HTML = `
 
 /* Page registry. Home is built in; the others come from src/pages/*.js. */
 export const PAGES = [];
-const DEFAULT_ORDER = ['home', 'living', 'energy', 'security', 'vacuum', 'nova'];
+const DEFAULT_ORDER = ['home', 'living', 'energy', 'climate', 'family', 'security', 'vacuum', 'nova'];
 
 function loadFont() {
   if (document.getElementById('oriel-font')) return;
@@ -249,7 +249,7 @@ export class OrielShell extends HTMLElement {
     this._ov = {}; this._timers = {}; this._dismissed = {};
     this._pages = { home: { el: this.$('pgHome'), def: { key: 'home' } } };
     this._page = 'home'; this._pageSig = null; this._css = {};
-    this._camKey = null; this._camCard = null; this._energy = null; this._shopItems = null;
+    this._camKey = null; this._camCard = null; this._energy = null; this._td = {}; this._shopView = null; this._shopOpen = false;
     try { this._buildStatic(); } catch (e) { console.error('[oriel] build failed', e); }
     this._fit();
     this._ro = new ResizeObserver(() => this._fit());
@@ -436,8 +436,8 @@ export class OrielShell extends HTMLElement {
     $('bellX').addEventListener('click', () => { if (this._camKey) this._dismissed[this._camKey] = true; this._hideCam(); });
     $('shopX').addEventListener('click', () => this._closeShop());
     $('shop').addEventListener('click', (e) => { if (e.target === $('shop')) this._closeShop(); });
-    $('shopForm').addEventListener('submit', (e) => { e.preventDefault(); const tx = $('shopIn').value.trim(); if (tx) { $('shopIn').value = ''; this._shopAdd(tx); } });
-    $('shopClear').addEventListener('click', () => this._shopClear());
+    $('shopForm').addEventListener('submit', (e) => { e.preventDefault(); const tx = $('shopIn').value.trim(); if (tx) { $('shopIn').value = ''; this._todoAdd(H.shopping, tx); } });
+    $('shopClear').addEventListener('click', () => this._todoClear(H.shopping));
     if (this._buildHouse) { try { this._buildHouse(); } catch (e) { console.error('[oriel] house failed', e); } }
     this._clock();
   }
@@ -464,13 +464,12 @@ export class OrielShell extends HTMLElement {
     lw.classList.toggle('hide', !lights.length);
     const hw = $('heat'); this._heat = [];
     (R.heating || []).filter((h) => h && isEnt(h.entity)).forEach((h) => {
-      const step = Number(h.step) > 0 ? Number(h.step) : 0.5;
       const row = document.createElement('div'); row.className = 'hr';
       row.innerHTML = `<div class="l"><b></b><span>–</span></div><span class="v">–</span><button class="round sm" aria-label="${esc(S.lower)}">${icon('minus')}</button><button class="round sm" aria-label="${esc(S.raise)}">${icon('plus')}</button>`;
       row.querySelector('.l b').textContent = h.name || this.name(h.entity);
       const [bm, bp] = row.querySelectorAll('button');
-      bm.addEventListener('click', () => this._bump(h.entity, -step, step));
-      bp.addEventListener('click', () => this._bump(h.entity, step, step));
+      bm.addEventListener('click', () => this._bump(h.entity, -1, h.step));
+      bp.addEventListener('click', () => this._bump(h.entity, 1, h.step));
       this.tap(row.querySelector('.l'), () => this.moreInfo(h.entity));
       hw.appendChild(row); this._heat.push({ h, sub: row.querySelector('.l span'), v: row.querySelector('.v') });
     });
@@ -502,47 +501,68 @@ export class OrielShell extends HTMLElement {
   _syncRoomPanel() { const noChat = this.$('nova').classList.contains('hide'), r = this.$('room'); r.classList.toggle('hide', !this._roomHasContent && noChat); r.classList.toggle('fit', noChat); }
   appliances() { return (this._c.home.room_panel.appliances || []).filter((a) => a && isEnt(a.state)).map((a) => Object.assign({}, APPLIANCE_DEFAULTS, a)); }
 
-  /* ---------- shopping overlay ---------- */
-  _openShop() { this._shopOpen = true; this.$('shop').classList.add('show'); this._loadShop(); setTimeout(() => this.$('shopIn').focus({ preventScroll: true }), 50); }
-  _closeShop() { this._shopOpen = false; this.$('shop').classList.remove('show'); }
-  async _loadShop() {
-    const id = this._c.home.shopping; if (!isEnt(id) || !this._h) return;
-    try { const r = await this._h.callWS({ type: 'todo/item/list', entity_id: id }); this._shopItems = (r && r.items) || []; }
-    catch (e) { console.warn('[oriel] shopping load failed', e); this._shopItems = this._shopItems || []; }
-    this._renderShop();
+  /* ---------- to-do lists: one controller per list, drawn into any number of views ---------- */
+  _todo(id) { this._td = this._td || {}; return this._td[id] || (this._td[id] = { items: null, views: new Set(), n: undefined }); }
+  _todoPaint(id) { this._todo(id).views.forEach((fn) => { try { fn(); } catch (e) { console.warn('[oriel] to-do view', e); } }); }
+  async _todoLoad(id) {
+    if (!isEnt(id) || !this._h) return;
+    const d = this._todo(id);
+    try { const r = await this._h.callWS({ type: 'todo/item/list', entity_id: id }); d.items = (r && r.items) || []; }
+    catch (e) { console.warn('[oriel] to-do load failed', e); d.items = d.items || []; }
+    this._todoPaint(id);
   }
-  _renderShop() {
-    const items = (this._shopItems || []).slice().sort((a, b) => (a.status === 'completed') - (b.status === 'completed'));
-    const ul = this.$('shopList'); ul.innerHTML = '';
-    const left = items.filter((i) => i.status !== 'completed').length;
-    this.$('shopCount').textContent = left ? t('to_buy', { n: left }) : '';
-    if (!items.length) { ul.innerHTML = `<div class="empty">${esc(S.nothing_on_list)}</div>`; }
+  /* reload when the list's own count changes (the state is the number of open items) */
+  _todoWatch(id) {
+    if (!isEnt(id)) return;
+    const d = this._todo(id), n = this.sv(id);
+    if (n !== d.n) { const first = d.n === undefined; d.n = n; if (d.views.size && !first) this._todoLoad(id); }
+  }
+  /* open items first; returns how many are still to do */
+  _todoRows(ul, id, emptyText) {
+    const items = (this._todo(id).items || []).slice().sort((a, b) => (a.status === 'completed') - (b.status === 'completed'));
+    ul.innerHTML = '';
+    if (!items.length) ul.innerHTML = `<div class="empty">${esc(emptyText)}</div>`;
     items.forEach((it) => {
-      const li = document.createElement('li'); li.className = it.status === 'completed' ? 'done' : '';
-      li.innerHTML = `<span class="ck">${it.status === 'completed' ? icon('check') : ''}</span><span></span>`;
+      const done = it.status === 'completed';
+      const li = document.createElement('li'); li.className = done ? 'done' : '';
+      li.innerHTML = `<span class="ck">${done ? icon('check') : ''}</span><span></span>`;
       li.lastChild.textContent = it.summary;
-      this.tap(li, () => this._shopToggle(it)); li.setAttribute('role', 'checkbox'); li.setAttribute('aria-checked', String(it.status === 'completed'));
+      this.tap(li, () => this._todoToggle(id, it)); li.setAttribute('role', 'checkbox'); li.setAttribute('aria-checked', String(done));
       ul.appendChild(li);
     });
+    return items.filter((i) => i.status !== 'completed').length;
   }
-  _shopAdd(text) {
-    const id = this._c.home.shopping;
-    this._shopItems = this._shopItems || [];
-    this._shopItems.unshift({ uid: 'tmp' + Date.now(), summary: text, status: 'needs_action' });
-    this._renderShop();
+  _todoAdd(id, text) {
+    const d = this._todo(id); d.items = d.items || [];
+    d.items.unshift({ uid: 'tmp' + Date.now(), summary: text, status: 'needs_action' });
+    this._todoPaint(id);
     this.call('todo', 'add_item', { entity_id: id, item: text });
-    setTimeout(() => this._loadShop(), 700);
+    setTimeout(() => this._todoLoad(id), 700);
   }
-  _shopToggle(it) {
+  _todoToggle(id, it) {
     it.status = it.status === 'completed' ? 'needs_action' : 'completed';
-    this._renderShop();
-    this.call('todo', 'update_item', { entity_id: this._c.home.shopping, item: it.uid, status: it.status });
-    setTimeout(() => this._loadShop(), 800);
+    this._todoPaint(id);
+    this.call('todo', 'update_item', { entity_id: id, item: it.uid, status: it.status });
+    setTimeout(() => this._todoLoad(id), 800);
   }
-  _shopClear() {
-    this._shopItems = (this._shopItems || []).filter((i) => i.status !== 'completed'); this._renderShop();
-    this.call('todo', 'remove_completed_items', { entity_id: this._c.home.shopping });
-    setTimeout(() => this._loadShop(), 800);
+  _todoClear(id) {
+    const d = this._todo(id); d.items = (d.items || []).filter((i) => i.status !== 'completed'); this._todoPaint(id);
+    this.call('todo', 'remove_completed_items', { entity_id: id });
+    setTimeout(() => this._todoLoad(id), 800);
+  }
+
+  /* ---------- shopping overlay (home.shopping) ---------- */
+  _openShop() {
+    const id = this._c.home.shopping; if (!isEnt(id)) return;
+    this._shopOpen = true; this.$('shop').classList.add('show');
+    this._shopView = this._shopView || (() => this._renderShop());
+    this._todo(id).views.add(this._shopView); this._todoLoad(id);
+    setTimeout(() => this.$('shopIn').focus({ preventScroll: true }), 50);
+  }
+  _closeShop() { this._shopOpen = false; this.$('shop').classList.remove('show'); const id = this._c.home.shopping; if (this._shopView && isEnt(id)) this._todo(id).views.delete(this._shopView); }
+  _renderShop() {
+    const id = this._c.home.shopping, left = this._todoRows(this.$('shopList'), id, S.nothing_on_list);
+    this.$('shopCount').textContent = left ? t('to_buy', { n: left }) : '';
   }
 
   /* ---------- greeting and clock ---------- */
@@ -556,40 +576,49 @@ export class OrielShell extends HTMLElement {
   }
 
   /* ---------- heating ---------- */
-  _bump(id, delta, step) {
+  /* step: the config value, else the entity's own target_temp_step, else 0.5 */
+  _step(id, cfg) { const s = this.st(id), a = Number(cfg), e = s && Number(s.attributes.target_temp_step); return a > 0 ? a : e > 0 ? e : 0.5; }
+  _bump(id, dir, cfgStep) {
     const s = this.st(id); if (!s) return;
-    const cur = this.ov('t:' + id, s.attributes.temperature);
+    const step = this._step(id, cfgStep), cur = this.ov('t:' + id, s.attributes.temperature);
     if (cur == null) return;
-    const v = clamp(Math.round((cur + delta) / step) * step, s.attributes.min_temp || 5, s.attributes.max_temp || 30);
-    this.override('t:' + id, v); this._renderHeat();
+    const v = clamp(Math.round((cur + dir * step) / step) * step, s.attributes.min_temp || 5, s.attributes.max_temp || 30);
+    this.override('t:' + id, v); this._renderHeat(); if (this._renderThermo) this._renderThermo();
     this.debounce('t:' + id, 500, () => this.call('climate', 'set_temperature', { entity_id: id, temperature: v }));
   }
-  _renderHeat() {
-    (this._heat || []).forEach(({ h, sub, v }) => {
-      const s = this.st(h.entity); if (!s) { v.textContent = '–'; sub.textContent = '–'; return; }
-      const tt = this.ov('t:' + h.entity, s.attributes.temperature), cur = s.attributes.current_temperature, act = s.attributes.hvac_action;
-      v.textContent = tt != null ? Number(tt).toFixed(1) + '°' : '–';
-      sub.textContent = (act ? cap(act) : cap(s.state)) + (cur != null ? ' · ' + t('now_temp', { t: Number(cur).toFixed(1) }) : '');
-    });
+  /* what a thermostat row shows: target, and "action · now 20.5°" */
+  _heatRead(id) {
+    const s = this.st(id); if (!s) return { v: '–', sub: '–' };
+    const tt = this.ov('t:' + id, s.attributes.temperature), cur = s.attributes.current_temperature, act = s.attributes.hvac_action;
+    return { v: tt != null ? Number(tt).toFixed(1) + '°' : '–', sub: (act ? cap(act) : cap(s.state)) + (cur != null ? ' · ' + t('now_temp', { t: Number(cur).toFixed(1) }) : '') };
   }
-  _boostActive() {
-    const B = this._c.home.room_panel.boost, tm = this.st(B.timer), sw = this.st(B.switch);
+  _renderHeat() {
+    (this._heat || []).forEach(({ h, sub, v }) => { const r = this._heatRead(h.entity); v.textContent = r.v; sub.textContent = r.sub; });
+  }
+  /* B is a boost config: the room panel's by default; the Climate page passes its own (which falls back to this one) */
+  _boostCfg(over) { const o = over || {}; return [o.start, o.timer, o.switch].some(isEnt) ? o : this._c.home.room_panel.boost; }
+  _boostActive(B) {
+    B = B || this._c.home.room_panel.boost; const tm = this.st(B.timer), sw = this.st(B.switch);
     return (tm && tm.state === 'active') || (sw && sw.state === 'on');
   }
-  _toggleBoost() {
-    const B = this._c.home.room_panel.boost;
-    this.runScript(this._boostActive() ? B.cancel : B.start);
+  _toggleBoost(B) {
+    B = B || this._c.home.room_panel.boost;
+    this.runScript(this._boostActive(B) ? B.cancel : B.start);
   }
-  _renderBoost() {
-    if (!this._boost) return;
-    const B = this._c.home.room_panel.boost, tm = this.st(B.timer), on = this._boostActive();
+  _paintBoost(btn, B) {
+    if (!btn) return;
+    const tm = this.st(B.timer), on = this._boostActive(B);
     let txt = B.label ? t('boost_idle_label', { label: B.label }) : S.boost_idle;
     if (on) {
       txt = S.boost_running;
       if (tm && tm.attributes.finishes_at) txt = t('boost_running_min', { m: Math.max(0, Math.round((new Date(tm.attributes.finishes_at) - Date.now()) / 60000)) });
     }
-    this._boost.className = 'boost' + (on ? ' on' : '');
-    this._boost.innerHTML = `${icon('fire')}${esc(txt)}`;
+    btn.className = 'boost' + (on ? ' on' : '');
+    btn.innerHTML = `${icon('fire')}${esc(txt)}`;
+  }
+  _renderBoost() {
+    this._paintBoost(this._boost, this._c.home.room_panel.boost);
+    if (this._clBoost) this._paintBoost(this._clBoost.btn, this._clBoost.cfg);
   }
 
   /* ---------- appliances (also used by the Energy page) ---------- */
@@ -729,7 +758,7 @@ export class OrielShell extends HTMLElement {
       if (q.a.type === 'shopping') {
         q.b.textContent = q.a.label || S.shopping;
         const n = this.sv(H.shopping);
-        if (this._shopOpen && n !== this._shopN) this._loadShop(); this._shopN = n;
+        this._todoWatch(H.shopping);
         q.s.textContent = n !== undefined && !bad(n) ? t(n === '1' ? 'items_one' : 'items_many', { n }) : '–';
       } else {
         q.b.textContent = q.a.label || this.name(q.a.entity);

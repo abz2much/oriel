@@ -94,6 +94,32 @@ out = await R(() => window.__out[window.__out.length - 1]);
 check('house: start from example', !!(out.home && out.home.house && out.home.house.floors.length === 2));
 await p.screenshot({ path: (process.env.OUT || 'dev/out') + '/editor-house.png', fullPage: true });
 
+// 5b. Climate and Family: summaries, auto-detect (accept only), wrong-type and missing warnings, the second-list note
+await R(() => { window.__out = []; window.__ed.setConfig({ type: 'custom:oriel-shell' }); }); await p.waitForTimeout(100);
+const sums = await R(() => [...window.__ed.shadowRoot.querySelectorAll('.sec')].filter((x) => /Climate|Family/.test(x.querySelector('.tt b').textContent)).map((x) => x.querySelector('.tt small').textContent));
+check('climate and family: "not set up · page hidden" while empty', sums.length === 2 && sums.every((x) => /Not set up.*page hidden/.test(x)), sums.join(' | '));
+await clickText('.tg', 'Family'); await p.waitForTimeout(100);
+const todoHelp = await R(() => window.__ed.shadowRoot.textContent);
+check('family: editor says the to-do card needs a second list', /Needs a second to-do list/.test(todoHelp));
+await R(() => [...window.__ed.shadowRoot.querySelectorAll('.sec')].find((s) => s.querySelector('.tt b').textContent === 'Family').querySelector('.ad').click()); await p.waitForTimeout(150);
+const fRows = await R(() => [...window.__ed.shadowRoot.querySelectorAll('.dlg .row')].map((r) => r.textContent));
+const fBefore = await R(() => window.__out.length);
+check('family auto-detect offers lists, calendars and bins; nothing applied yet', fRows.length >= 3 && fBefore === 0 && fRows.some((r) => /Black bin/.test(r) || /bins/.test(r)), fRows.length + ' rows');
+await R(() => window.__ed.shadowRoot.querySelector('.dlg .ok').click()); await p.waitForTimeout(100);
+out = await R(() => window.__out[window.__out.length - 1]);
+const fam = (out && out.family) || {};
+check('family auto-detect applies on Apply (bins get a colour and stay out of calendars; weak guesses stay unticked)', !!(fam.bins && fam.bins.some((b) => b.colour === 'black') && fam.calendars && !fam.calendars.some((c) => /bin_/.test(c.entity))), JSON.stringify(Object.keys(fam)));
+await clickText('.tg', 'Climate'); await p.waitForTimeout(100);
+await clickText('.tabs button', 'Thermostats'); await p.waitForTimeout(100);
+await clickText('.add', 'Add thermostat'); await p.waitForTimeout(100);
+await R(() => { const f = window.__ed.shadowRoot.querySelector('.item[data-where="climate.thermostats.0"] ha-form'); const i = f.querySelector('input[data-name="entity"]'); i.value = 'sensor.kitchen_temperature'; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+const cNote = await R(() => window.__ed.shadowRoot.querySelector('.item[data-where="climate.thermostats.0"] .notes').textContent);
+check('climate: wrong-type thermostat warns', /wrong type/.test(cNote) && /climate/.test(cNote), cNote.slice(0, 70));
+await R(() => { const f = window.__ed.shadowRoot.querySelector('.item[data-where="climate.thermostats.0"] ha-form'); const i = f.querySelector('input[data-name="entity"]'); i.value = 'climate.nope'; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+const cMiss = await R(() => window.__ed.shadowRoot.querySelector('.item[data-where="climate.thermostats.0"] .notes').textContent);
+check('climate: missing thermostat warns', /does not exist/.test(cMiss), cMiss.slice(0, 70));
+await p.screenshot({ path: (process.env.OUT || 'dev/out') + '/editor-climate.png', fullPage: true });
+
 // 6. theme dropdown and accent colour (General section)
 await R((cfg) => { window.__out = []; window.__ed.setConfig(cfg); }, input);
 await p.waitForTimeout(100);

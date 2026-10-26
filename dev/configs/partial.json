@@ -1,0 +1,27 @@
+{
+  "general": {
+    "weather": "weather.home"
+  },
+  "climate": {
+    "weather": "weather.home",
+    "thermostats": [
+      {
+        "entity": "climate.ground_floor",
+        "name": "Ground floor"
+      },
+      {
+        "entity": "climate.first_floor",
+        "name": "First floor"
+      }
+    ]
+  },
+  "family": {
+    "shopping": "todo.shopping",
+    "calendars": [
+      {
+        "entity": "calendar.household",
+        "name": "Household"
+      }
+    ]
+  }
+}

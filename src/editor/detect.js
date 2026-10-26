@@ -129,9 +129,22 @@ function listDetect(l, obj, hass, inUse) {
     if (sens.length) items = [{ floor: '', rooms: sens.map((id) => ({ name: fname(S[id]), entities: [id], wording: dc(id) === 'motion' ? 'motion' : 'presence' })) }];
   } else if (l.detect === 'batteries') {
     items = ids.filter((id) => id.startsWith('sensor.') && dc(id) === 'battery').map((id) => ({ name: fname(S[id]), entity: id }));
+  } else if (l.detect === 'thermostats') {
+    items = ids.filter((id) => id.startsWith('climate.')).slice(0, 4).map((id) => ({ name: fname(S[id]), entity: id }));
+  } else if (l.detect === 'rooms') {
+    items = ids.filter((id) => id.startsWith('sensor.') && dc(id) === 'temperature').slice(0, 8).map((id) => ({ name: fname(S[id]), temperature: id }));
+  } else if (l.detect === 'bins' || l.detect === 'calendars') {
+    const isBin = (id) => /bin|waste|collection|recycl|refuse|rubbish/.test(id + ' ' + fname(S[id]).toLowerCase());
+    const cals = ids.filter((id) => id.startsWith('calendar.') && isBin(id) === (l.detect === 'bins')).slice(0, 8);
+    items = cals.map((id) => {
+      if (l.detect === 'calendars') return { name: fname(S[id]), entity: id };
+      const w = (id + ' ' + fname(S[id]).toLowerCase()), colour = ['black', 'brown', 'green'].find((c) => w.includes(c));
+      return Object.assign({ label: fname(S[id]), entity: id }, colour ? { colour } : {});
+    });
   } else if (l.detect === 'vacuums') {
     items = ids.filter((id) => id.startsWith('vacuum.')).slice(0, 4).map((id) => ({ name: fname(S[id]), entity: id }));
   }
   if (!items.length) return null;
-  return { kind: 'items', path: l.key, list: l, items, why: l.detect, strong: true, alts: [] };
+  /* a list of room sensors is a guess at which temperature sensors are rooms: offered, but not ticked */
+  return { kind: 'items', path: l.key, list: l, items, why: l.detect, strong: l.detect !== 'rooms', alts: [] };
 }

@@ -222,6 +222,26 @@ living:
     - name: Home
       icon: close
       close_all: true
+climate:
+  weather: weather.home
+  thermostats:
+    - { entity: climate.ground_floor, name: Ground floor, step: 0.5 }
+    - { entity: climate.first_floor, name: First floor }
+  # boost: { start: script.heating_boost, cancel: script.heating_boost_cancel, timer: timer.heating_boost, label: 1 hour }   # empty: the Home room panel boost
+  rooms:                    # empty: the room temperatures on the Home house plan
+    - { name: Living room, temperature: sensor.living_room_temperature }
+    - { name: Kitchen, temperature: sensor.kitchen_temperature }
+family:
+  shopping: todo.shopping
+  todo: todo.chores         # a second list; the card is built only when this is set
+  calendars:
+    - { entity: calendar.household, name: Household }
+    - { entity: calendar.birthdays, name: Birthdays }
+  bins:
+    - { entity: calendar.bin_black, label: Black bin, colour: black }
+    - { entity: calendar.bin_brown, label: Brown bin, colour: brown }
+    - { entity: calendar.bin_green, label: Green bin, colour: "#3f7a3a" }   # black, brown, green or a hex
+  reminders: true           # Nova's reminders; only shown when nova.enabled is true
 security:
   openings:
     - area: Doors
