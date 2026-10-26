@@ -277,7 +277,7 @@ home:
 
 ## Nova
 
-Nova is a separate Home Assistant integration: a general AI assistant that answers anything, not only questions about the house. It lives in its own repository and is not part of Oriel. Documentation: [NOVA DOCS LINK].
+Nova is a separate Home Assistant integration: a general AI assistant that answers anything, not only questions about the house. It lives in its own repository and is not part of Oriel. Documentation: [github.com/abz2much/NOVA](https://github.com/abz2much/NOVA).
 
 Oriel uses Nova only when `nova.enabled: true` **and** Nova is found in Home Assistant (its `nova` services exist). Then it adds the Nova page, a status pill in the header and a chat panel on Home. If Nova is turned on but not installed, the Nova page says “Nova not detected” and nothing is sent to it.
 
