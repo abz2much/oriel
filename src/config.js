@@ -11,7 +11,7 @@ export const DEFAULT_CONFIG = {
   },
   home: {
     energy_card: { solar_power: '', house_power: '', battery_soc: '' },
-    today: [], price: '', quick_actions: [], shopping: '',
+    today: [], price: '', quick_actions: [], shopping: '', calendar: true,
     room_panel: {
       title: '', motion: '', lights: [], heating: [],
       boost: { start: '', cancel: '', timer: '', switch: '', label: '' },
@@ -58,7 +58,7 @@ export const DEFAULT_CONFIG = {
     connections: [], low_battery_pct: 20, debug_panel: false,
   },
   nova: {
-    enabled: false, assist_pipeline: '', home_chat: true, header_pill: true,
+    enabled: false, assist_pipeline: '', header_pill: true,
     entities: { status: '', quiet: '', nap_ends: '', lockdown: '', reminders: '', briefing: '', suggestions: '', energy_note: '', camera_summary: '' },
     docs_url: '',
   },

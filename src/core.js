@@ -109,15 +109,6 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 .fr{height:38px;border-radius:16px;background:rgba(var(--oriel-glass),.28);border:1px solid rgba(var(--oriel-glass),.5);display:flex;align-items:center;gap:10px;padding:0 12px;font-size:13px;cursor:pointer}
 .fr small{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-left:auto;font-size:12px} .fr .ic{width:20px;height:20px}
 .fr.alert{background:rgb(var(--oriel-bad-bg));border-color:rgb(var(--oriel-bad-line));box-shadow:0 0 16px 2px rgba(var(--oriel-bad-glow),.45)} .fr.alert small{color:rgb(var(--oriel-bad-ink));font-weight:500}
-#nova{flex:1;min-height:150px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative}
-#nova .hd{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500}
-#nova .hd i{width:22px;height:22px;border-radius:50%;background:rgb(var(--oriel-raised));display:grid;place-items:center} #nova .hd i .ic{width:13px;height:13px}
-#log{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow:hidden;justify-content:flex-end}
-#log .msg{font-size:13px;line-height:1.3;background:rgba(var(--oriel-nova-glass),.5);border-radius:14px 14px 14px 4px;padding:7px 11px;align-self:flex-start;max-width:96%}
-#log .me{align-self:flex-end;background:rgba(var(--oriel-my-bubble),.85);color:rgb(var(--oriel-on-dark));border-radius:14px 14px 4px 14px}
-#nova form{display:flex;gap:6px;align-items:center;margin:0}
-#nova input{flex:1;min-width:0;height:44px;border-radius:18px;border:0;background:rgba(var(--oriel-nova-glass),.55);padding:0 14px;font:inherit;font-size:13px;color:rgb(var(--oriel-on-nova))}
-#nova input::placeholder{color:rgba(var(--oriel-on-nova),.7)} #nova .round{width:44px;height:44px} #nova .mic{background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark))}
 #shop{position:absolute;inset:0;z-index:11;background:rgba(var(--oriel-scrim),.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
 #shop.show{display:flex}
 #shop .pn{width:480px;height:640px;padding:22px;display:flex;flex-direction:column;gap:14px;border-radius:28px;background:linear-gradient(150deg,rgba(var(--oriel-sheet-a),.97),rgba(var(--oriel-sheet-b),.97));box-shadow:0 30px 70px rgba(var(--oriel-shadow-deep),.5);color:rgb(var(--oriel-ink))}
@@ -168,11 +159,6 @@ const HTML = `
       <div class="sec" id="appsH"><span>${esc(S.appliances)}</span></div>
       <div id="apps"></div>
       <div class="fr" id="fridge" role="button" tabindex="0">${icon('fridge')}${esc(S.fridge)}<small id="fridgeT">–</small></div>
-      <div id="nova" class="nova hide">
-        <div class="hd"><i>${icon('spark')}</i>Nova</div>
-        <div id="log" aria-live="polite"><div class="msg">${esc(S.chat_hello)}</div></div>
-        <form id="nf" autocomplete="off"><input id="ni" placeholder="${esc(S.chat_placeholder)}" aria-label="${esc(S.chat_placeholder)}" enterkeyhint="send"><button type="submit" class="round" aria-label="${esc(S.send)}">${icon('send')}</button><button type="button" class="round mic" id="bMic" aria-label="${esc(S.talk_to_nova)}">${icon('mic')}</button></form>
-      </div>
     </div>
   </div>
   </div>
@@ -375,6 +361,7 @@ export class OrielShell extends HTMLElement {
     Object.keys(this._pages).forEach((k) => this._pages[k].el.classList.toggle('off', k !== key));
     this.$('rail').querySelectorAll('a[data-k]').forEach((a) => { const on = a.dataset.k === key; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     if (pg.def.update && this._h) { try { pg.def.update.call(this); } catch (e) { console.warn('[oriel] ' + key + ' update', e); } }
+    if (key === 'home' && this._cu) { this._cu.fitT = 0; this._cuUpdate(); } /* the Coming up card is measured while Home shows */
   }
 
   /* ---------- Home: static build ---------- */
@@ -431,8 +418,6 @@ export class OrielShell extends HTMLElement {
     // room panel
     this._buildRoomPanel();
     // shopping and popups
-    $('nf').addEventListener('submit', (e) => { e.preventDefault(); const tx = $('ni').value.trim(); if (tx && this._homeAsk) { $('ni').value = ''; this._homeAsk(tx); } });
-    $('bMic').addEventListener('click', () => { if (this._homeMic) this._homeMic(); });
     $('bellX').addEventListener('click', () => { if (this._camKey) this._dismissed[this._camKey] = true; this._hideCam(); });
     $('shopX').addEventListener('click', () => this._closeShop());
     $('shop').addEventListener('click', (e) => { if (e.target === $('shop')) this._closeShop(); });
@@ -497,8 +482,8 @@ export class OrielShell extends HTMLElement {
     this._roomHasContent = !!(R.title || isEnt(R.motion) || lights.length || this._heat.length || this._boost || this._apps.length || hasFridge);
     this._syncRoomPanel();
   }
-  /* the room panel shows when it has content, or when another module (Nova chat) puts something in it */
-  _syncRoomPanel() { const noChat = this.$('nova').classList.contains('hide'), r = this.$('room'); r.classList.toggle('hide', !this._roomHasContent && noChat); r.classList.toggle('fit', noChat); }
+  /* the room panel shows when it has content; it is as tall as its content (the Coming up card sits under it) */
+  _syncRoomPanel() { const r = this.$('room'); r.classList.toggle('hide', !this._roomHasContent); r.classList.add('fit'); }
   appliances() { return (this._c.home.room_panel.appliances || []).filter((a) => a && isEnt(a.state)).map((a) => Object.assign({}, APPLIANCE_DEFAULTS, a)); }
 
   /* ---------- to-do lists: one controller per list, drawn into any number of views ---------- */

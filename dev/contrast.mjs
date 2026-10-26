@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import { THEMES, themeTokens } from '../src/theme/themes.js';
 import { ROLE, VARIANT, CLASSIC_PAGE } from '../src/theme/tokens.js';
 import { hex, mix, contrast } from '../src/theme/colour.js';
-import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC, BIN } from '../src/theme/fixed.js';
+import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC, BIN, LINE } from '../src/theme/fixed.js';
 
 const ids = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(THEMES);
 const P = (s) => s.split(',').map(Number);
@@ -84,6 +84,7 @@ function pairs(v, dark, classic) {
   add('placeholder (75%)', v.ink, 0.75, 'raised', 4.5); /* the ticked circle is ink-on-accent on accent-fill: the 'chip on' pair */
   add('bin chip text', v.warn, 1, 'warn chip', 4.5); add('chart line: ink', v.ink, 0.85, 'glass', 3); add('chart line: bad-strong', v['bad-strong'], 1, 'glass', 3); add('hour bars (ink 62%)', v.ink, 0.62, 'glass', 3);
   for (const k in BIN) { add(`bin tile text (${k})`, v['on-dark'], 1, 'bin ' + k, 4.5); } add('chart line: accent-ink', v['accent-ink'], 1, 'glass', 3);
+  LINE[dark ? 'dark' : classic ? 'classic' : 'light'].forEach((c, i) => add(`graph line ${i + 1} (fixed ${c})`, hex(c), 1, 'glass', 3));
   add('greeting (large)', v.ink, 1, 'page', 3);
   add('icon: accent-strong', v['accent-strong'], 1, 'glass', 3); add('icon: bad-strong', v['bad-strong'], 1, 'glass', 3); add('icon: good-mark', v['good-mark'], 1, 'glass', 3);
   return L;

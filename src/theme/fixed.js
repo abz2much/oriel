@@ -42,6 +42,10 @@ export const CAM = {
 /* Bin collection colours: they say which bin it is, so every theme keeps them. */
 export const BIN = { black: '#2b2724', brown: '#7a5a3c', green: '#3f7a3a' }; /* the mockup's colours; green darker (mockup #4f8a45) so 12 px light text reaches 4.5:1 in every theme */
 
+/* The two thermostat lines on the Climate graph: blue and orange, a pair people with red-green colour blindness can tell apart.
+   [first line, second line] for light and mid-tone glass, for Classic (its glass is darker, so it needs deeper shades to reach 3:1), and for dark glass. They are fixed in every theme (like the bin colours). */
+export const LINE = { light: ['#1f5fa6', '#a85500'], classic: ['#174a85', '#8c4500'], dark: ['#6db3f2', '#f0a53a'] };
+
 /* Vacuum extras that are not state hues. */
 export const VAC = { worn: '#e0604a', activeRoom: 'rgba(79,168,184,.55)' };
 

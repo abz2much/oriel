@@ -6,13 +6,27 @@ import { registerPage } from '../core.js';
 import { S, t } from '../strings.js';
 import { hasEntities } from '../config.js';
 import { isEnt, esc, icon, pad } from '../util.js';
-import { BIN } from '../theme/fixed.js';
+import { BIN, LINE } from '../theme/fixed.js';
 import { isHex, lum, hex } from '../theme/colour.js';
 import { CARDS_CSS, layoutCols, fitRows } from './cards.js';
 
 const CAL_MS = 10 * 60000, DAY = 86400000;
+const CU_MS = 5 * 60000, CU_LIST = 7, CU_LOOK = 14, CU_GAP = 16, CU_COL = 692; /* Coming up on Home: refresh every 5 minutes; list 7 days, look 14 days ahead for the empty message */
 const WEIGHTS = [370, 410, 320]; /* column widths in the approved mockup */
 const CSS = `
+#cu{right:24px;bottom:24px;width:344px;padding:12px 16px 4px;display:flex;flex-direction:column;z-index:3;cursor:pointer}
+#cu .h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px 6px;min-height:34px}
+#cu .h b{font-size:22px;font-weight:400}
+#cu .pill{border-radius:14px;padding:3px 10px;font-size:12px;background:rgba(var(--oriel-glass),.5);white-space:nowrap}
+#cu .cr{display:flex;align-items:center;gap:12px;min-height:52px;border-top:1px solid rgba(var(--oriel-ink),.14);padding:0 4px}
+#cu .cr.hide{display:none}
+#cu .bar{width:4px;align-self:stretch;margin:9px 0;border-radius:2px;flex:none}
+#cu .tx{flex:1;min-width:0}
+#cu .tx b{display:block;font-size:16px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cu .tx span{display:block;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cu .tm{font-size:16px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#cu .none{border-top:1px solid rgba(var(--oriel-ink),.14);padding:12px 4px 14px;font-size:14px}
+#cu .none span{display:block;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:2px}
 #pgFamily .card{padding:20px 22px}
 #pgFamily .add{display:flex;align-items:center;gap:8px;min-height:48px;flex:none}
 #pgFamily input{flex:1;min-width:0;height:44px;border:0;background:transparent;padding:0;font:inherit;font-size:14px;color:rgb(var(--oriel-ink));border-radius:8px}
@@ -68,6 +82,85 @@ export function spanOf(e, base) {
 const fetchCal = (self, id, a, b) => self._h.callApi('GET', 'calendars/' + id + '?start=' + encodeURIComponent(a.toISOString()) + '&end=' + encodeURIComponent(b.toISOString()));
 
 const FamilyExt = {
+  /* ---------- Coming up (a card on Home, under the room panel; uses the calendars set for this page) ---------- */
+  _cuInit() {
+    const home = this.$('pgHome'), cals = (this._c.family.calendars || []).filter((c) => c && isEnt(c.entity)).slice(0, 8);
+    if (!home || !cals.length || this._c.home.calendar === false) return;
+    const el = document.createElement('div'); el.id = 'cu'; el.className = 'abs glass mid hide';
+    el.innerHTML = `<div class="h"><b>${esc(S.coming_up)}</b><span class="pill"></span></div><div class="rows"></div>`;
+    el.setAttribute('aria-label', S.coming_up + ' · ' + S.page_family);
+    this.tap(el, () => this._setPage('family'));
+    home.appendChild(el);
+    this._cu = { el, cals, t: 0, key: '', data: null, err: false, busy: false, fitT: 0 };
+  },
+  _cuStop() { const cu = this._cu; if (!cu) return; cu.el.remove(); this._cu = null; const r = this.$('room'); if (r) r.style.maxHeight = ''; },
+  async _cuFetch() {
+    const cu = this._cu; if (!cu || cu.busy || !this._h) return; cu.busy = true;
+    const base = day0(new Date()), end = new Date(base.getTime() + (CU_LOOK + 1) * DAY);
+    const res = await Promise.all(cu.cals.map(async (c) => { try { const r = await fetchCal(this, c.entity, base, end); return Array.isArray(r) ? r : []; } catch (e) { return null; } }));
+    if (this._cu !== cu) return;
+    if (res.some((r) => r !== null)) cu.data = res.map((r, i) => (r || []).map(parseEvent).filter(Boolean).map((e) => Object.assign(e, { ci: i })));
+    cu.err = !cu.data; cu.t = Date.now(); cu.key = base.toDateString(); cu.busy = false;
+    this._cuUpdate();
+  },
+  /* the calendar's colour: the colour-blind-safe pair, then the theme's green and ink; the title says which calendar it is */
+  _cuColour(i) {
+    const pair = LINE[this._dark ? 'dark' : this._classic ? 'classic' : 'light'];
+    return [pair[0], 'rgb(var(--oriel-accent-strong))', 'rgba(var(--oriel-ink),.85)', pair[1]][i % 4];
+  },
+  _cuRender() {
+    const cu = this._cu; if (!cu) return;
+    const now = new Date(), base = day0(now), rows = cu.el.querySelector('.rows'), fmt = (d, o) => { try { return d.toLocaleDateString(this.lang(), o); } catch (e) { return ''; } };
+    cu.el.querySelector('.pill').textContent = fmt(now, { weekday: 'short', day: 'numeric', month: 'short' });
+    const items = [];
+    (cu.data || []).forEach((list) => list.forEach((e) => {
+      const [s, en] = spanOf(e, base);
+      if (en < 0 || s > CU_LOOK) return;
+      if (!e.allDay && (e.end > e.start ? e.end <= now : e.start < now)) return; /* finished */
+      items.push({ e, d: Math.max(s, 0) });
+    }));
+    items.sort((x, y) => x.d - y.d || (x.e.allDay - y.e.allDay) || x.e.start - y.e.start || x.e.title.localeCompare(y.e.title));
+    const list = items.filter((x) => x.d < CU_LIST).slice(0, 3), sig = JSON.stringify([list.map((x) => [x.e.title, x.d, +x.e.start, x.e.allDay, x.e.ci]), items.length && items[0].d, cu.err, this.lang(), !!this._dark, !!this._classic]) + now.toDateString();
+    if (cu.sig === sig) return; cu.sig = sig; cu.fitted = false;
+    rows.innerHTML = '';
+    if (!list.length) {
+      const nx = items[0], n = document.createElement('div'); n.className = 'none';
+      n.textContent = cu.err ? S.calendar_unavailable : S.nothing_coming_up;
+      if (nx && !cu.err) { const sp = document.createElement('span'); sp.textContent = t('next_event', { d: fmt(new Date(base.getTime() + nx.d * DAY + 7200000), { weekday: 'short', day: 'numeric', month: 'short' }) }); n.appendChild(sp); }
+      rows.appendChild(n); return;
+    }
+    list.forEach(({ e, d }) => {
+      const r = document.createElement('div'); r.className = 'cr';
+      r.innerHTML = '<i class="bar"></i><div class="tx"><b></b><span></span></div><span class="tm"></span>';
+      r.querySelector('.bar').style.background = this._cuColour(e.ci);
+      r.querySelector('b').textContent = e.title; r.title = e.title;
+      const day = new Date(base.getTime() + d * DAY + 7200000);
+      r.querySelector('.tx span').textContent = d === 0 ? S.today : d === 1 ? S.tomorrow_cap : fmt(day, d < 7 ? { weekday: 'short' } : { weekday: 'short', day: 'numeric', month: 'short' });
+      r.querySelector('.tm').textContent = e.allDay ? S.all_day : pad(e.start.getHours()) + ':' + pad(e.start.getMinutes());
+      rows.appendChild(r);
+    });
+  },
+  /* The card is as tall as its rows. It takes the space under the room panel: rows that do not fit are left out
+     (none at all: the card hides) and the room panel is held above it. Needs Home on screen to measure. */
+  _cuFit() {
+    const cu = this._cu, room = this.$('room'); if (!cu || this._page !== 'home' || !cu.sig) return;
+    cu.el.classList.remove('hide'); room.style.maxHeight = '';
+    const rows = [...cu.el.querySelectorAll('.cr, .none')]; rows.forEach((r) => r.classList.remove('hide'));
+    const used = room.classList.contains('hide') ? 0 : room.scrollHeight + CU_GAP, avail = CU_COL - used;
+    const hs = rows.map((r) => r.offsetHeight), chrome = cu.el.offsetHeight - hs.reduce((x, y) => x + y, 0);
+    let n = rows.length, h = chrome + hs.reduce((x, y) => x + y, 0);
+    while (n > 0 && h > avail) { n--; rows[n].classList.add('hide'); h -= hs[n]; }
+    cu.el.classList.toggle('hide', n === 0);
+    if (!room.classList.contains('hide')) room.style.maxHeight = (n === 0 ? CU_COL : CU_COL - cu.el.offsetHeight - CU_GAP) + 'px';
+    cu.fitted = true;
+  },
+  _cuUpdate() {
+    const cu = this._cu; if (!cu || !this._h) return;
+    if (!cu.busy && (Date.now() - cu.t > CU_MS || cu.key !== new Date().toDateString())) this._cuFetch();
+    if (cu.data || cu.err) { this._cuRender(); }
+    if (this._page === 'home' && (!cu.fitted || Date.now() - cu.fitT > 1500)) { cu.fitT = Date.now(); this._cuFit(); }
+  },
+
   _fmInit() {
     this.addCss('cards', CARDS_CSS);
     const pg = document.createElement('div'); pg.id = 'pgFamily'; pg.innerHTML = HTML();
@@ -83,9 +176,11 @@ const FamilyExt = {
     if (fm.shop) this._fmTodoCard($('fmShop'), fm.shop, S.shopping_list, true);
     if (fm.todo) this._fmTodoCard($('fmTodo'), fm.todo, S.todo_list, false);
     layoutCols(pg, WEIGHTS);
+    this._cuInit();
     return pg;
   },
   _fmStop() {
+    this._cuStop();
     const fm = this._fm; if (!fm) return;
     fm.views.forEach(([id, fn]) => { if (this._td && this._td[id]) this._td[id].views.delete(fn); });
     this._fm = null;
@@ -250,6 +345,7 @@ registerPage({
   enabled(c) { return hasEntities(c.family); },
   init() { return this._fmInit(); },
   update() { this._updateFamily(); },
+  always() { this._cuUpdate(); },
   stop() { this._fmStop(); },
   methods: FamilyExt,
 });

@@ -10,7 +10,7 @@ Every page and every section is optional. You set it up with a visual editor; YA
 
 | Page | What it shows |
 |---|---|
-| **Home** | Greeting, weather, clock, people, an energy card with today vs yesterday, Today tiles, quick actions, a room panel (lights, heating, appliances, fridge), a shopping list, camera pop-ups, and the glass house with room temperatures, presence and live power flow. |
+| **Home** | Greeting, weather, clock, people, an energy card with today vs yesterday, Today tiles, quick actions, a room panel (lights, heating, appliances, fridge), a shopping list, a “Coming up” card with the next three calendar events, camera pop-ups, and the glass house with room temperatures, presence and live power flow. |
 | **Living room** | Room status, doors and windows, blinds, speaker, scenes, lights with brightness/white/colour, streamer selector, now playing, TV inputs, movie mode, apps and a remote. |
 | **Energy** | Live flow between solar, house, battery and grid, battery card with packs, today's totals, a house-use chart, solar forecast, big consumers and an inverter health strip. Read-only. |
 | **Climate** | Weather with feels-like, wind, humidity, high and low, a 5-day row and a next-12-hours chart. Thermostats with − and + in the thermostat's own step and a heating boost. A last-12-hours line graph of each thermostat's current temperature. Room temperatures with the coldest and warmest named. |
@@ -88,7 +88,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.3.1` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.3.2` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -155,6 +155,7 @@ nova: { ... }
 | `today` | list, up to 9 | Tiles: `label`, `icon`, `entity`, `tone` (`neutral`, `good`, `bad`). |
 | `quick_actions` | list, up to 4 | `type` (`script`, `shopping`, `more_info`), `label`, `icon`, `entity`, `subtitle`, `primary` (green). |
 | `shopping` | entity (todo) | Shopping list opened by a `shopping` quick action. |
+| `calendar` | true/false | Default `true`. The “Coming up” card under the room panel: the next three events from `family.calendars`, soonest first, today's first, finished ones left out. Each row has a coloured bar for its calendar, the title, Today / Tomorrow / the weekday, and the time (“All day”). Nothing in the next 7 days shows “Nothing coming up” and the date of the next event within 14 days, if there is one. Tap it to open the Family page. It is hidden when there are no calendars, and when the room panel is so tall that not even one row fits. Rows are never cut: fewer are shown instead. |
 | `room_panel.title` | text | Right-hand panel title, e.g. your kitchen. |
 | `room_panel.motion` | entity (binary_sensor) | Motion chip. |
 | `room_panel.lights` | list | `name`, `entity` (light or switch), `icon`, `all_off` (include in “All lights off”, default true). |
@@ -210,7 +211,7 @@ The page appears once any entity here is set. Every card hides when nothing in i
 | `boost` | object | `start`, `cancel`, `timer`, `switch`, `label`: the same as `home.room_panel.boost`. Leave it empty to use the Home room panel boost; the button sits under the thermostats. |
 | `rooms` | list | `name`, `temperature` (sensor). Empty: the temperature sensors of the rooms on the Home house plan. Bars run 12 to 24 °C. Missing or unavailable sensors show a dash. |
 
-The last-12-hours graph asks Home Assistant for the thermostat history **with attributes** (`current_temperature` is an attribute), as hourly averages. Unavailable and unknown readings leave a gap, never a zero.
+The last-12-hours graph asks Home Assistant for the thermostat history **with attributes** (`current_temperature` is an attribute), as hourly averages. Unavailable and unknown readings leave a gap, never a zero. Both lines are solid, blue and orange (a pair people with red-green colour blindness can tell apart), and told apart by their end markers too: a circle for the first thermostat, a square for the second.
 
 ### family
 
@@ -266,8 +267,8 @@ Each vacuum: `name`, `entity` (vacuum), `integration` (`generic` or `dreame`), `
 
 | Key | Type | What it does |
 |---|---|---|
-| `enabled` | true/false | Default `false`. When off there is no Nova page, header pill, Home chat or call to Nova. |
-| `header_pill`, `home_chat` | true/false | Default `true` (only when enabled and detected). |
+| `enabled` | true/false | Default `false`. When off there is no Nova page, header pill or call to Nova. |
+| `header_pill` | true/false | Default `true` (only when enabled and detected). |
 | `assist_pipeline` | Assist pipeline | Used by the microphone button. |
 | `docs_url` | text | Link shown when Nova is not detected. |
 | `entities` | object | `status`, `quiet`, `nap_ends`, `lockdown`, `reminders`, `briefing`, `suggestions`, `energy_note`, `camera_summary`. |
@@ -309,7 +310,7 @@ home:
 
 Nova is a separate Home Assistant integration: a general AI assistant that answers anything, not only questions about the house. It lives in its own repository and is not part of Oriel. Documentation: [github.com/abz2much/NOVA](https://github.com/abz2much/NOVA).
 
-Oriel uses Nova only when `nova.enabled: true` **and** Nova is found in Home Assistant (its `nova` services exist). Then it adds the Nova page, a status pill in the header and a chat panel on Home. If Nova is turned on but not installed, the Nova page says “Nova not detected” and nothing is sent to it.
+Oriel uses Nova only when `nova.enabled: true` **and** Nova is found in Home Assistant (its `nova` services exist). Then it adds the Nova page, and a status pill in the header. If Nova is turned on but not installed, the Nova page says “Nova not detected” and nothing is sent to it.
 
 ![Nova page when Nova is turned on but not installed](https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/nova-not-installed-nova.jpg)
 
