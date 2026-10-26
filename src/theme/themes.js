@@ -157,7 +157,7 @@ export const THEMES = {
   'cocoa-bark': { name: 'Cocoa Bark', style: 'dark', base: '#382A28', accent: '#C1A094' },
   'forest-mint': { name: 'Forest Mint', style: 'dark', base: '#18251D', accent: '#B7FF72' },
   'deep-teal': { name: 'Deep Teal', style: 'dark', base: '#03313A', accent: '#8FFFE0' },
-  'blueberry-cream': { name: 'Blueberry Cream', style: 'dark', base: '#243B8F', accent: '#FFD6A5' },
+  'slate-harbour': { name: 'Slate Harbour', style: 'dark', base: '#11212D', accent: '#9BA8AB' },
   'violet-mist': { name: 'Violet Mist', style: 'light', base: '#F0F2F5', accent: '#7A35FF' },
   'berry-sky': { name: 'Berry Sky', style: 'light', base: '#E0F2FE', accent: '#C2185B' },
   'quantum-ice': { name: 'Quantum Ice', style: 'light', base: '#DFF7FF', accent: '#2457FF' },

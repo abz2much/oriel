@@ -2,6 +2,11 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.2] - 2026-10-26
+
+### Changed
+- Slate Harbour (`slate-harbour`) replaces Blueberry Cream, for the same reason Cocoa Bark replaced Hearth: Blueberry Cream's mid-tone blue base made card edges and the house's wall lines hard to see. Slate Harbour is a charcoal blue-grey with a soft slate accent. A config that still says `theme: blueberry-cream` shows Classic, and the editor warns.
+
 ## [0.2.1] - 2026-10-26
 
 ### Changed
