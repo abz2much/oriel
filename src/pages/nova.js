@@ -26,7 +26,7 @@ const CSS = `
 #nvWrap>*{pointer-events:auto}
 #pgNova .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #pgNova .nvHd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;gap:8px}
-#pgNova .nvHd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pgNova .nvHd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pgNova .dark .nvHd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgNova button{font-family:inherit;cursor:pointer}
 #pgNova button:disabled,#pgNova input:disabled,#pgNova select:disabled{opacity:.45;cursor:default}
@@ -34,7 +34,7 @@ const CSS = `
 #pgNova .nvB:active{background:rgb(var(--oriel-raised))}
 #pgNova .nvB .ic{width:17px;height:17px}
 #pgNova .nvIn{height:44px;border-radius:22px;border:0;background:rgba(var(--oriel-glass),.6);padding:0 12px;font:inherit;font-size:12.5px;color:rgb(var(--oriel-ink));min-width:0}
-#pgNova .nvEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),.62);padding-top:6px}
+#pgNova .nvEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));padding-top:6px}
 #nvChat,#nvQuiet,#nvLock,#nvBrief,#nvRem,#nvSug{position:absolute}
 :is(#pgNova .nvB,#nvQs){position:relative} :is(#pgNova .nvB,#nvQs)::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
 #nvChat{left:100px;top:84px;width:560px;height:692px;padding:16px;display:flex;flex-direction:column;gap:10px;border-radius:28px}
@@ -69,9 +69,9 @@ const CSS = `
 .nvRr{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12.5px;padding:4px 0;border-bottom:1px solid rgba(var(--oriel-ink),.07)}
 .nvRr:last-child{border:0}
 .nvRr span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nvRr small{color:rgba(var(--oriel-ink),.62);font-size:11.5px;white-space:nowrap}
+.nvRr small{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-size:12px;white-space:nowrap}
 #nvRf{display:grid;grid-template-columns:1fr auto;gap:6px;margin:0}
-#nvRf .nvIn[type=datetime-local]{padding:0 8px;font-size:11.5px}
+#nvRf .nvIn[type=datetime-local]{padding:0 8px;font-size:12px}
 #nvRf select.nvIn{padding:0 8px}
 #nvRf .round{width:34px;height:34px}
 #nvSug{left:676px;top:520px;width:580px;height:256px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
@@ -79,7 +79,7 @@ const CSS = `
 .nvSr{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(var(--oriel-ink),.07);font-size:13px}
 .nvSr:last-child{border:0}
 .nvSr .tx{line-height:1.3}
-.nvSr .tx small{display:block;color:rgb(var(--oriel-bad-ink));font-size:11.5px;margin-top:2px}
+.nvSr .tx small{display:block;color:rgb(var(--oriel-bad-ink));font-size:12px;margin-top:2px}
 .nvSr .nvB{height:34px;padding:0 14px}
 .nvSr .nvB.yes{background:linear-gradient(150deg,rgb(var(--oriel-accent-hi)),rgb(var(--oriel-accent-lo)));color:rgb(var(--oriel-on-accent));font-weight:500}
 #nvOff{left:100px;top:84px;width:1156px;height:692px;border-radius:28px;display:none;align-items:center;justify-content:center;z-index:5;background:rgba(var(--oriel-scrim),.35);color:rgb(var(--oriel-on-dark));font-size:22px;font-weight:300;pointer-events:none}
@@ -97,11 +97,11 @@ const CSS = `
 #nvPill .ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #nvPill i{width:8px;height:8px;border-radius:50%;flex:none;background:rgba(var(--oriel-ink),.35)}
 #nvPill i.ok{background:rgb(var(--oriel-good-mark))} #nvPill i.amb{background:rgb(var(--oriel-warn-mark))} #nvPill i.red{background:rgb(var(--oriel-bad-dot))}
-#nvPill b{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));font-size:11px;font-weight:600;display:none;align-items:center;justify-content:center}
+#nvPill b{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));font-size:12px;font-weight:600;display:none;align-items:center;justify-content:center}
 #nvPill b.on{display:flex}
 #nvEn{border-top:1px solid rgba(var(--oriel-ink),.09);padding-top:8px;font-size:12.5px;line-height:1.35;display:none;cursor:pointer}
 #nvEn.on{display:block}
-#nvEn small{display:block;font-size:11.5px;color:rgba(var(--oriel-ink),.62);margin-bottom:2px}
+#nvEn small{display:block;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-bottom:2px}
 #nvEn span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #nvConf{left:calc(0px - var(--dx,0px));top:0;width:calc(1280px + 2 * var(--dx,0px));height:800px;z-index:12;background:rgba(var(--oriel-scrim),.5);display:none;align-items:center;justify-content:center}
 #nvConf.show{display:flex}
@@ -119,7 +119,7 @@ const HTML = () => `<div id="nvWrap">
   </div>
   <div id="nvQuiet" class="glass"><div class="nvHd"><span>${esc(S.quiet)}</span><span class="chip" id="nvQs">–</span></div><div id="nvQb"></div></div>
   <div id="nvLock" class="dark"><div class="nvHd"><span>${esc(S.lockdown)}</span></div><button type="button" id="nvLk" aria-label="${esc(S.lockdown)}">${ic('lock')}</button><div id="nvLkT">–</div></div>
-  <div id="nvBrief" class="glass"><div class="nvHd"><span>${esc(S.briefing)}</span><button type="button" class="nvB" id="nvBp">${ic('play')}${esc(S.play)}</button></div><small id="nvBw" style="font-size:11.5px;color:rgba(var(--oriel-ink),.62)"></small><div id="nvBt"></div></div>
+  <div id="nvBrief" class="glass"><div class="nvHd"><span>${esc(S.briefing)}</span><button type="button" class="nvB" id="nvBp">${ic('play')}${esc(S.play)}</button></div><small id="nvBw" style="font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))"></small><div id="nvBt"></div></div>
   <div id="nvRem" class="glass"><div class="nvHd"><span>${esc(S.reminders)}</span><small id="nvRc">${esc(S.next_24h)}</small></div><div id="nvRl"></div>
     <form id="nvRf" autocomplete="off"><input class="nvIn" id="nvRlab" placeholder="${esc(S.remind_me_to)}" aria-label="${esc(S.remind_me_to)}" maxlength="200"><button type="submit" class="round" id="nvRadd" aria-label="${esc(S.add_reminder)}">${ic('plus')}</button>
       <input class="nvIn" id="nvRat" type="datetime-local" aria-label="${esc(S.reminder_time)}"><select class="nvIn" id="nvRrep" aria-label="${esc(S.repeat)}"><option value="">${esc(S.once)}</option><option value="daily">${esc(S.daily)}</option><option value="weekly">${esc(S.weekly)}</option></select></form></div>

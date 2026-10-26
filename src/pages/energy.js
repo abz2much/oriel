@@ -31,7 +31,7 @@ const CSS = `
 #enWrap>*{pointer-events:auto}
 #pgEnergy .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #pgEnergy .hd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500}
-#pgEnergy .hd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62)}
+#pgEnergy .hd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 #pgEnergy .dark .hd small,#pgEnergy .black .hd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgEnergy .chip{white-space:nowrap}
 #pgEnergy .chip.sm{height:26px;font-size:12px;padding:0 10px}
@@ -51,11 +51,11 @@ const CSS = `
 #enFlow .fp{position:absolute;transform:translate(-50%,-50%);height:24px;padding:0 10px;border-radius:12px;background:rgba(var(--oriel-glass),.88);font-size:12.5px;font-weight:500;display:none;align-items:center;white-space:nowrap;box-shadow:0 4px 10px rgba(var(--oriel-shadow),.16);font-variant-numeric:tabular-nums;pointer-events:none}
 #enFlow .fp.on{display:flex}
 #enFlow .nd{position:absolute;border-radius:22px;background:rgba(var(--oriel-glass),.62);border:1px solid rgba(var(--oriel-glass),.75);box-shadow:0 10px 22px rgba(var(--oriel-shadow),.16);padding:10px 12px;cursor:pointer;color:rgb(var(--oriel-ink))}
-#enFlow .nd .l{font-size:12px;color:rgba(var(--oriel-ink),.62);display:flex;align-items:center;gap:6px}
+#enFlow .nd .l{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));display:flex;align-items:center;gap:6px}
 #enFlow .nd .l i{width:7px;height:7px;border-radius:50%;display:block}
 #enFlow .nd .v{font-size:26px;font-weight:200;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
-#enFlow .nd .v em{font-style:normal;font-size:12px;color:rgba(var(--oriel-ink),.62);margin-left:3px}
-#enFlow .nd .s{font-size:11.5px;color:rgba(var(--oriel-ink),.62);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#enFlow .nd .v em{font-style:normal;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-left:3px}
+#enFlow .nd .s{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #enSol{left:170px;top:10px;width:220px;height:130px;padding:8px 12px;text-align:center}
 #enSol .l{justify-content:center}#enSol .v{font-size:28px;margin-top:0}
 #enSol svg{margin:3px auto 2px}
@@ -65,38 +65,38 @@ const CSS = `
 #enGrid{left:426px;top:222px;width:120px;height:96px}
 #enBat .bar2{height:5px;border-radius:3px;background:rgba(var(--oriel-ink),.14);margin-top:6px;overflow:hidden}
 #enBat .bar2 i{display:block;height:100%;background:rgb(var(--oriel-accent-strong));border-radius:3px}
-#enNote{position:absolute;left:18px;right:18px;bottom:12px;font-size:11.5px;color:rgba(var(--oriel-ink),.62);text-align:center;pointer-events:none}
+#enNote{position:absolute;left:18px;right:18px;bottom:12px;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));text-align:center;pointer-events:none}
 #enBatC{left:676px;top:84px;width:280px;height:350px;padding:14px 16px;display:flex;flex-direction:column;overflow:hidden}
 #enBatC .big{font-size:42px;font-weight:200;line-height:1;margin-top:2px;font-variant-numeric:tabular-nums}
 #enBatC .big em{font-style:normal;font-size:20px;color:rgba(var(--oriel-on-dark),.6);margin-left:2px}
 #enBatC .sbar{position:relative;height:8px;border-radius:4px;background:rgba(var(--oriel-on-dark),.14);margin-top:8px}
 #enBatC .sbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:rgb(var(--oriel-accent))}
 #enBatC .sbar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:rgba(var(--oriel-on-dark),.7);border-radius:1px}
-#enBatC .sbl{display:flex;justify-content:space-between;font-size:11px;color:rgba(var(--oriel-on-dark),.6);margin-top:4px}
+#enBatC .sbl{display:flex;justify-content:space-between;font-size:12px;color:rgba(var(--oriel-on-dark),.6);margin-top:4px}
 #enEst{font-size:12.5px;line-height:1.3;margin-top:5px;color:rgb(var(--oriel-accent));min-height:32px}
 #enPacks{flex:1;min-height:0;display:flex;flex-direction:column}
 #enBatC .pk{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;border-radius:16px;background:rgba(var(--oriel-on-dark),.07);border:1px solid rgba(var(--oriel-on-dark),.1);padding:5px 12px;margin-top:5px;cursor:pointer;flex:1 1 0;min-height:38px;max-height:56px;overflow:hidden}
 #enBatC .pk b{font-weight:400;font-size:13.5px}
 #enBatC .pk .p{font-size:20px;font-weight:200;text-align:right;font-variant-numeric:tabular-nums}
-#enBatC .pk small{grid-column:1/-1;font-size:11.5px;color:rgba(var(--oriel-on-dark),.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#enBatC .pk small{grid-column:1/-1;font-size:12px;color:rgba(var(--oriel-on-dark),.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #enToday{left:972px;top:84px;width:284px;height:350px;padding:16px}
 #enTg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 #enTg .tl{border-radius:18px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);padding:9px 11px;height:84px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;min-width:0;color:rgb(var(--oriel-ink))}
-#enTg .tl small{font-size:11.5px;color:rgba(var(--oriel-ink),.62);display:flex;align-items:center;gap:5px;white-space:nowrap}
+#enTg .tl small{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));display:flex;align-items:center;gap:5px;white-space:nowrap}
 #enTg .tl small .ic{width:14px;height:14px}
 #enTg .tl b{font-weight:300;font-size:25px;font-variant-numeric:tabular-nums;white-space:nowrap}
-#enTg .tl b em{font-style:normal;font-size:11px;color:rgba(var(--oriel-ink),.62);margin-left:2px}
-#enTg .tl .n{font-size:10.5px;color:rgba(var(--oriel-ink),.62);white-space:nowrap}
+#enTg .tl b em{font-style:normal;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-left:2px}
+#enTg .tl .n{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
 #enTg .tl.good b{color:rgb(var(--oriel-good))}#enTg .tl.bad b{color:rgb(var(--oriel-bad))}
 #enChart{left:100px;top:450px;width:400px;height:272px;padding:16px}
 #enChart .k{font-size:30px;font-weight:200;margin-top:6px;font-variant-numeric:tabular-nums}
 #enChart .k small{font-size:13px;color:rgba(var(--oriel-on-dark),.6);margin-left:4px;font-weight:300}
 #enChart .u{font-size:12px;color:rgb(var(--oriel-accent));margin-top:2px;min-height:15px}
-#enChart .lg{display:flex;gap:10px;font-size:11px;color:rgba(var(--oriel-on-dark),.6);margin-top:2px}
+#enChart .lg{display:flex;gap:10px;font-size:12px;color:rgba(var(--oriel-on-dark),.6);margin-top:2px}
 #enChart .lg span{display:flex;align-items:center;gap:5px}#enChart .lg i{width:10px;height:10px;border-radius:3px;display:block}
 #enFc{left:516px;top:450px;width:404px;height:272px;padding:16px}
 #enFc .ch{display:flex;gap:6px;margin-top:8px;flex-wrap:nowrap}
-#enFc .bands{display:flex;gap:10px;font-size:11px;color:rgba(var(--oriel-ink),.62);margin-top:6px}
+#enFc .bands{display:flex;gap:10px;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:6px}
 #enFc .bands span{display:flex;align-items:center;gap:5px}#enFc .bands i{width:9px;height:9px;border-radius:50%;display:block}
 #enCons{left:936px;top:450px;width:320px;height:272px;padding:14px}
 #enCons .hp{border-radius:20px;margin-top:8px;padding:10px 14px;height:96px;display:grid;grid-template-columns:1fr auto;align-content:space-between;cursor:pointer}
@@ -105,7 +105,7 @@ const CSS = `
 #enCons .hp .w em{font-style:normal;font-size:13px;color:rgba(var(--oriel-on-dark),.6);margin-left:3px}
 #enCons .hp .m{grid-column:1/-1;font-size:12px;color:rgba(var(--oriel-on-dark),.65);display:flex;justify-content:space-between;gap:8px;white-space:nowrap}
 #enCons .ap2{height:46px;border-radius:16px;margin-top:6px;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:13px;background:rgba(var(--oriel-glass),.28);border:1px solid rgba(var(--oriel-glass),.5);cursor:pointer;color:rgb(var(--oriel-ink))}
-#enCons .ap2 small{margin-left:auto;font-size:12px;color:rgba(var(--oriel-ink),.62);white-space:nowrap}
+#enCons .ap2 small{margin-left:auto;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
 #enCons .ap2.run{background:rgba(var(--oriel-glass),.66);box-shadow:0 0 0 1.5px ${ENERGY.running},0 0 16px 2px ${ENERGY.running}}
 #enCons .ap2.run small{color:rgb(var(--oriel-ink))}
 #enHealth{left:100px;top:734px;width:1156px;height:42px;border-radius:21px;display:flex;align-items:center;gap:6px;padding:0 8px 0 10px}
@@ -382,7 +382,7 @@ const EnergyExt = {
         if (i === 0 && gen !== null && gen > 0.05) { const h0 = Math.min(gen, vv) / max * 84; sv('rect', { x, y: base - h0, width: bw, height: h0, rx: 6, fill: 'rgba(var(--oriel-glass),.55)' }, s); }
       }
       const tx = sv('text', { x: x + bw / 2, y: base - h - 6, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 500, 'font-family': 'Outfit,sans-serif', fill: 'rgb(var(--oriel-ink))' }, s); tx.textContent = v === null ? '–' : vv.toFixed(1);
-      const d = new Date(now.getTime() + i * 86400000), l = sv('text', { x: x + bw / 2, y: base + 20, 'text-anchor': 'middle', 'font-size': 11.5, 'font-family': 'Outfit,sans-serif', fill: 'rgba(var(--oriel-ink),.62)' }, s);
+      const d = new Date(now.getTime() + i * 86400000), l = sv('text', { x: x + bw / 2, y: base + 20, 'text-anchor': 'middle', 'font-size': 12, 'font-family': 'Outfit,sans-serif', fill: 'rgba(var(--oriel-ink),var(--oriel-soft,.62))' }, s);
       let wd; try { wd = d.toLocaleDateString(this.lang(), { weekday: 'short' }); } catch (e) { wd = ''; }
       l.textContent = i === 0 ? S.today : wd;
       const hit = sv('rect', { x: x - 6, y: 0, width: bw + gap, height: 142, fill: 'transparent', style: 'cursor:pointer' }, s);
@@ -418,7 +418,7 @@ const EnergyExt = {
     if (isEnt(this._enSolar())) h.solar.forEach((v, i) => { if (i > bin) return; pts.push([i * (bw + gap) + 6 + bw / 2, H - v / max * H]); });
     if (pts.length > 1) sv('path', { d: 'M' + pts.map((p) => p.join(',')).join(' L'), fill: 'none', stroke: 'rgb(var(--oriel-accent))', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, s);
     pts.forEach((p, i) => sv('circle', { cx: p[0], cy: p[1], r: i === pts.length - 1 ? 4.5 : 3, fill: 'rgb(var(--oriel-accent))', stroke: 'rgb(var(--oriel-black))', 'stroke-width': 2 }, s));
-    for (let i = 0; i < 8; i++) { const tx = sv('text', { x: i * (bw + gap) + 6 + bw / 2, y: H + 18, 'text-anchor': 'middle', 'font-size': 11, 'font-family': 'Outfit,sans-serif', fill: 'rgba(var(--oriel-on-dark),.6)' }, s); tx.textContent = i * 3; }
+    for (let i = 0; i < 8; i++) { const tx = sv('text', { x: i * (bw + gap) + 6 + bw / 2, y: H + 18, 'text-anchor': 'middle', 'font-size': 12, 'font-family': 'Outfit,sans-serif', fill: 'rgba(var(--oriel-on-dark),.6)' }, s); tx.textContent = i * 3; }
   },
 };
 

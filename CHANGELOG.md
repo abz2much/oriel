@@ -2,6 +2,13 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.8] - 2026-10-26
+
+### Changed
+- Easier to read: no text on the tablet is smaller than 12 px (labels, hints, chart axes, chips and house tags were 10 to 11.5 px). The house energy tags are a little wider to fit.
+- Classic now passes every contrast check (it failed 20 of 54). Soft grey text is stronger, accent, good, warning and bad text is darker, toggles and green dots are a darker olive, and state words are slightly darker. The other themes are unchanged.
+- Alerts no longer rely on red alone: the header alarm, door and window buttons show a "!" badge when they alert, and open doors and windows on the Security page say "open".
+
 ## [0.2.7] - 2026-10-26
 
 ### Changed

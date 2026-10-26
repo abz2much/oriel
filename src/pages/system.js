@@ -25,7 +25,7 @@ const CSS = `
 #pgSystem .abs{position:absolute}
 #pgSystem .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #pgSystem .hd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;gap:8px}
-#pgSystem .hd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62)}
+#pgSystem .hd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 #pgSystem .dark .hd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgSystem .card{padding:16px 18px;overflow:hidden}
 #pgSystem .big{font-size:30px;font-weight:200;line-height:1.1;margin:8px 0 4px;display:flex;align-items:center;gap:10px}
@@ -41,7 +41,7 @@ const CSS = `
 #pgSystem .bar i{display:block;height:100%;border-radius:4px;background:rgb(var(--oriel-good-bar));transform:translateX(-100%);transition:transform .4s}
 #pgSystem .bar i.mid{background:rgb(var(--oriel-warn-mark))} #pgSystem .bar i.hi{background:rgb(var(--oriel-bad-mark))}
 #pgSystem .btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:10px;border:1px solid rgba(var(--oriel-glass),.7);border-radius:18px;background:rgba(var(--oriel-glass),.5);color:rgb(var(--oriel-ink));font-size:14.5px;font-weight:500;cursor:pointer}
-#pgSystem .btn small{display:block;font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);margin-top:1px}
+#pgSystem .btn small{display:block;font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:1px}
 #pgSystem .btn:active{background:rgba(var(--oriel-glass),.8)}
 #pgSystem button{font-family:inherit}
 #syToast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));border-radius:18px;padding:10px 18px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -52,7 +52,7 @@ const CSS = `
 #syDbg{left:912px;top:516px;width:344px;height:260px;display:flex;flex-direction:column}
 #syDbgL{flex:1;min-height:0;overflow-y:auto;margin-top:6px}
 #syDbgL .row{font-size:12px;min-height:28px;padding:4px 0}
-#syDbgL .row>span{font-family:ui-monospace,Menlo,monospace;font-size:11.5px}
+#syDbgL .row>span{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 `;
 const HTML = () => `<div id="syWrap">
   <div id="syHA" class="abs glass mid card"><div class="hd"><span>Home Assistant</span><small id="syVer"></small></div>

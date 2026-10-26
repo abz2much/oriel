@@ -45,7 +45,7 @@ const CSS = `
 #pgVacuum .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #pgVacuum .vcHd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;gap:8px}
 #pgVacuum .vcHd>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pgVacuum .vcHd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pgVacuum .vcHd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pgVacuum .dark .vcHd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgVacuum .chip{height:26px;font-size:12px;padding:0 10px;white-space:nowrap;position:relative;cursor:pointer}
 #pgVacuum .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
@@ -66,7 +66,7 @@ const CSS = `
 #vcSub{font-size:14px;margin-top:6px;font-weight:300;line-height:1.3;height:46px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 #vcProg{height:8px;border-radius:4px;background:rgba(var(--oriel-ink),.12);margin-top:4px;overflow:hidden;visibility:hidden}
 #vcProg i{display:block;height:100%;background:${TL};border-radius:4px;transform:translateX(-100%);transition:transform .6s}
-#vcLast{font-size:12.5px;color:rgba(var(--oriel-ink),.62);margin:-6px 0 -14px;padding:14px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vcLast{font-size:12.5px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin:-6px 0 -14px;padding:14px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #vcChips{position:absolute;left:20px;right:20px;bottom:76px;display:flex;gap:6px}
 #vcChips .chip{min-width:0;overflow:hidden;text-overflow:ellipsis;display:inline-block;line-height:24px}
 #vcCtl{position:absolute;left:14px;right:14px;bottom:14px;height:50px;display:flex;gap:8px}
@@ -87,12 +87,12 @@ const CSS = `
 #vcMenu .stp{display:flex;align-items:center;gap:6px}
 #vcMenu .stp button{width:52px;text-align:center;padding:0;font-size:22px}
 #vcMenu .stp span{flex:1;text-align:center;font-size:14px;min-width:70px}
-.vcT small{font-size:10.5px;color:rgba(var(--oriel-ink),.62);white-space:nowrap}
+.vcT small{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
 .vcT b{font-weight:400;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #vcSch{left:100px;top:578px;width:330px;height:198px;padding:14px 16px;overflow:hidden}
 .vcS{border-radius:16px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);padding:8px 12px;margin-top:6px;cursor:pointer}
 .vcS b{display:block;font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vcS span{display:block;font-size:12px;color:rgba(var(--oriel-ink),.62);margin-top:1px;line-height:1.3}
+.vcS span{display:block;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:1px;line-height:1.3}
 .vcS.off b{color:rgb(var(--oriel-bad))}
 #vcMapP{left:446px;top:84px;width:350px;height:692px;padding:14px 16px}
 #vcMap{display:block;margin:6px auto 0}
@@ -100,15 +100,15 @@ const CSS = `
 #vcMap .rm rect{fill:rgba(var(--oriel-glass),.55);stroke:rgba(var(--oriel-glass),.9);stroke-width:1.2}
 #vcMap .rm.sel rect{fill:rgba(var(--oriel-accent-fill),.85);stroke:rgb(var(--oriel-accent-strong));stroke-width:2}
 #vcMap .rm.act rect{fill:${VAC.activeRoom};stroke:${TL};stroke-width:2}
-#vcMap .rm text{font-family:inherit;font-size:11.5px;fill:rgb(var(--oriel-ink));pointer-events:none;font-weight:400}
+#vcMap .rm text{font-family:inherit;font-size:12px;fill:rgb(var(--oriel-ink));pointer-events:none;font-weight:400}
 #vcMap .rm.sel text{fill:rgb(var(--oriel-ink-on-accent))}
 #vcMap .rb{fill:rgb(var(--oriel-ink))}
 #vcMap .rbring{fill:none;stroke:${TL};stroke-width:2;transform-box:fill-box;transform-origin:center;animation:vcRing 2s ease-out infinite}
-#vcMapMsg{position:absolute;left:16px;right:16px;top:240px;text-align:center;font-size:13px;color:rgba(var(--oriel-ink),.62);display:none}
+#vcMapMsg{position:absolute;left:16px;right:16px;top:240px;text-align:center;font-size:13px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));display:none}
 #vcRooms{display:grid;grid-template-columns:1fr 1fr;gap:6px;position:absolute;left:16px;right:16px;bottom:14px}
 .vcR{height:50px;border-radius:18px;border:1px solid rgba(var(--oriel-glass),.55);background:rgba(var(--oriel-glass),.34);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font:inherit;font-size:13px;color:rgb(var(--oriel-ink));cursor:pointer;min-width:0}
 .vcR span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vcR small{font-size:11px;color:rgba(var(--oriel-ink),.62);white-space:nowrap}
+.vcR small{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
 .vcR.sel{background:rgba(var(--oriel-accent-fill),.8);color:rgb(var(--oriel-ink-on-accent));box-shadow:0 0 0 1.5px rgb(var(--oriel-accent-strong))}
 .vcR.sel small{color:rgba(var(--oriel-ink-on-accent),var(--oriel-soft-on-accent,.62))}
 .vcR.act{background:rgba(var(--oriel-glass),.7);box-shadow:0 0 0 1.5px ${TL},0 0 14px 2px ${TL}}
@@ -120,20 +120,20 @@ const CSS = `
 .vcC{cursor:pointer;min-width:0}
 .vcC .t{display:flex;justify-content:space-between;font-size:13px;gap:6px}
 .vcC .t span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vcC .t em{font-style:normal;color:rgba(var(--oriel-on-dark),.6);font-size:11.5px}
+.vcC .t em{font-style:normal;color:rgba(var(--oriel-on-dark),.6);font-size:12px}
 .vcC .b{height:8px;border-radius:4px;background:rgba(var(--oriel-on-dark),.14);margin-top:5px;overflow:hidden}
 .vcC .b i{display:block;height:100%;border-radius:4px;background:${G}}
 .vcC.o .b i{background:${AM}}.vcC.r .b i{background:${VAC.worn}}
-.vcC .h{font-size:11px;color:rgba(var(--oriel-on-dark),.6);margin-top:3px;white-space:nowrap}
+.vcC .h{font-size:12px;color:rgba(var(--oriel-on-dark),.6);margin-top:3px;white-space:nowrap}
 #vcSta{left:812px;top:336px;width:444px;height:236px;padding:14px 16px}
 #vcWg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
 .vcW{border-radius:16px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);height:48px;padding:5px 10px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;min-width:0}
-.vcW small{font-size:10.5px;color:rgba(var(--oriel-ink),.62);white-space:nowrap}
+.vcW small{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
 .vcW b{font-weight:400;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vcW.bad{background:rgb(var(--oriel-bad-bg));border-color:rgb(var(--oriel-bad-line))}.vcW.bad b{color:rgb(var(--oriel-bad))}
 #vcBase{margin-top:8px;height:50px;border-radius:18px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);display:flex;align-items:center;gap:10px;padding:0 14px;font-size:13px;cursor:pointer}
 #vcBase>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-#vcBase small{margin-left:auto;color:rgba(var(--oriel-ink),.62);font-size:12px;white-space:nowrap}
+#vcBase small{margin-left:auto;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-size:12px;white-space:nowrap}
 #vcBase.bad{background:rgb(var(--oriel-bad-bg));border-color:rgb(var(--oriel-bad-line))}
 #vcBase button{margin-left:auto;height:36px;border-radius:18px;border:0;background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));font:inherit;font-size:12.5px;padding:0 14px;cursor:pointer;display:none;white-space:nowrap}
 #vcBase.bad button{display:block}#vcBase.bad small{display:none}
@@ -156,7 +156,7 @@ const CSS = `
 `;
 
 const F1_HTML = (sfx) => `<div id="vcF1${sfx}" class="abs glass mid vcF1"><div class="vcHd"><span id="vcF1N${sfx}"></span><span class="chip" id="vcF1S${sfx}">–</span></div>
-    <div class="row"><div class="big"><span id="vcF1B${sfx}">–</span><span style="font-size:14px;color:rgba(var(--oriel-ink),.62)">%</span></div><div id="vcF1C${sfx}" class="f1c"></div></div>
+    <div class="row"><div class="big"><span id="vcF1B${sfx}">–</span><span style="font-size:14px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))">%</span></div><div id="vcF1C${sfx}" class="f1c"></div></div>
     <div class="kv" id="vcF1K${sfx}"></div></div>`;
 const HTML = (extra) => `<div id="vcWrap">
   <div id="vcHero" class="abs glass mid">

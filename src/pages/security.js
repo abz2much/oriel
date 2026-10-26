@@ -33,7 +33,7 @@ const CSS = `
 #scWrap>*{pointer-events:auto}
 #pgSecurity .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #pgSecurity .scHd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;gap:8px}
-#pgSecurity .scHd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pgSecurity .scHd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pgSecurity .dark .scHd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgSecurity .chip{height:26px;font-size:12px;padding:0 10px;white-space:nowrap;position:relative;cursor:pointer}
 #pgSecurity .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
@@ -52,10 +52,10 @@ const CSS = `
 #scHero.alert{background:rgb(var(--oriel-bad-bg))}
 #scState{font-size:54px;font-weight:200;line-height:1;margin-top:20px;cursor:pointer;white-space:nowrap}
 #scSub{font-size:15px;margin-top:10px;font-weight:300;min-height:40px;line-height:1.3;overflow:hidden;max-height:40px}
-#scWho{font-size:12.5px;color:rgba(var(--oriel-ink),.62);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scWho{font-size:12.5px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #scNova{margin-top:10px;overflow:hidden;display:none}
 #scNova.on{display:block}
-#scNova .scNh{font-size:11.5px;color:rgba(var(--oriel-ink),.62);font-weight:500}
+#scNova .scNh{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-weight:500}
 #scNova .scNl{font-size:12.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 #scPanels{position:absolute;left:22px;right:22px;bottom:20px;display:flex;gap:6px;flex-wrap:wrap}
 #scDoors{left:536px;top:84px;width:440px;height:314px;padding:16px}
@@ -64,21 +64,22 @@ const CSS = `
 #scAreas{margin-top:6px}
 .scAr{display:grid;grid-template-columns:112px 1fr;align-items:center;min-height:27px;flex:1 1 27px;max-height:44px;font-size:13px;border-bottom:1px solid rgba(var(--oriel-ink),.07)}
 .scAr:last-child{border:0}
-.scAr .scN{color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scAr .scN{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scAr .scS{display:flex;gap:6px;flex-wrap:nowrap}
-.scSn{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:rgba(var(--oriel-glass),.55);font-size:11.5px;position:relative;cursor:pointer;white-space:nowrap}
+.scSn{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:rgba(var(--oriel-glass),.55);font-size:12px;position:relative;cursor:pointer;white-space:nowrap}
 .scSn::after{content:"";position:absolute;left:-3px;right:-3px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
 .scSn i{width:7px;height:7px;border-radius:50%;background:rgb(var(--oriel-good-mark));display:block}
 .scSn.open{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad))}.scSn.open i{background:rgb(var(--oriel-bad-strong))}
+.scSn b{display:none;font-weight:600}.scSn.open b{display:inline}
 .scSn.off{opacity:.5}.scSn.off i{background:rgb(var(--oriel-off))}
 #scDoors.hot .scSn.open{box-shadow:0 0 0 1.5px rgb(var(--oriel-bad-strong))}
 #scMotion{left:992px;top:84px;width:264px;height:314px;padding:16px;overflow:hidden}
 .scMr{display:flex;align-items:center;justify-content:space-between;min-height:24px;flex:1 1 24px;max-height:44px;font-size:13px;cursor:pointer;gap:6px}
 .scMr span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.scMr small{color:rgba(var(--oriel-ink),.62);font-size:11.5px;white-space:nowrap}
+.scMr small{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-size:12px;white-space:nowrap}
 .scMr.on small{color:rgb(var(--oriel-good-2));font-weight:500}.scMr.on.hot small{color:rgb(var(--oriel-bad-strong))}
-.scMh{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(var(--oriel-ink),.62);margin:8px 0 1px}
-.scMr.mut{color:rgba(var(--oriel-ink),.62)}
+.scMh{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin:8px 0 1px}
+.scMr.mut{color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 #scCams{left:100px;top:410px;width:1156px;height:190px;padding:14px 16px}
 #scCamRow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
 .scCam{height:132px;border-radius:20px;position:relative;overflow:hidden;background:linear-gradient(150deg,${CAM.tileA},${CAM.tileB});color:${CAM.text};cursor:pointer}
@@ -87,20 +88,20 @@ const CSS = `
 .scCam.live .scLive{display:flex}
 .scCam .scLive>*{width:100%;height:100%;display:block}
 .scCam .scL{position:absolute;left:12px;top:9px;font-size:13px;text-shadow:0 1px 4px ${CAM.shadow};z-index:3;white-space:nowrap}
-.scCam .scTm{position:absolute;left:12px;bottom:10px;font-size:11px;color:${CAM.soft};text-shadow:0 1px 4px ${CAM.shadow};z-index:3;white-space:nowrap}
+.scCam .scTm{position:absolute;left:12px;bottom:10px;font-size:12px;color:${CAM.soft};text-shadow:0 1px 4px ${CAM.shadow};z-index:3;white-space:nowrap}
 .scCam .scBt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:25px;background:${CAM.btn};border:1px solid ${CAM.btnLine};display:grid;place-items:center;color:${CAM.text};cursor:pointer;padding:0;z-index:4}
 .scCam.live .scBt{top:auto;bottom:8px;left:auto;right:8px;transform:none;width:44px;height:44px;border-radius:22px;background:${CAM.btnLive}}
 .scCam .scBd{position:absolute;right:8px;top:8px;display:flex;gap:4px;z-index:3}
 .scCam.live .scBd{display:none}
-.scCam .scBd span{height:20px;padding:0 8px;border-radius:10px;font-size:10.5px;background:${CAM.chip};display:flex;align-items:center}
+.scCam .scBd span{height:20px;padding:0 8px;border-radius:10px;font-size:12px;background:${CAM.chip};display:flex;align-items:center}
 .scCam .scBd span.on{background:${CAM.live}}
 .scCam.off{opacity:.55}.scCam.off .scBt{display:none}
 #scEv{left:100px;top:612px;width:560px;height:164px;padding:14px 16px;overflow:hidden}
 .scEvr{display:grid;grid-template-columns:48px 20px 1fr;gap:8px;align-items:center;height:24px;font-size:12.5px;cursor:pointer}
-.scEvr .scT{color:rgba(var(--oriel-ink),.62);font-variant-numeric:tabular-nums}
+.scEvr .scT{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-variant-numeric:tabular-nums}
 .scEvr .scX{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scEvr.hi{color:rgb(var(--oriel-bad))}
-.scEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),.62);padding-top:6px}
+.scEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));padding-top:6px}
 #scHealth{left:676px;top:612px;width:580px;height:164px;padding:14px 16px}
 #scHg{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:8px;font-size:12.5px;flex:1;min-height:0;grid-auto-rows:minmax(23px,44px);align-content:start}
 .scHb{display:flex;align-items:center;justify-content:space-between;min-height:23px;cursor:pointer;gap:6px}
@@ -171,7 +172,7 @@ const SecurityExt = {
       const r = document.createElement('div'); r.className = 'scAr';
       r.innerHTML = '<span class="scN"></span><span class="scS"></span>'; r.firstChild.textContent = a.area || '';
       items.forEach((it) => {
-        const s = document.createElement('span'); s.className = 'scSn'; s.innerHTML = '<i></i><span></span>'; s.lastChild.textContent = it.name || this.name(it.entity);
+        const s = document.createElement('span'); s.className = 'scSn'; s.innerHTML = '<i></i><span></span><b></b>'; s.children[1].textContent = it.name || this.name(it.entity); s.lastChild.textContent = S.open_lc;
         this._scTap(s, it.entity); r.lastChild.appendChild(s); S0.open.push({ it: Object.assign({ label: it.label || it.name || this.name(it.entity) }, it), a, s });
       });
       $('scAreas').appendChild(r);

@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import { THEMES, themeTokens } from '../src/theme/themes.js';
 import { ROLE, VARIANT, CLASSIC_PAGE } from '../src/theme/tokens.js';
 import { hex, mix, contrast } from '../src/theme/colour.js';
-import { STATE, STATE_ON_DARK } from '../src/theme/fixed.js';
+import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC } from '../src/theme/fixed.js';
 
 const ids = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(THEMES);
 const P = (s) => s.split(',').map(Number);
@@ -18,7 +18,7 @@ function values(id) {
   const v = {};
   for (const k in ROLE) if (k !== 'page') v[k] = P(t.role[k] || ROLE[k]);
   for (const k in VARIANT) {
-    if (t.classic) { v[k] = P(VARIANT[k][0]); continue; }
+    if (t.classic) { v[k] = P((t.variant && t.variant[k]) || VARIANT[k][0]); continue; }
     let x = k; while (!(t.variant && t.variant[x]) && VARIANT[x]) x = VARIANT[x][1];
     v[k] = t.variant && t.variant[x] ? P(t.variant[x]) : v[x];
   }
@@ -27,7 +27,8 @@ function values(id) {
   const stops = [...page.matchAll(/(?:rgb\((\d+,\d+,\d+)\)|(#[0-9a-f]{6}))\s+\d+%/gi)].map((m) => (m[1] ? P(m[1]) : hex(m[2])));
   v.pageMid = stops[2] ? mix(stops[1], stops[2], 0.3) : stops[0];
   v.softA = t.extra && t.extra['soft-on-accent'] ? +t.extra['soft-on-accent'] : 0.62;
-  return { v, dark: THEMES[id].style === 'dark' };
+  v.soft = t.extra && t.extra.soft ? +t.extra.soft : 0.62; v.softPage = t.extra && t.extra['soft-page'] ? +t.extra['soft-page'] : v.soft;
+  return { v, dark: THEMES[id].style === 'dark', classic: !!t.classic };
 }
 
 function surfaces(v) {
@@ -58,12 +59,12 @@ function surfaces(v) {
 }
 
 /* [label, text colour, alpha, surface, target] */
-function pairs(v, dark) {
-  const st = (t) => (dark ? hex(STATE_ON_DARK[t] || t) : hex(t));
+function pairs(v, dark, classic) {
+  const st = (t) => hex(dark ? STATE_ON_DARK[t] || t : classic ? STATE_ON_CLASSIC[t] || t : t);
   const L = [];
   const add = (label, fg, a, surf, target) => L.push([label, fg, a, surf, target]);
   for (const s of ['page', 'glass', 'glass mid', 'cell', 'on fill', 'raised', 'sheet', 'room label']) add('text', v.ink, 1, s, 4.5);
-  for (const s of ['page', 'glass', 'cell', 'sheet']) add('soft text (62%)', v.ink, 0.62, s, 4.5);
+  for (const s of ['page', 'glass', 'cell', 'sheet']) { const a = s === 'page' ? v.softPage : v.soft; add(`soft text (${Math.round(a * 100)}%)`, v.ink, a, s, 4.5); }
   for (const s of ['glass', 'cell']) { add('accent text', v['accent-ink'], 1, s, 4.5); add('good', v.good, 1, s, 4.5); add('warn', v.warn, 1, s, 4.5); add('bad', v.bad, 1, s, 4.5); }
   add('alert text', v['bad-ink'], 1, 'bad chip', 4.5); add('bad', v.bad, 1, 'bad chip', 4.5); add('warn', v.warn, 1, 'warn chip', 4.5);
   add('good pill text', v['good-ink'], 1, 'good pill', 4.5); add('red pill text', v['bad-ink-2'], 1, 'red pill', 4.5); add('amber pill text', v['warn-ink'], 1, 'amber pill', 4.5);
@@ -86,8 +87,8 @@ function pairs(v, dark) {
 let md = '# Oriel contrast report\n\nTargets: 4.5:1 body text, 3:1 large text and icons. Surfaces flattened as rendered.\n';
 let fails = 0;
 for (const id of ids) {
-  const { v, dark } = values(id), s = surfaces(v);
-  const rows = pairs(v, dark).map(([label, fg, a, surf, target]) => {
+  const { v, dark, classic } = values(id), s = surfaces(v);
+  const rows = pairs(v, dark, classic).map(([label, fg, a, surf, target]) => {
     const r = contrast(over(s[surf], fg, a), s[surf]);
     return { label, surf, r, target, ok: r >= target };
   });
