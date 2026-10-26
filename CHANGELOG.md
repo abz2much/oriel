@@ -2,6 +2,11 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.6] - 2026-10-26
+
+### Changed
+- The side rail is centred vertically in the space below the header and stays centred as pages are added. Settings is still last. If there are more pages than fit, the rail starts at the usual top and the page icons scroll inside it.
+
 ## [0.2.5] - 2026-10-26
 
 ### Changed
