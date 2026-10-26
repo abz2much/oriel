@@ -1,6 +1,6 @@
 # Oriel
 
-A wall-tablet dashboard for Home Assistant, in one custom card. Frosted glass in eleven colour themes (taupe and sage by default), and a 3D glass house on the home screen that shows who is in which room and where your power is flowing.
+A wall-tablet dashboard for Home Assistant, in one custom card. Frosted glass in twelve colour themes (taupe and sage by default), and a 3D glass house on the home screen that shows who is in which room and where your power is flowing.
 
 Every page and every section is optional. You set it up with a visual editor; YAML still works.
 
@@ -30,7 +30,7 @@ All screenshots use made-up example data from the dev harness.
 
 ## Themes
 
-Eleven colour themes. **Classic** is the default and is Oriel's original look. Pick one in the editor (**General › Theme**), or in YAML:
+Twelve colour themes. **Classic** is the default and is Oriel's original look. Pick one in the editor (**General › Theme**), or in YAML:
 
 ```yaml
 general:
@@ -50,13 +50,14 @@ general:
 | Violet Mist | `violet-mist` | Light | mist grey, signal violet |
 | Berry Sky | `berry-sky` | Light | pale sky, raspberry |
 | Quantum Ice | `quantum-ice` | Light | ice glass, quantum blue |
+| Pine Mist | `pine-mist` | Light | pale mint, deep pine |
 | Ember | `ember` | Light | porcelain, neon orange |
 
 <table>
 <tr><td><img src="docs/screenshots/themes/classic.jpg" alt="Classic theme"><br>Classic</td><td><img src="docs/screenshots/themes/midnight-signal.jpg" alt="Midnight Signal theme"><br>Midnight Signal</td><td><img src="docs/screenshots/themes/plum-dusk.jpg" alt="Plum Dusk theme"><br>Plum Dusk</td></tr>
 <tr><td><img src="docs/screenshots/themes/cocoa-bark.jpg" alt="Cocoa Bark theme"><br>Cocoa Bark</td><td><img src="docs/screenshots/themes/forest-mint.jpg" alt="Forest Mint theme"><br>Forest Mint</td><td><img src="docs/screenshots/themes/deep-teal.jpg" alt="Deep Teal theme"><br>Deep Teal</td></tr>
 <tr><td><img src="docs/screenshots/themes/slate-harbour.jpg" alt="Slate Harbour theme"><br>Slate Harbour</td><td><img src="docs/screenshots/themes/violet-mist.jpg" alt="Violet Mist theme"><br>Violet Mist</td><td><img src="docs/screenshots/themes/berry-sky.jpg" alt="Berry Sky theme"><br>Berry Sky</td></tr>
-<tr><td><img src="docs/screenshots/themes/quantum-ice.jpg" alt="Quantum Ice theme"><br>Quantum Ice</td><td><img src="docs/screenshots/themes/ember.jpg" alt="Ember theme"><br>Ember</td></tr>
+<tr><td><img src="docs/screenshots/themes/quantum-ice.jpg" alt="Quantum Ice theme"><br>Quantum Ice</td><td><img src="docs/screenshots/themes/pine-mist.jpg" alt="Pine Mist theme"><br>Pine Mist</td><td><img src="docs/screenshots/themes/ember.jpg" alt="Ember theme"><br>Ember</td></tr>
 </table>
 
 - **Accent override:** `general.accent` takes any hex colour. Oriel rebuilds the accent family from it (fills, toggles, accent text, and text on accent fills) so it stays readable.
@@ -84,7 +85,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.2.2` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.2.3` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 

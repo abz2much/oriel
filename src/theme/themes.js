@@ -111,10 +111,12 @@ function dark(base, accent) {
   return { role, variant };
 }
 
-function light(base, accent) {
+/* depth (optional, default 1) shades the page more deeply, so white lines on cards and the house stand out more.
+   Raise it only as far as the contrast check still passes. */
+function light(base, accent, depth = 1) {
   const B = hex(base), A = hex(accent);
   const deep = mix(B, BLACK, 0.72); /* a dark of the base hue, used to shade the page, house and shadows */
-  const page = [mix(B, deep, 0.09), mix(B, deep, 0.21), mix(B, deep, 0.34)];
+  const page = [mix(B, deep, 0.09 * depth), mix(B, deep, 0.21 * depth), mix(B, deep, 0.34 * depth)];
   const glass = WHITE;
   const panel = panelOf(page, glass);
   const ink = softInk(mix(A, BLACK, 0.82), [panel, pageRep(page)], BLACK);
@@ -161,6 +163,7 @@ export const THEMES = {
   'violet-mist': { name: 'Violet Mist', style: 'light', base: '#F0F2F5', accent: '#7A35FF' },
   'berry-sky': { name: 'Berry Sky', style: 'light', base: '#E0F2FE', accent: '#C2185B' },
   'quantum-ice': { name: 'Quantum Ice', style: 'light', base: '#DFF7FF', accent: '#2457FF' },
+  'pine-mist': { name: 'Pine Mist', style: 'light', base: '#DAF1DE', accent: '#235347', depth: 1.3 },
   ember: { name: 'Ember', style: 'light', base: '#FFFCF4', accent: '#FF6115' },
 };
 
@@ -177,7 +180,7 @@ export function themeTokens(id, accent) {
     out = { role: {}, variant: {}, classic: true };
     if (isHex(accent)) { const c = classicAccent(hex(accent)); out.role = fmt(c.role); out.variant = fmt(c.variant); }
   } else {
-    const b = (t.style === 'dark' ? dark : light)(t.base, isHex(accent) ? accent : t.accent);
+    const b = (t.style === 'dark' ? dark : light)(t.base, isHex(accent) ? accent : t.accent, t.depth);
     out = { role: fmt(b.role), variant: fmt(b.variant), extra: { 'soft-on-accent': '.85' } };
     if (b.statusFromClassic) {
       STATUS_ROLES.forEach((k) => { out.role[k] = ROLE[k]; });
