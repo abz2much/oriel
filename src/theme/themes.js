@@ -154,7 +154,7 @@ export const THEMES = {
   classic: { name: 'Classic', classic: true },
   'midnight-signal': { name: 'Midnight Signal', style: 'dark', base: '#0B132B', accent: '#39FF88' },
   'plum-dusk': { name: 'Plum Dusk', style: 'dark', base: '#1A0B2E', accent: '#FFB7A5' },
-  hearth: { name: 'Hearth', style: 'dark', base: '#6B352A', accent: '#FFF1A6' },
+  'cocoa-bark': { name: 'Cocoa Bark', style: 'dark', base: '#382A28', accent: '#C1A094' },
   'forest-mint': { name: 'Forest Mint', style: 'dark', base: '#18251D', accent: '#B7FF72' },
   'deep-teal': { name: 'Deep Teal', style: 'dark', base: '#03313A', accent: '#8FFFE0' },
   'blueberry-cream': { name: 'Blueberry Cream', style: 'dark', base: '#243B8F', accent: '#FFD6A5' },

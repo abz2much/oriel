@@ -2,6 +2,11 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.1] - 2026-10-26
+
+### Changed
+- Cocoa Bark (`cocoa-bark`) replaces Hearth. Hearth's mid-tone base forced its glass so close to the background that card edges and the house's wall lines were hard to see. Cocoa Bark is a deeper brown with a soft tan accent, and its edges stand out. A config that still says `theme: hearth` shows Classic, and the editor warns.
+
 ## [0.2.0] - 2026-10-26
 
 ### Added

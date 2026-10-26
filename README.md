@@ -43,7 +43,7 @@ general:
 | Classic | `classic` | Light | default: taupe glass, sage accent |
 | Midnight Signal | `midnight-signal` | Dark | navy, neon green |
 | Plum Dusk | `plum-dusk` | Dark | inkberry, peach |
-| Hearth | `hearth` | Dark, warm | clay brown, soft butter |
+| Cocoa Bark | `cocoa-bark` | Dark, warm | deep cocoa, soft tan |
 | Forest Mint | `forest-mint` | Dark | forest graphite, acid mint |
 | Deep Teal | `deep-teal` | Dark | cyber teal, aqua foam |
 | Blueberry Cream | `blueberry-cream` | Dark | blueberry, cream soda |
@@ -54,7 +54,7 @@ general:
 
 <table>
 <tr><td><img src="docs/screenshots/themes/classic.jpg" alt="Classic theme"><br>Classic</td><td><img src="docs/screenshots/themes/midnight-signal.jpg" alt="Midnight Signal theme"><br>Midnight Signal</td><td><img src="docs/screenshots/themes/plum-dusk.jpg" alt="Plum Dusk theme"><br>Plum Dusk</td></tr>
-<tr><td><img src="docs/screenshots/themes/hearth.jpg" alt="Hearth theme"><br>Hearth</td><td><img src="docs/screenshots/themes/forest-mint.jpg" alt="Forest Mint theme"><br>Forest Mint</td><td><img src="docs/screenshots/themes/deep-teal.jpg" alt="Deep Teal theme"><br>Deep Teal</td></tr>
+<tr><td><img src="docs/screenshots/themes/cocoa-bark.jpg" alt="Cocoa Bark theme"><br>Cocoa Bark</td><td><img src="docs/screenshots/themes/forest-mint.jpg" alt="Forest Mint theme"><br>Forest Mint</td><td><img src="docs/screenshots/themes/deep-teal.jpg" alt="Deep Teal theme"><br>Deep Teal</td></tr>
 <tr><td><img src="docs/screenshots/themes/blueberry-cream.jpg" alt="Blueberry Cream theme"><br>Blueberry Cream</td><td><img src="docs/screenshots/themes/violet-mist.jpg" alt="Violet Mist theme"><br>Violet Mist</td><td><img src="docs/screenshots/themes/berry-sky.jpg" alt="Berry Sky theme"><br>Berry Sky</td></tr>
 <tr><td><img src="docs/screenshots/themes/quantum-ice.jpg" alt="Quantum Ice theme"><br>Quantum Ice</td><td><img src="docs/screenshots/themes/ember.jpg" alt="Ember theme"><br>Ember</td></tr>
 </table>
@@ -84,7 +84,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.2.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.2.1` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
