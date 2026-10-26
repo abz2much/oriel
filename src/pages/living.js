@@ -41,8 +41,8 @@ const CSS = `
 #pgLiving .g{display:grid;gap:6px;margin-top:8px}
 #lrHero{left:100px;top:84px;width:330px;height:230px;overflow:hidden}
 #lrHero .img{position:absolute;inset:0;background:radial-gradient(220px 160px at 50% 55%,${SCENE.panelGlow},transparent 75%),linear-gradient(160deg,${SCENE.panelA},${SCENE.panelB})}
-#lrRm{position:absolute;left:0;top:0;transform:translateY(14px) scale(.9);transform-origin:50% 50%}
-#lrHero .t{position:absolute;left:18px;top:14px;right:16px;display:flex;justify-content:space-between;align-items:center;color:rgb(var(--oriel-on-dark));gap:8px}#lrHero .t b{font-size:24px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lrRm{position:absolute;left:0;top:0;transform:translate(-10px,6px) scale(.8);transform-origin:50% 50%}
+#lrHero .t{position:absolute;left:18px;top:14px;right:16px;display:flex;justify-content:space-between;align-items:center;color:rgb(var(--oriel-on-dark));gap:8px}#lrHero .t b{font-size:20px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lrHero .b{position:absolute;left:12px;right:12px;bottom:12px;display:flex;gap:6px}#lrHero .b .chip{flex:1;justify-content:center;padding:0 6px;background:rgba(var(--oriel-on-dark),.55);cursor:pointer}
 #lrOpen{left:100px;top:326px;width:330px;height:104px;padding:12px 14px}
 #lrOg{grid-template-columns:repeat(4,1fr)}

@@ -2,6 +2,14 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.4] - 2026-10-26
+
+### Fixed
+- Living Room card: the 3D room no longer runs into the bottom chips or the presence chip. It is a little smaller and sits further up and to the left. The title is slightly smaller so a longer name such as "Living Room" clears the back wall.
+
+### Changed
+- Presence wording reads "Someone is here" instead of "Someone here", on the Living Room card and the Security page.
+
 ## [0.2.3] - 2026-10-26
 
 ### Added

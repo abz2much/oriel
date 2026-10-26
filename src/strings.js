@@ -129,7 +129,7 @@ export const S = {
   home_button: 'Home',
   vol_minus: 'Vol −',
   vol_plus: 'Vol +',
-  someone_here: 'Someone here',
+  someone_here: 'Someone is here',
   empty: 'Empty',
   is_open: 'Open',
   closed: 'Closed',
