@@ -8,6 +8,7 @@ general:
   people_display: initial
   alarm: alarm_control_panel.house
   front_door: binary_sensor.front_door
+  windows: [binary_sensor.living_room_window, binary_sensor.kitchen_window]
 home:
   energy_card:
     solar_power: sensor.solar_power

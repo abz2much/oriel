@@ -11,3 +11,4 @@ dev/migrate.mjs
 dev/compare-original.mjs
 THEMES-PROMPT.md
 .claude/
+NAV-WINDOW-PROMPT.md
