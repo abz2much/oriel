@@ -2,6 +2,19 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.3.3] - 2026-10-26
+
+### Changed
+- Living room: the streamer tiles (Google TV, Shield, or whatever is in `living.streamers.devices`) moved out of the Lights card into the right column, as a row directly under the TV panel and above Apps. They do the same as before (tap to choose the active remote; "Off", "Active" and the selected tick). One device gives one wide tile, three give three across, none hides the row. A single device now shows its tile too (it used to need two or more).
+- Living room lights: when the number of lights is odd, the last tile spans both columns, so five lights fill the grid. Four stay as they were.
+- The page still fits without clipping at 1280x800, 1024x768, 1366x1024 and 1920x1080. Text stays at 12 px or more and tap targets at 44 px or more.
+
+### Added
+- Any light can be a colour light in the Lights card, for example an HDMI sync box (`light.*` with `colour: true`). It uses the same tile, tune panel (brightness, white, colour) and on/off behaviour as the other colour lights. Effect lists are not shown.
+
+### Tests
+- `dev/pages.mjs` checks the streamer row with 0, 1, 2 and 3 devices, the odd-count lights grid, and a sync box light without `render` (off with empty attributes, tune panel, brightness and colour calls, on state).
+
 ## [0.3.2] - 2026-10-26
 
 ### Added

@@ -88,7 +88,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.3.2` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.3.3` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -177,9 +177,9 @@ nova: { ... }
 | `blinds` | object | `cover`, `my_position` (button), `subtitle`. |
 | `speaker` | object | `media_player`, `label`, `night_sound` (switch), `audio_format` (sensor). |
 | `tv` | object | `media_player`, `inputs` (list of `label`, `script`, `source`), `source_labels` (map of TV source value to a friendly name). |
-| `streamers` | object | `selector` (input_select, needed for two or more), `devices` (list of `name`, `option`, `icon`, `media_player`, `remote`, `launch`: `script` or `android`). |
+| `streamers` | object | `selector` (input_select, needed to choose between devices), `devices` (list of `name`, `option`, `icon`, `media_player`, `remote`, `launch`: `script` or `android`). |
 | `movie_mode` | object | `start`, `stop` (scripts), `flag`, `on_text`. |
-| `lights` | list | `name`, `entity`, `icon`, `colour` (shows the tune panel), `render` (`uplighter`, `floor_lamp`, `ceiling`, `wall` or `none`: where it glows in the drawing). |
+| `lights` | list | `name`, `entity`, `icon`, `colour` (shows the tune panel), `render` (optional: `uplighter`, `floor_lamp`, `ceiling`, `wall` or `none`; where it glows in the drawing, leave it out for no glow). An odd last light spans both columns. |
 | `scenes` | list | `name`, `icon`, `colour`, and either `helper` (input_boolean, toggled) or `scene`. |
 | `scene_off_lights` | list of entities | Lights a scene turns off on a second tap (default: all lights above). |
 | `apps` | list | `name`, `icon`, `colour`, `script` (for `script` streamers), `package` (Android app, for `android` streamers), `app_id` (to spot it running), `close_all`, `send_home`. |
