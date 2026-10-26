@@ -79,6 +79,9 @@ function pairs(v, dark, classic) {
   add('text', v['on-dark'], 1, 'my bubble', 4.5);
   add('label (72%)', v['on-dark'], 0.72, 'power tag', 4.5); add('value', v['on-dark'], 1, 'power tag', 4.5);
   for (const k in STATE) add(`state "${k}" (large)`, st(STATE[k][1]), 1, 'glass mid', 3);
+  /* Climate and Family: the add boxes, the ticked circle, the bin 'tomorrow' chip, chart lines on glass */
+  add('placeholder (75%)', v.ink, 0.75, 'raised', 4.5); /* the ticked circle is ink-on-accent on accent-fill: the 'chip on' pair */
+  add('bin chip text', v.warn, 1, 'warn chip', 4.5); add('chart line: ink', v.ink, 0.85, 'glass', 3); add('chart line: accent-ink', v['accent-ink'], 1, 'glass', 3);
   add('greeting (large)', v.ink, 1, 'page', 3);
   add('icon: accent-strong', v['accent-strong'], 1, 'glass', 3); add('icon: bad-strong', v['bad-strong'], 1, 'glass', 3); add('icon: good-mark', v['good-mark'], 1, 'glass', 3);
   return L;

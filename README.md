@@ -13,6 +13,8 @@ Every page and every section is optional. You set it up with a visual editor; YA
 | **Home** | Greeting, weather, clock, people, an energy card with today vs yesterday, Today tiles, quick actions, a room panel (lights, heating, appliances, fridge), a shopping list, camera pop-ups, and the glass house with room temperatures, presence and live power flow. |
 | **Living room** | Room status, doors and windows, blinds, speaker, scenes, lights with brightness/white/colour, streamer selector, now playing, TV inputs, movie mode, apps and a remote. |
 | **Energy** | Live flow between solar, house, battery and grid, battery card with packs, today's totals, a house-use chart, solar forecast, big consumers and an inverter health strip. Read-only. |
+| **Climate** | Weather with feels-like, wind, humidity, high and low, a 5-day row and a next-12-hours chart. Thermostats with − and + in the thermostat's own step and a heating boost. A last-12-hours line graph of each thermostat's current temperature. Room temperatures with the coldest and warmest named. |
+| **Family** | Shopping list you can tick, add to and clear. A merged calendar (today, tomorrow, this week). Bin collections with the next date for each, and a clear "Tomorrow". An optional second to-do list. Nova's reminders when Nova is on. |
 | **Security** | Alarm status, doors and windows, presence by floor, camera snapshots with live view on tap, recent events and device health. Read-only: it never arms, disarms or unlocks anything. |
 | **Vacuum** | One or more robot vacuums: status, controls with confirm steps, cleaning settings, schedule, and for Dreame vacuums the room map, parts and base station. |
 | **Nova** | Chat and controls for the separate Nova assistant integration. Off unless you turn it on. |
@@ -114,6 +116,8 @@ general: { ... }
 home: { ... }
 living: { ... }
 energy: { ... }
+climate: { ... }
+family: { ... }
 security: { ... }
 vacuum: { ... }
 system: { ... }
@@ -137,7 +141,7 @@ nova: { ... }
 | `kiosk_path` | text | current page | Dashboard path used by “Show header and sidebar”. |
 | `theme` | theme id | `classic` | Colour theme; see [Themes](#themes). An unknown id falls back to Classic. |
 | `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
-| `pages_order` | list | home, living, energy, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
+| `pages_order` | list | home, living, energy, climate, family, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
 
 ### home
 
@@ -193,6 +197,31 @@ nova: { ... }
 | `forecast` | object | `days` (list, today first, up to 8), `remaining_today`, `peak_today`, `peak_tomorrow`, `bands` (default `[10, 20]` kWh). |
 | `consumers` | object | `heat_pump` (`power`, `today`, `month`) and `appliances` (names from `home.room_panel.appliances`). |
 | `health` | object | `inverter_online_from` (list), `fault_count`, `operating_mode`, `grid_mode`, `feed_in_mode`, `frequency`, `voltage`, `inverter_temperature`, `fossil_share`. Each chip shows only when set. |
+
+### climate
+
+The page appears once any entity here is set. Every card hides when nothing in it is set.
+
+| Key | Type | What it does |
+|---|---|---|
+| `weather` | entity (weather) | One weather entity. Current temperature, condition, feels like (`apparent_temperature`), wind, humidity. Forecasts are read with `weather.get_forecasts`: the 5-day row and high/low need the entity to support daily forecasts, the next-12-hours chart needs hourly ones (`supported_features`). Rows it cannot do are hidden. Rain chance shows only when the forecast has `precipitation_probability`. |
+| `thermostats` | list | `entity` (climate), `name`, `step`. − and + move the target by `step`; empty uses the thermostat's `target_temp_step`, else 0.5. Each also gets a line in the last-12-hours graph (up to 4 lines). |
+| `boost` | object | `start`, `cancel`, `timer`, `switch`, `label`: the same as `home.room_panel.boost`. Leave it empty to use the Home room panel boost; the button sits under the thermostats. |
+| `rooms` | list | `name`, `temperature` (sensor). Empty: the temperature sensors of the rooms on the Home house plan. Missing or unavailable sensors show a dash. |
+
+The last-12-hours graph asks Home Assistant for the thermostat history **with attributes** (`current_temperature` is an attribute), as hourly averages. Unavailable and unknown readings leave a gap, never a zero.
+
+### family
+
+The page appears once any entity here is set.
+
+| Key | Type | What it does |
+|---|---|---|
+| `shopping` | entity (todo) | Shopping list card: tick items, add one, “Clear done”, a count. It is the same list and the same code as the Home shopping pop-up. |
+| `todo` | entity (todo) | A second to-do list. The card is built only when this is set, so it needs a second list in Home Assistant. |
+| `calendars` | list, up to 8 | `entity` (calendar), `name`. Merged and sorted into Today, Tomorrow and This week (the next 5 days after tomorrow). All-day events are marked. Read with the calendar REST API. |
+| `bins` | list | `entity` (calendar), `label`, `colour` (`black`, `brown`, `green` or a hex such as `#3366cc`). Shows the next collection as “Today”, “Tomorrow” or “Thu 6”. Today's and tomorrow's are highlighted with the word as well as the colour. |
+| `reminders` | true/false | Default `true`. Shows Nova's reminders (from `nova.entities.reminders`); only when `nova.enabled` is on. |
 
 ### security
 

@@ -45,6 +45,11 @@ export const DEFAULT_CONFIG = {
     cameras: [], doorbell: '', batteries: [], low_battery_pct: 30, live_seconds: 120,
     snapshot_seconds: 30, events_hours: 12, event_rows: 4,
   },
+  climate: {
+    weather: '', thermostats: [], rooms: [],
+    boost: { start: '', cancel: '', timer: '', switch: '', label: '' }, /* empty: the Home room panel boost */
+  },
+  family: { shopping: '', todo: '', calendars: [], bins: [], reminders: true },
   vacuum: { night_from: 22, night_to: 8, vacuums: [] },
   system: {
     host: { uptime: '', cpu: '', memory: '', disk: '', cpu_temperature: '' },

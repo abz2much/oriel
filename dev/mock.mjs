@@ -4,7 +4,17 @@ const iso = (min) => new Date(now + min * 60000).toISOString();
 
 export const STATES = {
   // header
-  'weather.home': ['cloudy', { temperature: 9, friendly_name: 'Home' }],
+  'weather.home': ['partlycloudy', { temperature: 9, apparent_temperature: 6.4, humidity: 83, wind_speed: 18, wind_speed_unit: 'km/h', supported_features: 7, friendly_name: 'Home' }],
+  // climate page
+  'climate.ground_floor': ['heat', { friendly_name: 'Ground floor', current_temperature: 20.5, temperature: 21, hvac_action: 'heating', min_temp: 5, max_temp: 30, hvac_modes: ['heat', 'off'] }],
+  'climate.first_floor': ['heat', { friendly_name: 'First floor', current_temperature: 18.5, temperature: 19, hvac_action: 'idle', min_temp: 5, max_temp: 30, hvac_modes: ['heat', 'off'] }],
+  'climate.spare_room': ['unavailable', { friendly_name: 'Spare room' }],
+  // family page
+  'todo.shopping': ['2', { friendly_name: 'Shopping list' }],
+  'todo.chores': ['3', { friendly_name: 'Chores' }],
+  'calendar.household': ['on', { friendly_name: 'Household' }], 'calendar.birthdays': ['off', { friendly_name: 'Birthdays' }], 'calendar.public_holidays': ['off', { friendly_name: 'Public holidays' }],
+  'calendar.bin_black': ['off', { friendly_name: 'Black bin' }], 'calendar.bin_brown': ['off', { friendly_name: 'Brown bin' }], 'calendar.bin_green': ['off', { friendly_name: 'Green bin' }],
+  'sensor.nova_reminders': ['2', { friendly_name: 'Next reminder', reminders: [{ label: 'Put the bins out', time: iso(60 * 4), repeat: 'weekly' }, { label: 'Call the dentist', time: iso(60 * 20) }] }],
   'person.alex': ['home', { friendly_name: 'Alex' }],
   'person.sam': ['not_home', { friendly_name: 'Sam' }],
   'alarm_control_panel.house': ['disarmed', { friendly_name: 'House alarm' }],
@@ -115,6 +125,19 @@ export function mkStates(over) {
 /* Browser-side callWS mock, as source text: history for power sensors, a small shopping list. */
 export const CALLWS_SRC = `async (m) => {
   window.__ws.push(m && m.type);
+  if (m && m.type === 'history/history_during_period' && (m.entity_ids || []).some((id) => id.startsWith('climate.'))) {
+    // current_temperature is an attribute: it is only there when the request asks for attributes
+    const out = {}, t1 = Date.parse(m.end_time) / 1000, t0 = Date.parse(m.start_time) / 1000, withAttr = !m.minimal_response && !m.no_attributes;
+    (m.entity_ids || []).forEach((id, k) => {
+      const a = [];
+      for (let t = t0; t <= t1; t += 1800) {
+        const gap = k === 0 && t > t0 + 4.2 * 3600 && t < t0 + 5.6 * 3600, v = 19 + k * 1.5 + 1.6 * Math.sin((t - t0) / 3600 / 12 * Math.PI * 2);
+        a.push(gap ? { s: 'unavailable', a: {}, lu: t } : { s: 'heat', a: withAttr ? { current_temperature: Math.round(v * 2) / 2 } : undefined, lu: t });
+      }
+      out[id] = id === 'climate.spare_room' ? [{ s: 'unavailable', a: {}, lu: t0 }] : a;
+    });
+    return out;
+  }
   if (m && m.type === 'history/history_during_period') {
     const out = {}, t1 = Date.parse(m.end_time) / 1000, t0 = Date.parse(m.start_time) / 1000;
     (m.entity_ids || []).forEach((id) => {
@@ -129,7 +152,33 @@ export const CALLWS_SRC = `async (m) => {
     });
     return out;
   }
-  if (m && m.type === 'todo/item/list') return { items: [ { uid: '1', summary: 'Milk', status: 'needs_action' }, { uid: '2', summary: 'Bread', status: 'needs_action' }, { uid: '3', summary: 'Eggs', status: 'completed' } ] };
+  if (m && m.type === 'call_service' && m.domain === 'weather' && m.service === 'get_forecasts') {
+    const out = [], now = new Date(), conds = ['partlycloudy', 'rainy', 'sunny', 'cloudy', 'sunny', 'rainy', 'cloudy'];
+    if (m.service_data.type === 'daily') for (let i = 0; i < 7; i++) { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, 12); out.push({ datetime: d.toISOString(), condition: conds[i], temperature: 12 + (i % 3) * 2, templow: 5 + (i % 4), precipitation_probability: conds[i] === 'rainy' ? 70 : 10 }); }
+    else { const h0 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()); for (let i = 0; i < 24; i++) { const d = new Date(h0.getTime() + i * 3600000); out.push({ datetime: d.toISOString(), condition: 'cloudy', temperature: 9 + 4 * Math.sin((d.getHours() - 8) / 24 * 2 * Math.PI), precipitation_probability: i % 5 === 0 ? 40 : 0 }); } }
+    return { context: {}, response: { [m.target.entity_id]: { forecast: out } } };
+  }
+  if (m && m.type === 'todo/item/list') return { items: m.entity_id === 'todo.chores' ? [ { uid: 'c1', summary: 'Water the plants', status: 'needs_action' }, { uid: 'c2', summary: 'Take out recycling', status: 'needs_action' }, { uid: 'c3', summary: 'Change bedding', status: 'needs_action' }, { uid: 'c4', summary: 'Wipe the hob', status: 'completed' } ] : [ { uid: '1', summary: 'Milk', status: 'needs_action' }, { uid: '2', summary: 'Bread', status: 'needs_action' }, { uid: '3', summary: 'Eggs', status: 'completed' } ] };
   if (m && m.type === 'logbook/get_events') return [];
   return {};
+}`;
+
+/* Browser-side callApi mock: the calendar REST API (calendars/<entity>?start=&end=), dates relative to "now". */
+export const CALLAPI_SRC = `async (method, path) => {
+  window.__api.push(path);
+  const m = /^calendars\\/([^?]+)\\?start=([^&]+)&end=([^&]+)/.exec(path); if (!m) return {};
+  const id = m[1], a = new Date(decodeURIComponent(m[2])), b = new Date(decodeURIComponent(m[3])), n = new Date();
+  const day = (i, h, mi) => new Date(n.getFullYear(), n.getMonth(), n.getDate() + i, h || 0, mi || 0);
+  const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const timed = (i, h, mi, mins, summary) => ({ summary, start: { dateTime: day(i, h, mi).toISOString() }, end: { dateTime: new Date(day(i, h, mi).getTime() + mins * 60000).toISOString() } });
+  const allDay = (i, summary, days) => ({ summary, start: { date: ymd(day(i)) }, end: { date: ymd(day(i + (days || 1))) } });
+  const all = {
+    'calendar.household': [timed(0, 9, 30, 30, 'School run'), timed(0, 18, 0, 60, 'Football practice'), timed(1, 10, 0, 45, 'Dentist'), timed(3, 19, 0, 90, 'Parents evening'), allDay(5, 'Garden party')],
+    'calendar.birthdays': [allDay(0, 'Alex birthday'), allDay(4, 'Sam birthday')],
+    'calendar.public_holidays': [allDay(1, 'Bank holiday')],
+    'calendar.bin_black': [allDay(1, 'Black bin'), allDay(15, 'Black bin')],
+    'calendar.bin_brown': [allDay(9, 'Brown bin')],
+    'calendar.bin_green': [allDay(3, 'Green bin')],
+  };
+  return (all[id] || []).filter((e) => { const s = new Date(e.start.dateTime || e.start.date + 'T00:00:00'); return s < b && s >= new Date(a.getTime() - 86400000); });
 }`;

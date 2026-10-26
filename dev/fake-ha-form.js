@@ -15,6 +15,8 @@
         const sel = s.selector || {}, lab = document.createElement('label');
         lab.style.cssText = 'display:flex;flex-direction:column;gap:4px;font-size:12px;color:#5f6368';
         lab.textContent = this.computeLabel ? this.computeLabel(s) : s.name;
+        const help = this.computeHelper ? this.computeHelper(s) : ''; /* ha-form shows this under the field */
+        if (help) { const h = document.createElement('small'); h.textContent = help; lab.appendChild(h); }
         let inp;
         if (sel.boolean) { inp = document.createElement('input'); inp.type = 'checkbox'; }
         else if (sel.select) { inp = document.createElement('select'); inp.innerHTML = '<option value=""></option>' + sel.select.options.map((o) => `<option>${o}</option>`).join(''); }

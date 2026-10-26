@@ -3,7 +3,7 @@
    Output: dev/out/<config>-<page>.png (or OUT=<dir> JPEG=1 for compressed copies, as used for docs/screenshots). Every service call and websocket call is logged, none is sent anywhere. */
 import fs from 'node:fs';
 import { chromium } from 'playwright';
-import { mkStates, CALLWS_SRC } from './mock.mjs';
+import { mkStates, CALLWS_SRC, CALLAPI_SRC } from './mock.mjs';
 
 const names = process.argv.slice(2).length ? process.argv.slice(2) : ['empty', 'minimal', 'full'];
 const W = +(process.env.W || 1280), H = +(process.env.H || 800);
@@ -22,16 +22,16 @@ for (const name of names) {
   await page.setContent('<!doctype html><html><head></head><body style="margin:0;background:#2a2420"><oriel-shell style="display:block;width:100vw"></oriel-shell></body></html>');
   await page.addScriptTag({ content: bundle, type: 'module' });
   await page.waitForFunction(() => customElements.get('oriel-shell'));
-  await page.evaluate(({ cfg, st, ws }) => {
-    window.__calls = []; window.__ws = [];
+  await page.evaluate(({ cfg, st, ws, api }) => {
+    window.__calls = []; window.__ws = []; window.__api = [];
     const e = document.querySelector('oriel-shell');
     e.setConfig(cfg);
     e.hass = {
       states: st, services: { light: {}, climate: {}, script: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP', components: [] },
       callService: (d, s, data) => { window.__calls.push([d, s, data]); return Promise.resolve(); },
-      callWS: eval('(' + ws + ')'), callApi: async () => ({}),
+      callWS: eval('(' + ws + ')'), callApi: eval('(' + api + ')'),
     };
-  }, { cfg, st: mkStates(), ws: CALLWS_SRC });
+  }, { cfg, st: mkStates(), ws: CALLWS_SRC, api: CALLAPI_SRC });
   await page.waitForTimeout(700);
   const keys = await page.evaluate(() => [...document.querySelector('oriel-shell').shadowRoot.querySelectorAll('#rail a[data-k]')].map((a) => a.dataset.k));
   for (const k of keys) {

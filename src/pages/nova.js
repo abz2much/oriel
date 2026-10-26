@@ -364,19 +364,24 @@ const NovaExt = {
     $('nvBw').textContent = s && !bad(s.state) ? t('latest_at', { t: this._nvWhen(s.state) }) : '';
     $('nvBt').textContent = a.text ? String(a.text) : S.no_briefing;
   },
-  _nvRem() {
-    const s = this.st(this._nvc.entities.reminders), $ = this._nv.$, list = (s && Array.isArray(s.attributes.reminders)) ? s.attributes.reminders : [];
-    const sig = JSON.stringify(list); if (this._nv.sig.rem === sig) return; this._nv.sig.rem = sig;
+  /* the reminders sensor's list: [{ label, time, repeat }]. Shared with the Family page. */
+  _nvRemList() { const s = this.st(this._c.nova.entities.reminders); return s && Array.isArray(s.attributes.reminders) ? s.attributes.reminders : []; },
+  _nvRemRows(box, list, empty) {
     const REP = { daily: S.daily_lc, weekly: S.weekly_lc, hourly: S.hourly_lc };
-    $('nvRc').textContent = list.length ? t('n_in_24h', { n: list.length }) : S.next_24h;
-    const box = $('nvRl'); box.innerHTML = '';
-    if (!list.length) { box.innerHTML = `<div class="nvEmpty">${esc(S.nothing_due)}</div>`; return; }
+    box.innerHTML = '';
+    if (!list.length) { box.innerHTML = `<div class="nvEmpty">${esc(empty)}</div>`; return; }
     list.forEach((r) => {
       const d = document.createElement('div'); d.className = 'nvRr'; d.innerHTML = '<span></span><small></small>';
       d.firstChild.textContent = String(r.label || '');
       d.lastChild.textContent = this._nvWhen(r.time) + (r.repeat ? ' · ' + (REP[r.repeat] || String(r.repeat)) : '');
       box.appendChild(d);
     });
+  },
+  _nvRem() {
+    const $ = this._nv.$, list = this._nvRemList();
+    const sig = JSON.stringify(list); if (this._nv.sig.rem === sig) return; this._nv.sig.rem = sig;
+    $('nvRc').textContent = list.length ? t('n_in_24h', { n: list.length }) : S.next_24h;
+    this._nvRemRows($('nvRl'), list, S.nothing_due);
   },
   _nvSug() {
     const N = this._nv, s = this.st(this._nvc.entities.suggestions), $ = N.$, list = (s && Array.isArray(s.attributes.suggestions)) ? s.attributes.suggestions : [];

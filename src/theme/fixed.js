@@ -39,6 +39,9 @@ export const CAM = {
   btnLive: 'rgba(0,0,0,.55)', shadow: 'rgba(0,0,0,.6)',
 };
 
+/* Bin collection colours: they say which bin it is, so every theme keeps them. */
+export const BIN = { black: '#2a2a2a', brown: '#7a4e2d', green: '#3f7a3a' };
+
 /* Vacuum extras that are not state hues. */
 export const VAC = { worn: '#e0604a', activeRoom: 'rgba(79,168,184,.55)' };
 

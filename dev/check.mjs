@@ -2,7 +2,8 @@
    1. version in package.json, src/version.js and CHANGELOG.md agree
    2. dist/oriel.js parses
    3. the card renders every page in every dev config with no page errors and no service calls
-   4. the editor checks pass */
+   4. the editor checks pass
+   5. the Climate and Family page checks pass */
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -26,3 +27,6 @@ ok('card renders in ' + configs.length + ' configs: ' + configs.join(', '));
 
 try { execFileSync(process.execPath, ['dev/editor.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('editor checks'); }
 ok('editor checks pass');
+
+try { execFileSync(process.execPath, ['dev/pages.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('Climate and Family page checks'); }
+ok('Climate and Family page checks pass');
