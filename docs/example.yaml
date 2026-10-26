@@ -1,7 +1,7 @@
 # Example Oriel config with made-up entities. Every key is optional: delete what you do not have.
 type: "custom:oriel-shell"
 general:
-  theme: classic            # or midnight-signal, plum-dusk, cocoa-bark, forest-mint, deep-teal, blueberry-cream, violet-mist, berry-sky, quantum-ice, ember
+  theme: classic            # or midnight-signal, plum-dusk, cocoa-bark, forest-mint, deep-teal, slate-harbour, violet-mist, berry-sky, quantum-ice, ember
   # accent: "#2457ff"       # optional accent colour
   weather: weather.home
   people: [person.alex, person.sam]

@@ -10,3 +10,4 @@ dev/out/
 dev/migrate.mjs
 dev/compare-original.mjs
 THEMES-PROMPT.md
+.claude/
