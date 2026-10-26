@@ -133,6 +133,7 @@ export const S = {
   someone_here: 'Someone is here',
   empty: 'Empty',
   is_open: 'Open',
+  open_lc: 'open',
   closed: 'Closed',
   n_open: '{n} open',
   all_closed: 'All closed',

@@ -8,6 +8,9 @@ export const STATE = {
 };
 
 /* The same state hues as text on dark themes (the dark text shades above don't read on dark glass). */
+/* The same state hues a little darker for Classic, whose mid-tone glass needs it to reach 3:1 for large text. */
+export const STATE_ON_CLASSIC = { '#4a6b24': '#3f5b1f', '#1d6672': '#1a5b65', '#8a5f00': '#6c4a00', '#5f5750': '#59524b' };
+
 export const STATE_ON_DARK = { '#4a6b24': '#b9dc8a', '#1d6672': '#86d3df', '#8a3322': '#f2a08c', '#8a5f00': '#ffc247', '#8a1f12': '#ff8a7a', '#5f5750': '#c4bcb4' };
 
 /* Energy sources and flows. */

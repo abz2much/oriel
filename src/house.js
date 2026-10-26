@@ -209,14 +209,14 @@ addMethods({
       grid: pt(POLE[0], POLE[1], 0).map((v, i) => v + [-92, 6][i]),
     };
     const tag = (key, name, ent) => {
-      const w = 112, h = 40, g0 = el('g', { class: 'ftag', style: 'cursor:pointer' }, f), P = anchor[key];
+      const w = 132, h = 40, g0 = el('g', { class: 'ftag', style: 'cursor:pointer' }, f), P = anchor[key];
       el('rect', { y: -4, width: w, height: h + 8, fill: 'transparent' }, g0); // invisible, makes the tap area at least 44px tall on screen
       el('rect', { width: w, height: h, rx: 15, fill: 'rgba(var(--oriel-tag),.9)', stroke: 'rgba(var(--oriel-on-dark),.18)' }, g0);
       el('circle', { cx: 12, cy: 12, r: 3.6, fill: COL[key] }, g0);
-      const tx = el('text', { x: 21, y: 16, 'font-size': 11, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgba(var(--oriel-on-dark),.72)' }, g0); tx.textContent = name;
-      const s2 = el('text', { x: w - 9, y: 16, 'text-anchor': 'end', 'font-size': 10, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: COL[key] }, g0);
+      const tx = el('text', { x: 21, y: 16, 'font-size': 12, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgba(var(--oriel-on-dark),.72)' }, g0); tx.textContent = name;
+      const s2 = el('text', { x: w - 9, y: 16, 'text-anchor': 'end', 'font-size': 12, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: COL[key] }, g0);
       const v = el('text', { x: 11, y: 34, 'font-size': 16, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgb(var(--oriel-on-dark))' }, g0);
-      const p = el('text', { x: w - 9, y: 34, 'text-anchor': 'end', 'font-size': 11, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgba(var(--oriel-on-dark),.72)' }, g0);
+      const p = el('text', { x: w - 9, y: 34, 'text-anchor': 'end', 'font-size': 12, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgba(var(--oriel-on-dark),.72)' }, g0);
       g0.setAttribute('transform', `translate(${P[0].toFixed(1)},${P[1].toFixed(1)}) scale(1.3) translate(${-w / 2},${-h / 2})`);
       g0.setAttribute('role', 'button'); g0.setAttribute('tabindex', '0'); g0.setAttribute('aria-label', name);
       this.tap(g0, () => this.moreInfo(ent));

@@ -170,6 +170,15 @@ export const THEMES = {
 const STATUS_VARIANTS = ['bad-ink', 'bad-line', 'bad-line-2', 'bad-glow', 'bad-mark', 'bad-dot', 'bad-bg-2', 'bad-ink-2', 'bad-on-dark', 'warn-line', 'warn-mark', 'warn-bg-2', 'warn-ink', 'good-2', 'good-mark', 'good-bar', 'good-bg', 'good-ink', 'off', 'off-2'];
 const STATUS_ROLES = ['warn-bg', 'bad-bg', 'bad-strong'];
 
+/* Classic, made readable (0.2.8): the smallest darkening that takes each failing pair to 4.5:1 for text and 3:1
+   for icons on Classic's mid-tone glass, and stronger soft text. Kept out of ROLE and VARIANT because the other
+   light themes borrow their status colours from those. */
+const CLASSIC_READABLE = {
+  role: { 'accent-ink': '41,69,18', good: '41,69,18', warn: '84,57,0', bad: '108,41,20', 'accent-strong': '72,94,43', 'bad-strong': '159,47,36' },
+  variant: { 'good-mark': '72,94,43' },
+  extra: { soft: '.75', 'soft-page': '.86', 'soft-on-accent': '.7' },
+};
+
 /* Full token values for a theme id, as triplet strings ({ role, variant }). An accent override rebuilds the accent
    family (fills, toggles, accent text, text on accent) from the new colour, so it stays readable. */
 export function themeTokens(id, accent) {
@@ -177,8 +186,8 @@ export function themeTokens(id, accent) {
   let out;
   const fmt = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Array.isArray(v) ? trip(v) : v]));
   if (t.classic) {
-    out = { role: {}, variant: {}, classic: true };
-    if (isHex(accent)) { const c = classicAccent(hex(accent)); out.role = fmt(c.role); out.variant = fmt(c.variant); }
+    out = { role: Object.assign({}, CLASSIC_READABLE.role), variant: Object.assign({}, CLASSIC_READABLE.variant), extra: Object.assign({}, CLASSIC_READABLE.extra), classic: true };
+    if (isHex(accent)) { const c = classicAccent(hex(accent)); Object.assign(out.role, fmt(c.role)); Object.assign(out.variant, fmt(c.variant)); }
   } else {
     const b = (t.style === 'dark' ? dark : light)(t.base, isHex(accent) ? accent : t.accent, t.depth);
     out = { role: fmt(b.role), variant: fmt(b.variant), extra: { 'soft-on-accent': '.85' } };
@@ -192,3 +201,4 @@ export function themeTokens(id, accent) {
 
 export const themeStyle = (id, accent) => themeCss(themeTokens(id, accent));
 export const isDarkTheme = (id) => (THEMES[id] || THEMES[DEFAULT_THEME]).style === 'dark';
+export const isClassicTheme = (id) => !!(THEMES[id] || THEMES[DEFAULT_THEME]).classic;
