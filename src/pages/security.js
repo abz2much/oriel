@@ -36,7 +36,7 @@ const CSS = `
 #pgSecurity .scHd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pgSecurity .dark .scHd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgSecurity .chip{height:26px;font-size:12px;padding:0 10px;white-space:nowrap;position:relative;cursor:pointer}
-#pgSecurity .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:-9px;bottom:-9px}
+#pgSecurity .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
 #pgSecurity .chip.bad{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad));border-color:rgb(var(--oriel-bad-line-2))}
 #pgSecurity .chip.ok{background:rgba(var(--oriel-ok-fill),.55);color:rgb(var(--oriel-ink))}
 #pgSecurity .chip.warn{background:rgb(var(--oriel-warn-bg));color:rgb(var(--oriel-warn));border-color:rgb(var(--oriel-warn-line))}
@@ -59,19 +59,21 @@ const CSS = `
 #scNova .scNl{font-size:12.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 #scPanels{position:absolute;left:22px;right:22px;bottom:20px;display:flex;gap:6px;flex-wrap:wrap}
 #scDoors{left:536px;top:84px;width:440px;height:314px;padding:16px}
+/* lists spread out to fill their card, up to 44px a row, so rows are easy to tap; many rows shrink back */
+#scDoors,#scMotion,#scHealth{display:flex;flex-direction:column} #scAreas,#scMoBody{flex:1;min-height:0;display:flex;flex-direction:column}
 #scAreas{margin-top:6px}
-.scAr{display:grid;grid-template-columns:112px 1fr;align-items:center;min-height:27px;font-size:13px;border-bottom:1px solid rgba(var(--oriel-ink),.07)}
+.scAr{display:grid;grid-template-columns:112px 1fr;align-items:center;min-height:27px;flex:1 1 27px;max-height:44px;font-size:13px;border-bottom:1px solid rgba(var(--oriel-ink),.07)}
 .scAr:last-child{border:0}
 .scAr .scN{color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scAr .scS{display:flex;gap:6px;flex-wrap:nowrap}
 .scSn{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:rgba(var(--oriel-glass),.55);font-size:11.5px;position:relative;cursor:pointer;white-space:nowrap}
-.scSn::after{content:"";position:absolute;left:-3px;right:-3px;top:-10px;bottom:-10px}
+.scSn::after{content:"";position:absolute;left:-3px;right:-3px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
 .scSn i{width:7px;height:7px;border-radius:50%;background:rgb(var(--oriel-good-mark));display:block}
 .scSn.open{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad))}.scSn.open i{background:rgb(var(--oriel-bad-strong))}
 .scSn.off{opacity:.5}.scSn.off i{background:rgb(var(--oriel-off))}
 #scDoors.hot .scSn.open{box-shadow:0 0 0 1.5px rgb(var(--oriel-bad-strong))}
 #scMotion{left:992px;top:84px;width:264px;height:314px;padding:16px;overflow:hidden}
-.scMr{display:flex;align-items:center;justify-content:space-between;height:24px;font-size:13px;cursor:pointer;gap:6px}
+.scMr{display:flex;align-items:center;justify-content:space-between;min-height:24px;flex:1 1 24px;max-height:44px;font-size:13px;cursor:pointer;gap:6px}
 .scMr span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scMr small{color:rgba(var(--oriel-ink),.62);font-size:11.5px;white-space:nowrap}
 .scMr.on small{color:rgb(var(--oriel-good-2));font-weight:500}.scMr.on.hot small{color:rgb(var(--oriel-bad-strong))}
@@ -100,8 +102,8 @@ const CSS = `
 .scEvr.hi{color:rgb(var(--oriel-bad))}
 .scEmpty{font-size:12.5px;color:rgba(var(--oriel-ink),.62);padding-top:6px}
 #scHealth{left:676px;top:612px;width:580px;height:164px;padding:14px 16px}
-#scHg{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:8px;font-size:12.5px}
-.scHb{display:flex;align-items:center;justify-content:space-between;height:23px;cursor:pointer;gap:6px}
+#scHg{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:8px;font-size:12.5px;flex:1;min-height:0;grid-auto-rows:minmax(23px,44px);align-content:start}
+.scHb{display:flex;align-items:center;justify-content:space-between;min-height:23px;cursor:pointer;gap:6px}
 .scHb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scHb b{font-weight:400;white-space:nowrap}.scHb b.lo{color:rgb(var(--oriel-bad-on-dark))}
 `;

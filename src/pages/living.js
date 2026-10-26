@@ -77,7 +77,9 @@ const CSS = `
 .lab{font-size:11px;color:rgba(var(--oriel-ink),.62);margin-bottom:4px}
 .pr{display:flex;gap:6px}.pr button{flex:1;height:42px;border-radius:14px;border:1px solid rgba(var(--oriel-ink),.1);background:rgba(var(--oriel-glass),.7);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:rgb(var(--oriel-ink));padding:0 2px}
 .pr button.on{background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark))}.pr button i{width:14px;height:14px;border-radius:50%;display:block;border:1px solid ${LIGHT.swatchEdge}}
-.swr{display:flex;justify-content:space-between}.swr button{width:40px;height:40px;border-radius:50%;border:3px solid rgba(var(--oriel-glass),.9);cursor:pointer;box-shadow:0 3px 8px rgba(var(--oriel-shadow),.3);padding:0}.swr button.on{box-shadow:0 0 0 2px rgb(var(--oriel-ink)),0 3px 8px rgba(var(--oriel-shadow),.3)}
+.swr{display:flex;justify-content:space-between}
+:is(#lrHero .chip,#lrAllOff,.tune,.pr button,.swr button,.hdmi button){position:relative}
+:is(#lrHero .chip,#lrAllOff,.tune,.pr button,.swr button,.hdmi button)::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}.swr button{width:40px;height:40px;border-radius:50%;border:3px solid rgba(var(--oriel-glass),.9);cursor:pointer;box-shadow:0 3px 8px rgba(var(--oriel-shadow),.3);padding:0}.swr button.on{box-shadow:0 0 0 2px rgb(var(--oriel-ink)),0 3px 8px rgba(var(--oriel-shadow),.3)}
 #lrNow{right:24px;top:84px;width:388px;height:196px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 #lrNow .top{display:flex;align-items:center;gap:12px}
 .lrap{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;flex:none;background:rgba(var(--oriel-on-dark),.1);border:1px solid rgba(var(--oriel-on-dark),.14)}.lrap .ic{width:26px;height:26px}
@@ -86,7 +88,7 @@ const CSS = `
 #lrNow .round{background:rgba(var(--oriel-on-dark),.14);color:rgb(var(--oriel-on-dark));box-shadow:none;border:1px solid rgba(var(--oriel-on-dark),.2)}#lrNow .round.act{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink))}
 .mm{display:flex;align-items:center;gap:8px;background:rgba(var(--oriel-on-dark),.08);border-radius:18px;padding:6px 6px 6px 14px;border:1px solid rgba(var(--oriel-on-dark),.1)}.mm .l{flex:1;font-size:13px}.mm .l small{display:block;font-size:10.5px;color:rgba(var(--oriel-on-dark),.6)}
 .mm button{height:38px;padding:0 18px;border-radius:19px;border:0;font-size:13px;cursor:pointer;background:rgba(var(--oriel-on-dark),.14);color:rgb(var(--oriel-on-dark))}.mm button.go{background:linear-gradient(150deg,rgb(var(--oriel-accent-hi)),rgb(var(--oriel-accent-lo)));color:rgb(var(--oriel-on-accent));font-weight:500}.mm button.go.dim{opacity:.5}
-.hdmi{display:flex;gap:6px;align-items:center;font-size:11.5px;color:rgba(var(--oriel-on-dark),.6)}.hdmi button{flex:1;height:30px;border-radius:15px;border:1px solid rgba(var(--oriel-on-dark),.16);background:transparent;font-size:12px;cursor:pointer;color:rgb(var(--oriel-on-dark-text));padding:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hdmi button.on{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink))}
+.hdmi{display:flex;gap:6px;align-items:center;font-size:11.5px;color:rgba(var(--oriel-on-dark),.6)}.hdmi button{flex:1;height:30px;border-radius:15px;border:1px solid rgba(var(--oriel-on-dark),.16);background:transparent;font-size:12px;cursor:pointer;color:rgb(var(--oriel-on-dark-text));padding:0;white-space:nowrap}.hdmi button span{display:block;overflow:hidden;text-overflow:ellipsis}.hdmi button.on{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink))}
 #lrApps{right:24px;top:292px;width:388px;height:216px;padding:12px 14px}
 #lrAg{grid-template-columns:repeat(4,1fr)}
 .at{height:54px;border-radius:16px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.3);display:flex;flex-direction:column;justify-content:space-between;padding:7px 8px;font-size:11.5px;cursor:pointer;text-align:left;color:rgb(var(--oriel-ink));transition:box-shadow .2s;min-width:0}
@@ -237,7 +239,7 @@ const LivingExt = {
     $('lrMmEnd').classList.toggle('hide', !isEnt(mm.stop));
     $('lrMm').classList.toggle('hide', !isEnt(mm.start));
     L.hd = (tv.inputs || []).filter((x) => x && isEnt(x.script)).map((x, i) => {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = x.label || t('input_n', { n: i + 1 });
+      const b = document.createElement('button'); b.type = 'button'; b.appendChild(document.createElement('span')).textContent = x.label || t('input_n', { n: i + 1 });
       b.addEventListener('click', () => { if (x.source) this.override('hdmi', x.source, 3000); this.runScript(x.script); this._updateLiving(); }); $('lrHd').appendChild(b);
       return { x, b };
     });

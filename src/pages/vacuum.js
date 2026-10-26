@@ -48,7 +48,8 @@ const CSS = `
 #pgVacuum .vcHd small{font-size:11.5px;font-weight:400;color:rgba(var(--oriel-ink),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pgVacuum .dark .vcHd small{color:rgba(var(--oriel-on-dark),.6)}
 #pgVacuum .chip{height:26px;font-size:12px;padding:0 10px;white-space:nowrap;position:relative;cursor:pointer}
-#pgVacuum .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:-9px;bottom:-9px}
+#pgVacuum .chip::after{content:"";position:absolute;left:-3px;right:-3px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
+#pgVacuum .big[role=button]{position:relative} #pgVacuum .big[role=button]::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
 #pgVacuum .chip.bad{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad));border-color:rgb(var(--oriel-bad-line-2))}
 #pgVacuum .chip.warn{background:rgb(var(--oriel-warn-bg));color:rgb(var(--oriel-warn));border-color:rgb(var(--oriel-warn-line))}
 #pgVacuum .chip.ok{background:rgba(var(--oriel-ok-fill),.55);color:rgb(var(--oriel-ink))}
@@ -64,8 +65,8 @@ const CSS = `
 #vcState{font-size:46px;font-weight:200;line-height:1.05;margin-top:12px;white-space:nowrap;cursor:pointer}
 #vcSub{font-size:14px;margin-top:6px;font-weight:300;line-height:1.3;height:46px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 #vcProg{height:8px;border-radius:4px;background:rgba(var(--oriel-ink),.12);margin-top:4px;overflow:hidden;visibility:hidden}
-#vcProg i{display:block;height:100%;background:${TL};border-radius:4px;width:0;transition:width .6s}
-#vcLast{font-size:12.5px;color:rgba(var(--oriel-ink),.62);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vcProg i{display:block;height:100%;background:${TL};border-radius:4px;transform:translateX(-100%);transition:transform .6s}
+#vcLast{font-size:12.5px;color:rgba(var(--oriel-ink),.62);margin:-6px 0 -14px;padding:14px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #vcChips{position:absolute;left:20px;right:20px;bottom:76px;display:flex;gap:6px}
 #vcChips .chip{min-width:0;overflow:hidden;text-overflow:ellipsis;display:inline-block;line-height:24px}
 #vcCtl{position:absolute;left:14px;right:14px;bottom:14px;height:50px;display:flex;gap:8px}
@@ -399,7 +400,7 @@ const VacuumExt = {
     else if (cls.key === 'paused' && !bad(room) && room !== undefined) sub = t('paused_in', { room });
     else if (!active && (A.stBad.length || A.over)) sub = A.stBad.slice(0, 2).map((x) => x.replace(': ' + S.missing_lc, ' ' + S.missing_lc)).concat(A.over ? [t('base_cleaned_ago', { n: A.days })] : []).slice(0, 2).join(' · ');
     $('vcSub').textContent = sub;
-    const pr = $('vcProg'), showP = prog !== null && active; pr.style.visibility = showP ? 'visible' : 'hidden'; pr.firstChild.style.width = showP ? Math.max(0, Math.min(100, prog)) + '%' : '0';
+    const pr = $('vcProg'), showP = prog !== null && active; pr.style.visibility = showP ? 'visible' : 'hidden'; pr.firstChild.style.transform = `translateX(${showP ? Math.max(0, Math.min(100, prog)) - 100 : -100}%)`;
     let last;
     if (showP) last = t('progress_pct', { n: Math.round(prog) }) + (!bad(room) && room !== undefined && !d.st ? t('now_in', { room }) : '');
     else if (active) last = S.run_in_progress;

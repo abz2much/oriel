@@ -37,7 +37,8 @@ const CSS = `
 #pgEnergy .chip.sm{height:26px;font-size:12px;padding:0 10px}
 #pgEnergy .chip.dk{background:rgba(var(--oriel-on-dark),.1);border-color:rgba(var(--oriel-on-dark),.16);color:rgb(var(--oriel-on-dark))}
 #pgEnergy .chip.tp{position:relative;cursor:pointer}
-#pgEnergy .chip.tp::after{content:"";position:absolute;left:-4px;right:-4px;top:-9px;bottom:-9px}
+#pgEnergy .chip.tp::after{content:"";position:absolute;left:-4px;right:-4px;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px))}
+#enBBig{position:relative} #enBBig::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
 #pgEnergy .tap{cursor:pointer}
 #enFlow{left:100px;top:84px;width:560px;height:350px;overflow:hidden}
 #enFlow .hd{position:absolute;left:18px;right:18px;top:14px}
@@ -328,6 +329,7 @@ const EnergyExt = {
       const s = this.st(tl.x[2]);
       if (!s || !Number.isFinite(parseFloat(s.state))) { tl.b.innerHTML = '–'; tl.n.innerHTML = '&nbsp;'; return; }
       const v = parseFloat(s.state);
+      if (tl.x[3]) { tl.d.classList.toggle('good', (tl.x[3] === 'good') !== (v < 0)); tl.d.classList.toggle('bad', (tl.x[3] === 'bad') !== (v < 0)); }
       if (tl.money) { tl.b.textContent = this.money(v); const sc = Number(c.today.standing_charge); tl.n.textContent = sc ? t('incl_standing', { v: this.money(sc) }) : ' '; }
       else { tl.b.innerHTML = v.toFixed(1) + '<em>kWh</em>'; tl.n.innerHTML = '&nbsp;'; }
     });

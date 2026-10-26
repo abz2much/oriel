@@ -2,6 +2,19 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.2.7] - 2026-10-26
+
+### Changed
+- Easier to tap: small controls get an invisible tap area of at least 44×44 px, without changing how they look. This covers the rail, header chips, heating rows and −/+ buttons, light presets and colours, HDMI buttons, room pills on the house, energy tags and more.
+- The Nova chat box, send and mic buttons, and the Nova page reminder boxes are 44 px tall.
+- Security lists (doors and windows, presence, device health) spread out to fill their card, up to 44 px a row. With many rows they keep today's spacing.
+- A little more space between the heating − and + buttons.
+- Battery and progress bars animate smoothly with a transform instead of their width.
+
+### Fixed
+- A negative cost (money earned) now shows in green, not red, on the Energy page and in Home "Today" tiles.
+- The shopping list and Nova text boxes show the focus ring again.
+
 ## [0.2.6] - 2026-10-26
 
 ### Changed
