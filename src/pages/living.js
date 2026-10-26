@@ -18,12 +18,14 @@ const P = {
   mute: 'M4 10v4h4l5 4V6L8 10zM17 9l5 6M22 9l-5 6', pause: 'M8 5v14M16 5v14', play: 'M8 5l11 7-11 7z', plus: 'M12 5v14M5 12h14',
   right: 'M5 12h14M13 6l6 6-6 6', sliders: 'M4 8h10M18 8h2M4 16h2M10 16h10M14 6v4M6 14v4',
   sofa: 'M5 11V8a2 2 0 012-2h10a2 2 0 012 2v3M3 13a2 2 0 014 0v2h10v-2a2 2 0 014 0v5H3zM5 18v2M19 18v2',
-  stop: 'M7 7h10v10H7z', sun: 'M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5',
+  check: 'M5 12.5l4.5 4.5L19 7.5', stop: 'M7 7h10v10H7z', sun: 'M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5',
   target: 'M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v3M12 19v3M2 12h3M19 12h3', tree: 'M12 3l5 7h-3l4 6H6l4-6H7zM12 16v5',
   tv: 'M3 6h18v12H3zM8 21h8', up2: 'M12 19V5M6 11l6-6 6 6', user: 'M12 4a4 4 0 100 8 4 4 0 000-8zM4 21c1-4 4.5-6 8-6s7 2 8 6',
   vdn: 'M4 10v4h4l5 4V6L8 10zM17 10a3 3 0 010 4', vup: 'M4 10v4h4l5 4V6L8 10zM17 9a4 4 0 010 6', win: 'M5 3h14v18H5zM12 3v18M5 12h14',
 };
 const icon = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.bulb}"/></svg>`;
+/* a device counts as running only when its entity is on: off, unavailable and unknown all mean nothing is happening */
+const alive = (s) => !!s && !['off', 'unavailable', 'unknown'].includes(s.state);
 const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const colourTag = (a) => {
   if (!a) return '';
@@ -39,36 +41,41 @@ const CSS = `
 #pgLiving .hd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;padding:0 4px}
 #pgLiving .hd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 #pgLiving .g{display:grid;gap:6px;margin-top:8px}
-#lrHero{left:100px;top:84px;width:330px;height:230px;overflow:hidden}
+#lrScroll{position:absolute;left:0;right:0;top:72px;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(var(--oriel-ink),.3) transparent;display:flex;justify-content:space-between;align-items:flex-start;padding:12px 24px 24px 100px}
+#lrScroll .lrc{display:flex;flex-direction:column;gap:12px;flex:none}
+#lrScroll .lrc>.abs{position:relative;flex:none}
+#lrHero{width:330px;height:230px;overflow:hidden}
 #lrHero .img{position:absolute;inset:0;background:radial-gradient(220px 160px at 50% 55%,${SCENE.panelGlow},transparent 75%),linear-gradient(160deg,${SCENE.panelA},${SCENE.panelB})}
 #lrRm{position:absolute;left:0;top:0;transform:translate(-10px,6px) scale(.8);transform-origin:50% 50%}
 #lrHero .t{position:absolute;left:18px;top:14px;right:16px;display:flex;justify-content:space-between;align-items:center;color:rgb(var(--oriel-on-dark));gap:8px}#lrHero .t b{font-size:20px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lrHero .b{position:absolute;left:12px;right:12px;bottom:12px;display:flex;gap:6px}#lrHero .b .chip{flex:1;justify-content:center;padding:0 6px;background:rgba(var(--oriel-on-dark),.55);cursor:pointer}
-#lrOpen{left:100px;top:326px;width:330px;height:104px;padding:12px 14px}
+#lrOpen{width:330px;padding:12px 14px}
 #lrOg{grid-template-columns:repeat(4,1fr)}
 .ot{height:58px;border-radius:16px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);display:flex;flex-direction:column;justify-content:space-between;padding:7px 5px;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));cursor:pointer;min-width:0}
 .ot .ic{width:18px;height:18px;color:rgb(var(--oriel-ink))}.ot b{font-weight:500;color:rgb(var(--oriel-ink));font-size:12px;display:block;white-space:nowrap}
 .ot span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .ot.open{background:rgb(var(--oriel-bad-bg));border-color:rgb(var(--oriel-bad-line))}.ot.open b{color:rgb(var(--oriel-bad-ink))}
-#lrBlinds{left:100px;top:442px;width:330px;height:98px;padding:12px 14px}
+#lrBlinds{width:330px;padding:12px 14px}
 #lrBg{grid-template-columns:repeat(4,1fr)}
 .bt{height:46px;border-radius:16px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.34);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;cursor:pointer;color:rgb(var(--oriel-ink));padding:0 2px}.bt .ic{width:17px;height:17px}.bt:active{background:rgb(var(--oriel-raised))}
-#lrSound{left:100px;top:552px;width:330px;height:224px;padding:14px;display:flex;flex-direction:column;gap:10px}
+#lrSound{width:330px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .vol{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
 .vol .v{text-align:center}.vol .v b{display:block;font-size:40px;font-weight:200;line-height:1;font-variant-numeric:tabular-nums}.vol .v span{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 .seg{display:flex;gap:3px;height:8px;margin-top:6px}.seg i{flex:1;border-radius:3px;background:rgba(var(--oriel-ink),.16)}.seg i.f{background:rgb(var(--oriel-accent-strong))}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .pillb{height:46px;border-radius:16px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.34);display:flex;align-items:center;gap:8px;padding:0 12px;font-size:12.5px;cursor:pointer;text-align:left;color:rgb(var(--oriel-ink))}
 .pillb .ic{width:18px;height:18px}.pillb small{display:block;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}.pillb.on{background:rgba(var(--oriel-glass),.7);box-shadow:0 0 0 1.5px rgb(var(--oriel-accent-strong))}
-#lrScenes{left:calc(444px + var(--dx,0px));top:84px;width:410px;height:150px;padding:14px}
+#lrScenes{width:410px;padding:14px}
 #lrSg{grid-template-columns:repeat(5,1fr);margin-top:10px}
 .sc{height:84px;border-radius:18px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.3);display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;padding:10px;font-size:12px;cursor:pointer;text-align:left;color:rgb(var(--oriel-ink));transition:box-shadow .2s;min-width:0}
 .sc .ic{width:22px;height:22px}.sc.on{background:rgba(var(--oriel-glass),.7);box-shadow:0 0 0 1.5px var(--c),0 0 16px 2px var(--c)}.sc.on .ic{color:var(--c);filter:saturate(1.4) brightness(.8)}
-#lrLights{left:calc(444px + var(--dx,0px));top:246px;width:410px;height:530px;padding:14px}
+#lrLights{width:410px;padding:14px}
 #lrLgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .lt{height:62px;border-radius:18px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.3);padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;transition:box-shadow .2s;text-align:left;color:rgb(var(--oriel-ink));min-width:0}
 .lt .r{display:flex;justify-content:space-between;align-items:center}.lt .ic{width:20px;height:20px}.lt .nm{font-size:13px;white-space:nowrap}.lt .nm small{color:rgba(var(--oriel-ink),var(--oriel-soft,.62));font-size:12px;margin-left:6px}
 .lt.on{background:rgba(var(--oriel-glass),.66);box-shadow:0 0 0 1.5px var(--c),0 0 16px 2px var(--c)}.lt.on .tg{background:rgb(var(--oriel-accent-strong))}.lt.on .tg::after{left:14px}.lt.on .bi{color:var(--c);filter:brightness(.8) saturate(1.5)}
+.lt .ck{display:none}.lt.on .ck{display:grid;color:rgb(var(--oriel-accent-strong))}.lt.cur .ck{display:grid}.lt .ck .ic{width:18px;height:18px;stroke-width:2.4}
+.lt.cur{background:rgba(var(--oriel-glass),.45);box-shadow:0 0 0 1.5px rgba(var(--oriel-ink),.7)}
 .lt.sel::before{content:"";position:absolute;right:10px;bottom:-5px;width:10px;height:10px;background:rgb(var(--oriel-raised));transform:rotate(45deg);border-radius:2px;z-index:2}
 .tune{width:30px;height:30px;border-radius:50%;border:0;display:grid;place-items:center;background:rgba(var(--oriel-glass),.7);cursor:pointer;margin-right:6px;color:rgb(var(--oriel-ink));padding:0}.tune .ic{width:15px;height:15px}.lt.sel .tune{background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark))}
 .rr{display:flex;align-items:center;gap:6px}
@@ -80,7 +87,7 @@ const CSS = `
 .swr{display:flex;justify-content:space-between}
 :is(#lrHero .chip,#lrAllOff,.tune,.pr button,.swr button,.hdmi button){position:relative}
 :is(#lrHero .chip,#lrAllOff,.tune,.pr button,.swr button,.hdmi button)::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}.swr button{width:40px;height:40px;border-radius:50%;border:3px solid rgba(var(--oriel-glass),.9);cursor:pointer;box-shadow:0 3px 8px rgba(var(--oriel-shadow),.3);padding:0}.swr button.on{box-shadow:0 0 0 2px rgb(var(--oriel-ink)),0 3px 8px rgba(var(--oriel-shadow),.3)}
-#lrNow{right:24px;top:84px;width:388px;height:196px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+#lrNow{width:388px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 #lrNow .top{display:flex;align-items:center;gap:12px}
 .lrap{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;flex:none;background:rgba(var(--oriel-on-dark),.1);border:1px solid rgba(var(--oriel-on-dark),.14)}.lrap .ic{width:26px;height:26px}
 .lrap.run{background:rgba(var(--oriel-on-dark),.12);background:color-mix(in srgb,var(--c) 28%,transparent);box-shadow:0 0 0 1.5px var(--c),0 0 18px 2px var(--c)}
@@ -89,19 +96,19 @@ const CSS = `
 .mm{display:flex;align-items:center;gap:8px;background:rgba(var(--oriel-on-dark),.08);border-radius:18px;padding:6px 6px 6px 14px;border:1px solid rgba(var(--oriel-on-dark),.1)}.mm .l{flex:1;font-size:13px}.mm .l small{display:block;font-size:12px;color:rgba(var(--oriel-on-dark),.6)}
 .mm button{height:38px;padding:0 18px;border-radius:19px;border:0;font-size:13px;cursor:pointer;background:rgba(var(--oriel-on-dark),.14);color:rgb(var(--oriel-on-dark))}.mm button.go{background:linear-gradient(150deg,rgb(var(--oriel-accent-hi)),rgb(var(--oriel-accent-lo)));color:rgb(var(--oriel-on-accent));font-weight:500}.mm button.go.dim{opacity:.5}
 .hdmi{display:flex;gap:6px;align-items:center;font-size:12px;color:rgba(var(--oriel-on-dark),.6)}.hdmi button{flex:1;height:30px;border-radius:15px;border:1px solid rgba(var(--oriel-on-dark),.16);background:transparent;font-size:12px;cursor:pointer;color:rgb(var(--oriel-on-dark-text));padding:0;white-space:nowrap}.hdmi button span{display:block;overflow:hidden;text-overflow:ellipsis}.hdmi button.on{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink))}
-#lrApps{right:24px;top:292px;width:388px;height:216px;padding:12px 14px}
+#lrApps{width:388px;padding:12px 14px}
 #lrAg{grid-template-columns:repeat(4,1fr)}
 .at{height:54px;border-radius:16px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.3);display:flex;flex-direction:column;justify-content:space-between;padding:7px 8px;font-size:12px;cursor:pointer;text-align:left;color:rgb(var(--oriel-ink));transition:box-shadow .2s;min-width:0}
 .at span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:100%}
 .at .ic{width:18px;height:18px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}.at.on{background:rgba(var(--oriel-glass),.7);box-shadow:0 0 0 1.5px var(--c),0 0 14px 2px var(--c)}.at.on .ic{color:rgb(var(--oriel-ink))}.at.stop{background:rgb(var(--oriel-bad-bg))}.at.stop .ic{color:rgb(var(--oriel-bad-ink))}
-#lrRemote{right:24px;top:520px;width:388px;height:256px;padding:14px;display:grid;grid-template-columns:auto 1fr;gap:16px}
+#lrRemote{width:388px;padding:14px;display:grid;grid-template-columns:auto 1fr;gap:16px}
 #lrDpad{display:grid;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:4px;align-self:center;justify-self:center}
 #lrDpad .round{width:50px;height:50px}#lrDpad .ok{background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));font-size:13px;font-weight:500}
 #lrRbtn{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:center}
 #lrRbtn button{height:50px;border-radius:16px;border:1px solid rgba(var(--oriel-glass),.5);background:rgba(var(--oriel-glass),.34);display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;cursor:pointer;color:rgb(var(--oriel-ink));padding:0}#lrRbtn button:active{background:rgb(var(--oriel-raised))}
 `;
 
-const HTML = () => `
+const HTML = () => `<div id="lrScroll"><div class="lrc">
     <div id="lrHero" class="abs glass mid"><div class="img"></div><svg id="lrRm" viewBox="0 0 330 230" width="330" height="230" aria-hidden="true"></svg>
       <div class="t"><b id="lrTitle"></b><span class="chip" id="lrPres">${icon('user')}<span>–</span></span></div>
       <div class="b" id="lrChips"><span class="chip" id="lrT">${icon('sun')}<span>–</span></span><span class="chip" id="lrH">${icon('drop')}<span>–</span></span><span class="chip" id="lrL">${icon('bulb')}<span>–</span></span></div></div>
@@ -109,14 +116,14 @@ const HTML = () => `
     <div id="lrBlinds" class="abs glass"><div class="hd"><span>${esc(S.blinds)}</span><small id="lrBsub"></small></div><div class="g" id="lrBg"></div></div>
     <div id="lrSound" class="abs glass"><div class="hd"><span>${esc(S.sound)}</span><span class="chip" id="lrFmt" style="height:24px;font-size:12px">–</span></div>
       <div class="vol"><button type="button" class="round" id="lrVm" aria-label="${esc(S.volume_down)}">${icon('minus')}</button><div class="v"><b id="lrVv">–</b><span id="lrVs"></span><div class="seg" id="lrSeg"></div></div><button type="button" class="round" id="lrVp" aria-label="${esc(S.volume_up)}">${icon('plus')}</button></div>
-      <div class="row2"><button type="button" class="pillb" id="lrMute">${icon('mute')}<div>${esc(S.mute)}<small id="lrMuteS"></small></div></button><button type="button" class="pillb" id="lrNight">${icon('moon')}<div>${esc(S.night_sound)}<small>${esc(S.off)}</small></div></button></div></div>
+      <div class="row2"><button type="button" class="pillb" id="lrMute">${icon('mute')}<div>${esc(S.mute)}<small id="lrMuteS"></small></div></button><button type="button" class="pillb" id="lrNight">${icon('moon')}<div>${esc(S.night_sound)}<small>${esc(S.off)}</small></div></button></div></div></div><div class="lrc">
     <div id="lrScenes" class="abs glass"><div class="hd"><span>${esc(S.scenes)}</span><small>${esc(S.tap_again_off)}</small></div><div class="g" id="lrSg"></div></div>
-    <div id="lrLights" class="abs glass"><div class="hd"><span>${esc(S.lights)}</span><button type="button" class="chip" id="lrAllOff" style="cursor:pointer;height:28px">${icon('alloff')}${esc(S.all_off)}</button></div><div id="lrLgrid"></div><div id="lrPanel"></div></div>
+    <div id="lrLights" class="abs glass"><div class="hd"><span>${esc(S.lights)}</span><button type="button" class="chip" id="lrAllOff" style="cursor:pointer;height:28px">${icon('alloff')}${esc(S.all_off)}</button></div><div id="lrLgrid"></div><div id="lrPanel"></div></div></div><div class="lrc">
     <div id="lrNow" class="abs dark"><div class="top"><div class="lrap" id="lrAp">${icon('play')}</div><div class="tx"><b id="lrNowT">–</b><span id="lrNowSub">–</span></div><button type="button" class="round sm" id="lrTvP" aria-label="${esc(S.tv_power)}">${icon('alloff')}</button><button type="button" class="round" id="lrPp" aria-label="${esc(S.play_pause)}">${icon('pause')}</button></div>
       <div class="mm" id="lrMm"><div class="l">${esc(S.movie_mode)}<small id="lrMmS">${esc(S.off)}</small></div><button type="button" id="lrMmStart" class="go">${esc(S.start)}</button><button type="button" id="lrMmEnd">${esc(S.end)}</button></div>
       <div class="hdmi" id="lrHdRow"><span>${esc(S.tv_input)}</span><span id="lrHd" style="display:contents"></span></div></div>
     <div id="lrApps" class="abs glass"><div class="hd"><span>${esc(S.apps)}</span><small>${esc(S.apps_hint)}</small></div><div class="g" id="lrAg"></div></div>
-    <div id="lrRemote" class="abs glass mid"><div id="lrDpad"></div><div id="lrRbtn"></div></div>`;
+    <div id="lrRemote" class="abs glass mid"><div id="lrDpad"></div><div id="lrRbtn"></div></div></div></div>`;
 
 const LivingExt = {
   _lvInitPage() {
@@ -206,7 +213,7 @@ const LivingExt = {
     const useSel = isEnt(c.streamers.selector) && devices.length > 1;
     L.dv = (useSel ? devices : []).map((dv) => {
       const d = document.createElement('div'); d.className = 'lt dv'; d.style.setProperty('--c', 'rgb(var(--oriel-accent-strong))');
-      d.innerHTML = `<div class="r"><span class="bi">${icon(dv.icon || 'tv')}</span><span class="rr"><span class="tg"></span></span></div><span class="nm"><span></span><small></small></span>`;
+      d.innerHTML = `<div class="r"><span class="bi">${icon(dv.icon || 'tv')}</span><span class="rr"><span class="ck">${icon('check')}</span><span class="tg"></span></span></div><span class="nm"><span></span><small></small></span>`;
       d.querySelector('.nm span').textContent = dv.name || this.name(dv.media_player);
       this.tap(d, () => { this.override('dev', dv.option, 3000); this.call('input_select', 'select_option', { entity_id: c.streamers.selector, option: dv.option }); this._updateLiving(); });
       $('lrLgrid').appendChild(d);
@@ -227,7 +234,7 @@ const LivingExt = {
     L.pc = COLOURS.map((w) => { const b = mkb($('lrPc'), '', '', () => this._lvTune({ rgb: hexRgb(w[1]), tag: w[0] }, { rgb_color: hexRgb(w[1]) })); b.style.background = w[1]; b.setAttribute('aria-label', S[w[0]]); return { n: w[0], b }; });
     pn.classList.toggle('hide', L.sel < 0);
     // now playing, movie mode, TV inputs
-    $('lrTvP').addEventListener('click', () => this.call('media_player', this.sv(tv.media_player) === 'on' ? 'turn_off' : 'turn_on', { entity_id: tv.media_player }));
+    $('lrTvP').addEventListener('click', () => this.call('media_player', alive(this.st(tv.media_player)) ? 'turn_off' : 'turn_on', { entity_id: tv.media_player }));
     $('lrTvP').classList.toggle('hide', !isEnt(tv.media_player));
     $('lrPp').addEventListener('click', () => { const d = this._lvDev(); if (d && isEnt(d.media_player)) this.call('media_player', 'media_play_pause', { entity_id: d.media_player }); });
     $('lrPp').classList.toggle('hide', !devices.some((d) => isEnt(d.media_player)));
@@ -266,16 +273,6 @@ const LivingExt = {
     $('lrRemote').classList.toggle('hide', !devices.some((d) => isEnt(d.remote)));
     // room illustration
     if (c.room_render !== false) this._lvBuildRoom($('lrRm')); else $('lrRm').remove();
-    this._lvStack($);
-  },
-
-  /* Panels stack top-down in their column, so a hidden one leaves no gap. */
-  _lvStack($) {
-    const H = { lrHero: 230, lrOpen: 104, lrBlinds: 98, lrSound: 224, lrScenes: 150, lrLights: 530, lrNow: 196, lrApps: 216, lrRemote: 256 };
-    const stack = (ids) => { let y = 84; ids.forEach((id) => { const n = $(id); if (n.classList.contains('hide')) return; n.style.top = y + 'px'; y += H[id] + 12; }); };
-    stack(['lrHero', 'lrOpen', 'lrBlinds', 'lrSound']);
-    stack(['lrScenes', 'lrLights']);
-    stack(['lrNow', 'lrApps', 'lrRemote']);
   },
 
   _lvInfo(l) {
@@ -325,7 +322,8 @@ const LivingExt = {
   },
   _lvRunning() {
     const L = this._lv, d = this._lvDev(), s = d && this.st(d.media_player), r = d && this.st(d.remote);
-    const act = r && r.attributes.current_activity, id = s && s.attributes.app_id;
+    // a stale package on an off remote (or a stale app_id on an off media player) must not light an app
+    const act = alive(r) ? r.attributes.current_activity : undefined, id = alive(s) ? s.attributes.app_id : undefined;
     const a = L.apps.map((x) => x.a).find((x) => !x.close_all && ((x.package && (x.package === act || x.package === id)) || (x.app_id && x.app_id === id)));
     const n = this.ov('app', a ? a.name : '');
     return L.apps.map((x) => x.a).find((x) => !x.close_all && x.name === n) || null;
@@ -370,8 +368,10 @@ const LivingExt = {
       sub.textContent = l.colour ? (f.on ? `${f.br}%${f.tag ? ' · ' + S[f.tag] : ''}` : S.off) : (f.on ? S.on : S.off);
     });
     L.dv.forEach(({ dv, d, sub }) => {
-      const s = this.st(dv.media_player), on = dv === dev0, off = !s || ['off', 'unavailable', 'unknown'].includes(s.state);
-      d.classList.toggle('on', on); sub.textContent = on ? S.active : off ? S.off : S.tap_to_use;
+      // two meanings: "selected" (the remote follows this one) and "on" (the device is running); green only for on
+      const cur = dv === dev0, run = alive(this.st(dv.media_player)) || alive(this.st(dv.remote));
+      d.classList.toggle('on', cur && run); d.classList.toggle('cur', cur && !run); d.setAttribute('aria-pressed', cur ? 'true' : 'false');
+      sub.textContent = cur && run ? S.active : !run ? S.off : S.tap_to_use;
     });
     if (L.sel >= 0) {
       const sl = L.lights[L.sel], sf = info[L.sel];
@@ -384,16 +384,16 @@ const LivingExt = {
     const run = this._lvRunning(), st = dev0 && this.st(dev0.media_player), tv = this.st(tvc.media_player);
     const ap = $('lrAp'); ap.classList.toggle('run', !!run); if (run) ap.style.setProperty('--c', run.colour || 'rgb(var(--oriel-accent-strong))');
     const ovA = !!this._ov.app && this._ov.app.until > Date.now();
-    $('lrNowT').textContent = run ? run.name : (!ovA && st && st.attributes.app_name && !/^com\./.test(st.attributes.app_name) ? st.attributes.app_name : S.nothing_running);
-    const ss = st ? st.state : 'off', src = tv && tv.attributes.source, hd = this.ov('hdmi', src);
+    $('lrNowT').textContent = run ? run.name : (!ovA && alive(st) && st.attributes.app_name && !/^com\./.test(st.attributes.app_name) ? st.attributes.app_name : S.nothing_running);
+    const ss = alive(st) ? st.state : 'off', tvOn = alive(tv), src = tvOn ? tv.attributes.source : undefined, hd = this.ov('hdmi', src);
     const inp = L.hd.find(({ x }) => x.source && x.source === hd), labels = tvc.source_labels || {};
-    const tvTxt = !tv || tv.state === 'off' ? S.tv_off : inp ? t('tv_on_input', { input: inp.x.label || '' }) : hd && labels[hd] ? t('tv_on_input', { input: labels[hd] }) : S.tv_on;
+    const tvTxt = !tvOn ? S.tv_off : inp ? t('tv_on_input', { input: inp.x.label || '' }) : hd && labels[hd] ? t('tv_on_input', { input: labels[hd] }) : S.tv_on;
     const parts = [];
     if (dev0) parts.push((dev0.name || this.name(dev0.media_player)) + ' · ' + (ss === 'playing' ? S.playing : ss === 'paused' ? S.paused : ss === 'on' ? S.on : ss === 'off' ? S.off : S.idle));
     if (isEnt(tvc.media_player)) parts.push(tvTxt);
     $('lrNowSub').textContent = parts.join(' · ') || '–';
     $('lrPp').innerHTML = icon(ss === 'playing' ? 'pause' : 'play');
-    $('lrTvP').classList.toggle('act', !!tv && tv.state === 'on');
+    $('lrTvP').classList.toggle('act', tvOn);
     const mm = this.ov('mm', this.sv(mmc.flag) === 'on');
     $('lrMmS').textContent = mm ? (mmc.on_text || S.on) : S.off; $('lrMmStart').classList.toggle('dim', !!mm);
     L.hd.forEach(({ x, b }) => b.classList.toggle('on', !!x.source && hd === x.source));

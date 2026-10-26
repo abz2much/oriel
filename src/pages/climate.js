@@ -7,6 +7,7 @@ import { S, t, HVAC, WX } from '../strings.js';
 import { hasEntities } from '../config.js';
 import { isEnt, bad, cap, esc, pad, clamp, el, icon } from '../util.js';
 import { CARDS_CSS, layoutCols } from './cards.js';
+import { LINE } from '../theme/fixed.js';
 
 const FORECAST_MS = 30 * 60000, HISTORY_MS = 5 * 60000, RETRY_MS = 5 * 60000;
 const WEIGHTS = [400, 380, 320]; /* column widths in the approved mockup */
@@ -52,10 +53,11 @@ const HTML = () => `<div class="pgc" id="clWrap"><div class="cols">
   <div class="col" id="clC3"><section id="clRooms" class="card glass"><div class="hd"><h3>${esc(S.rooms)}</h3><span class="pill">${esc(S.temperature_pill)}</span></div><div class="rl" id="clRl"></div><div class="ex sm soft" id="clEx"></div></section></div>
 </div></div>`;
 
-/* series styles: colour token + dash + marker shape, so a line is never told apart by colour alone */
+/* series styles: colour + marker shape, so a line is never told apart by colour alone. All lines are solid (a dashed
+   line looks broken). The first two colours are the fixed colour-blind-safe pair from theme/fixed.js, set in the render. */
 const SERIES = [
-  { c: 'rgb(var(--oriel-accent-strong))', d: '', m: 'circle' }, { c: 'rgb(var(--oriel-bad-strong))', d: '7 4', m: 'square' },
-  { c: 'rgba(var(--oriel-ink),.85)', d: '2 4', m: 'diamond' }, { c: 'rgb(var(--oriel-accent-ink))', d: '10 3 2 3', m: 'triangle' },
+  { c: '', m: 'circle' }, { c: '', m: 'square' },
+  { c: 'rgba(var(--oriel-ink),.85)', m: 'diamond' }, { c: 'rgb(var(--oriel-accent-ink))', m: 'triangle' },
 ];
 const mark = (g, shape, x, y, col) => {
   const a = { fill: col, stroke: 'rgb(var(--oriel-raised))', 'stroke-width': 2 };
@@ -220,7 +222,8 @@ const ClimateExt = {
   _clRenderHistory() {
     const cl = this._cl; if (!cl || !cl.th.length) return;
     const body = cl.$('clHistBody'), lg = cl.$('clLg'), H = cl.hist, series = cl.th.slice(0, SERIES.length);
-    const sig = JSON.stringify([H.data, H.err, H.start]); if (cl.sig.hist === sig) return; cl.sig.hist = sig;
+    const pair = LINE[this._dark ? 'dark' : this._classic ? 'classic' : 'light'], colour = (k) => (k < 2 ? pair[k] : SERIES[k].c);
+    const sig = JSON.stringify([H.data, H.err, H.start, !!this._dark, !!this._classic]); if (cl.sig.hist === sig) return; cl.sig.hist = sig;
     body.innerHTML = ''; lg.innerHTML = '';
     const all = series.reduce((a, x) => a.concat(((H.data || {})[x.entity] || []).filter((v) => v != null)), []);
     if (!all.length) { body.innerHTML = `<div class="empty">${esc(H.err ? S.history_unavailable : H.data ? S.no_history : S.forecast_loading)}</div>`; return; }
@@ -239,10 +242,10 @@ const ClimateExt = {
     });
     const desc = [];
     series.forEach((x, k) => {
-      const st = SERIES[k], vals = (H.data || {})[x.entity] || [], col = st.c;
+      const st = SERIES[k], vals = (H.data || {})[x.entity] || [], col = colour(k);
       let seg = [];
       const flush = () => {
-        if (seg.length > 1) el('path', { d: 'M' + seg.map((p) => p.join(',')).join(' L'), fill: 'none', stroke: col, 'stroke-width': 2.4, 'stroke-dasharray': st.d, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+        if (seg.length > 1) el('path', { d: 'M' + seg.map((p) => p.join(',')).join(' L'), fill: 'none', stroke: col, 'stroke-width': 2.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
         if (seg.length === 1) mark(svg, st.m, seg[0][0], seg[0][1], col); /* a lone hour has no line, so it gets its marker */
         seg = [];
       };
@@ -250,7 +253,7 @@ const ClimateExt = {
       const li = vals.map((v, i) => (v != null ? i : -1)).filter((i) => i >= 0).pop();
       if (li !== undefined && li >= 0) { mark(svg, st.m, X(li), Y(vals[li]), col); desc.push((x.name || this.name(x.entity)) + ' ' + vals[li].toFixed(1) + '°'); }
       const item = document.createElement('span'); item.innerHTML = `<svg width="30" height="12" viewBox="0 0 30 12" aria-hidden="true"></svg><span></span>`;
-      const ls = item.querySelector('svg'); el('path', { d: 'M1 6H29', stroke: col, 'stroke-width': 2.4, 'stroke-dasharray': st.d, fill: 'none', 'stroke-linecap': 'round' }, ls); mark(ls, st.m, 15, 6, col);
+      const ls = item.querySelector('svg'); el('path', { d: 'M1 6H29', stroke: col, 'stroke-width': 2.4, fill: 'none', 'stroke-linecap': 'round' }, ls); mark(ls, st.m, 15, 6, col);
       item.lastChild.textContent = x.name || this.name(x.entity); lg.appendChild(item);
     });
     svg.setAttribute('aria-label', S.last_12_hours + ': ' + desc.join(', '));

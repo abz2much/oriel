@@ -1,6 +1,6 @@
-/* Nova page, header pill and the Home chat panel. Nova is a separate Home Assistant integration (a general AI
+/* Nova page and header pill. Nova is a separate Home Assistant integration (a general AI
    assistant); Oriel only talks to it when nova.enabled is true AND the integration is detected (its `nova` services
-   exist). Off or not installed: no page, no pill, no chat panel, no websocket calls.
+   exist). Off or not installed: no page, no pill, no websocket calls.
    Backend calls used (from the original Oriel module): websocket nova/chat {text} -> {ok, reply} | {ok:false, error},
    websocket nova/chat_new, services nova.nap / shush / unshush / lockdown / briefing / add_reminder /
    suggestion_accept / suggestion_dismiss. */
@@ -243,29 +243,6 @@ const NovaExt = {
   },
   _nvBusy() { const N = this._nv; N.$('nvSend').disabled = N.busy || !!N.off; N.$('nvNew').disabled = N.busy || !!N.off; },
 
-  /* ---------- chat (Home panel) ---------- */
-  _nvHomeSync() {
-    const on = !!(this._nvc.home_chat !== false && this._nvDetected());
-    const panel = this.$('nova'); if (!panel) return;
-    if (panel.classList.contains('hide') === !on) return;
-    panel.classList.toggle('hide', !on);
-    this._homeAsk = on ? (tx) => this._nvHomeAsk(tx) : null;
-    this._homeMic = on ? () => this._nvAssist() : null;
-    if (this._syncRoomPanel) this._syncRoomPanel();
-  },
-  _nvHomeSay(text, me) {
-    const log = this.$('log'), m = document.createElement('div'); m.className = 'msg' + (me ? ' me' : ''); m.textContent = text; log.appendChild(m);
-    while (log.children.length > 6) log.removeChild(log.firstChild);
-    return m;
-  },
-  async _nvHomeAsk(text) {
-    this._nvHomeSay(text, true); const pending = this._nvHomeSay('…');
-    try {
-      const r = await this._h.callWS({ type: 'nova/chat', text });
-      pending.textContent = r && r.ok ? String(r.reply || S.done) : String((r && r.error) || S.chat_failed);
-    } catch (e) { pending.textContent = S.chat_failed; console.warn('[oriel] nova', e); }
-  },
-
   /* ---------- lockdown confirm ---------- */
   _nvConfirm(on) {
     if (this._nv.off) return;
@@ -313,7 +290,6 @@ const NovaExt = {
   },
   _nvAlways() {
     if (!this._nv) return;
-    this._nvHomeSync();
     this._nvPill();
   },
   _nvStatus() {
@@ -404,9 +380,6 @@ const NovaExt = {
     if (!this._nv) return;
     clearTimeout(this._nv.toastT); clearInterval(this._nv.clk);
     if (this._nv.pill) this._nv.pill.remove();
-    const panel = this.$ && this.$('nova'); if (panel) panel.classList.add('hide');
-    this._homeAsk = null; this._homeMic = null;
-    if (this._syncRoomPanel) this._syncRoomPanel();
   },
 };
 

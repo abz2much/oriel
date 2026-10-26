@@ -57,6 +57,7 @@ export const SECTIONS = [
         fields: [ent('shopping', 'todo', { w: ['shopping'] })],
         lists: [{ key: 'quick_actions', max: 4, label: (i) => i.label || i.type, item: { fields: [sel('type', ['script', 'shopping', 'more_info']), txt('label'), icon('icon'), ent('entity', null), txt('subtitle'), bool('primary')] } }],
       },
+      { key: 'coming_up', fields: [bool('calendar')] },
       {
         key: 'room_panel',
         fields: [
@@ -276,7 +277,7 @@ export const SECTIONS = [
     groups: [{
       key: 'main',
       fields: [
-        bool('enabled'), bool('header_pill'), bool('home_chat'), { name: 'assist_pipeline', selector: { assist_pipeline: {} } }, txt('docs_url'),
+        bool('enabled'), bool('header_pill'), { name: 'assist_pipeline', selector: { assist_pipeline: {} } }, txt('docs_url'),
         ent('entities.status', 'sensor', { w: ['nova', 'status'] }), ent('entities.quiet', 'binary_sensor', { w: ['nova', 'quiet'] }), ent('entities.nap_ends', 'sensor', { w: ['nova', 'nap'] }),
         ent('entities.lockdown', 'binary_sensor', { w: ['nova', 'lockdown'] }), ent('entities.reminders', 'sensor', { w: ['nova', 'reminder'] }), ent('entities.briefing', 'sensor', { w: ['nova', 'briefing'] }),
         ent('entities.suggestions', 'sensor', { w: ['nova', 'suggestion'] }), ent('entities.energy_note', 'sensor', { w: ['nova', 'energy'] }), ent('entities.camera_summary', 'sensor', { w: ['nova', 'camera'] }),

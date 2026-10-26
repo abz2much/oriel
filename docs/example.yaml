@@ -54,6 +54,7 @@ home:
       entity: alarm_control_panel.house
       label: Alarm
   shopping: todo.shopping
+  calendar: true            # the "Coming up" card (needs family.calendars); false turns it off
   room_panel:
     title: Kitchen
     motion: binary_sensor.kitchen_occupancy

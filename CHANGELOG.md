@@ -2,6 +2,28 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.3.2] - 2026-10-26
+
+### Added
+- Home: a "Coming up" card under the room panel, in place of the Nova card. It shows the next three events from `family.calendars`, soonest first, today's first, with events already finished today left out. Each row has a bar in its calendar's colour, the title (one line, ending in "…" if long), Today / Tomorrow / the weekday, and the time ("All day" for all-day events). With nothing in the next 7 days it says "Nothing coming up" and the date of the next event within 14 days. Tap it to open the Family page. It refreshes every 5 minutes and when the day changes. It is hidden when no calendars are set. Rows are never cut: when the room panel is tall the card shows fewer rows, or hides if not even one fits.
+- `home.calendar` (default `true`) switches the card off; it is in the card editor under Home.
+
+### Changed
+- Living room: the three columns are now flexible, so every card is as tall as its contents. Nothing runs onto a card's edge any more (the Apps card with 13 buttons, and Doors & windows, did), and the page scrolls if the columns are taller than the screen. Text sizes and tap targets are unchanged.
+- Climate: the last-12-hours graph has two solid lines in blue and orange (a pair people with red-green colour blindness can tell apart) instead of green and a dashed red. The circle and square end markers and the legend markers stay. All 12 themes pass contrast.
+- The streamer tile on the Living room page now has two states: **Selected** (the remote follows it) and **On** (the device is running). Only an "On" streamer gets the green fill, the toggle and "Active". A selected streamer that is off shows "Off" with a neutral outline and a tick.
+- The TV power button follows the TV's real state: any state except off, unavailable or unknown counts as on.
+
+### Tests
+- `dev/pages.mjs` now checks the Living room off states (app tiles, streamer tile, TV inputs, Now Playing), a 13-app Living room for clipping, solid graph lines, and the Coming up card (order, finished events, empty states, long titles, a tall room panel, no calendars, Nova on).
+
+### Removed
+- The Nova chat box on Home. The Nova page, the header pill and everything else Nova stay. The `nova.home_chat` option is gone (an old value in a config is ignored).
+
+### Fixed
+- Living room: Stremio (or any app) and the Shield stayed highlighted when everything was off, because a stale package on the remote and a stale `app_id` or `app_name` on the media player were still being read. An app now counts as running only while its remote or media player is on.
+- Living room: the TV input buttons no longer stay highlighted from a stale source while the TV is off.
+
 ## [0.3.1] - 2026-10-26
 
 ### Changed

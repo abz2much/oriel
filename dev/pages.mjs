@@ -9,7 +9,7 @@ const full = JSON.parse(fs.readFileSync('dev/configs/full.json', 'utf8'));
 const results = []; const check = (n, ok, x) => results.push([ok ? 'PASS' : 'FAIL', n, x || '']);
 const browser = await chromium.launch();
 
-async function open(cfg, extraStates) {
+async function open(cfg, extraStates, apiSrc) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) errors.push(m.text().slice(0, 200)); });
   await page.setContent('<!doctype html><html><body style="margin:0"><oriel-shell style="display:block;width:100vw"></oriel-shell></body></html>');
@@ -22,7 +22,7 @@ async function open(cfg, extraStates) {
     e.hass = { states: st, services: { nova: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP' },
       callService: (d, s, data) => { window.__calls.push([d, s, data]); return Promise.resolve(); },
       callWS: (m) => { window.__msgs.push(m); return inner(m); }, callApi: eval('(' + api + ')') };
-  }, { cfg, st: Object.assign(mkStates(), extraStates || {}), ws: CALLWS_SRC, api: CALLAPI_SRC });
+  }, { cfg, st: Object.assign(mkStates(), extraStates || {}), ws: CALLWS_SRC, api: apiSrc || CALLAPI_SRC });
   await page.waitForTimeout(500);
   return { page, errors };
 }
@@ -39,8 +39,10 @@ const sr = (page, fn, arg) => page.evaluate(({ src, arg }) => new Function('r', 
   const fc = msgs.filter((m) => m.type === 'call_service' && m.service === 'get_forecasts');
   check('forecasts: daily and hourly, via a websocket call with a response (not callService)', fc.length === 2 && fc.every((m) => m.return_response === true && m.target.entity_id === 'weather.home') && fc.map((m) => m.service_data.type).sort().join() === 'daily,hourly');
   check('no service calls just by showing the pages', (await page.evaluate(() => window.__calls.length)) === 0);
-  const seg = await sr(page, (r) => r.querySelectorAll('#clHistBody svg path[stroke-dasharray=""]').length);
-  check('history: an unavailable stretch leaves a gap (the line is in two pieces, no zero)', seg === 2, 'pieces: ' + seg);
+  const seg = await sr(page, (r) => r.querySelectorAll('#clHistBody svg path[stroke-width="2.4"]').length);
+  check('history: an unavailable stretch leaves a gap (that line is in two pieces, no zero; the other is one piece)', seg === 3, 'pieces: ' + seg);
+  const ln = await sr(page, (r) => { const ps = [...r.querySelectorAll('#clHistBody svg path[stroke-width="2.4"], #clLg path')]; return { dashed: ps.filter((p) => p.hasAttribute('stroke-dasharray')).length, cols: [...new Set([...r.querySelectorAll('#clHistBody svg path[stroke-width="2.4"]')].map((p) => p.getAttribute('stroke')))], marks: [...r.querySelectorAll('#clLg svg')].map((v) => v.querySelector('circle,rect,polygon') ? 1 : 0).join('') }; });
+  check('history: every line is solid (no dashes), the two lines are blue and orange, the circle and square end markers are in the legend', ln.dashed === 0 && ln.cols.length >= 2 && ln.cols[0] !== ln.cols[1] && /^(#1f5fa6|#174a85|#6db3f2)$/.test(ln.cols[0]) && /^11/.test(ln.marks), JSON.stringify(ln));
   const cnt = await sr(page, (r) => ({ days: r.querySelectorAll('#clDays .d').length, hours: r.querySelectorAll('#clHours i').length, rows: r.querySelectorAll('#clThRows .tr').length, leg: r.querySelectorAll('#clLg > span').length, rooms: r.querySelectorAll('#clRl .rr').length }));
   check('climate: 5 days, 12 hours, 3 thermostats, 3 legend entries, 3 house rooms', JSON.stringify(cnt) === '{"days":5,"hours":12,"rows":3,"leg":3,"rooms":3}', JSON.stringify(cnt));
   // thermostat +: the entity's step (0.5), sent after the debounce
@@ -54,7 +56,7 @@ const sr = (page, fn, arg) => page.evaluate(({ src, arg }) => new Function('r', 
   check('boost on Climate runs the Home room panel boost script', boost.length === 1 && boost[0][1] === 'heating_boost', JSON.stringify(boost));
   await go(page, 'family');
   const api = await page.evaluate(() => window.__api);
-  check('calendar: REST calendars/<entity>?start=&end= for each calendar and bin, no raw "+"', api.length === 6 && api.every((u) => /^calendars\/calendar\.[a-z_]+\?start=[^&+]+&end=[^&+]+$/.test(u)), api.length + ' requests');
+  check('calendar: REST calendars/<entity>?start=&end= for each calendar and bin (6 on Family, 3 more from the Home Coming up card), no raw "+"', api.length === 9 && api.every((u) => /^calendars\/calendar\.[a-z_]+\?start=[^&+]+&end=[^&+]+$/.test(u)), api.length + ' requests');
   const fam = await sr(page, (r) => ({ ev: r.querySelectorAll('#fmCal .ev').length, none: r.querySelectorAll('#fmCal .none').length, allday: [...r.querySelectorAll('#fmCal .ev')].filter((e) => /All day/.test(e.textContent)).length, bins: r.querySelectorAll('#fmBins .bn').length, soon: r.querySelector('#fmBins .bn.soon .dy').textContent, rem: r.querySelectorAll('#fmRem .nvRr').length }));
   check('family: events listed, all-day marked, tomorrow bin says "Tomorrow", Nova off → no reminders card', fam.ev >= 7 && fam.allday >= 3 && fam.bins === 3 && /Tomorrow/.test(fam.soon) && fam.rem === 0, JSON.stringify(fam));
   // rows are never cut: with 15 items some are left out and "+ N more" says how many
@@ -151,6 +153,103 @@ for (const n of [1, 2, 4]) {
   const v2 = await sr(none.page, (r) => ['clDays', 'clHoursBox'].map((i) => (r.getElementById(i).classList.contains('hide') ? 0 : 1)).join(''));
   const f2 = await none.page.evaluate(() => window.__msgs.filter((m) => m.service === 'get_forecasts').length);
   check('weather with no supported_features: both forecast rows hidden, no forecast calls', v2 === '00' && f2 === 0, v2 + ' ' + f2); await none.page.close();
+}
+
+// ---- Living room: stale state when everything is off (a remote left saying "com.example.video", Shield selected)
+{
+  const cfg = JSON.parse(JSON.stringify(full));
+  cfg.living.streamers = { selector: 'input_select.tv_remote', devices: [
+    { name: 'Streamer', option: 'Streamer', media_player: 'media_player.streamer', remote: 'remote.streamer', launch: 'android' },
+    { name: 'Shield', option: 'Shield', media_player: 'media_player.shield', remote: 'remote.shield', launch: 'android' }] };
+  const off = {
+    'input_select.tv_remote': { entity_id: 'input_select.tv_remote', state: 'Shield', attributes: { options: ['Streamer', 'Shield'] } },
+    'media_player.streamer': { entity_id: 'media_player.streamer', state: 'off', attributes: { friendly_name: 'Streamer', app_id: 'com.example.music', app_name: 'Music' } },
+    'remote.streamer': { entity_id: 'remote.streamer', state: 'off', attributes: { current_activity: 'com.example.music' } },
+    'media_player.shield': { entity_id: 'media_player.shield', state: 'off', attributes: { friendly_name: 'Shield', app_id: 'com.example.video', app_name: 'Video' } },
+    'remote.shield': { entity_id: 'remote.shield', state: 'off', attributes: { current_activity: 'com.example.video' } },
+    'media_player.tv': { entity_id: 'media_player.tv', state: 'off', attributes: { friendly_name: 'TV', source: 'HDMI 1' } },
+  };
+  const read = (page) => sr(page, (r) => {
+    const tile = (n) => [...r.querySelectorAll('#lrLgrid .dv')].find((d) => d.textContent.includes(n));
+    const sh = tile('Shield'), st = tile('Streamer');
+    return { appsOn: r.querySelectorAll('#lrAg .at.on').length, run: r.getElementById('lrAp').classList.contains('run'), title: r.getElementById('lrNowT').textContent, sub: r.getElementById('lrNowSub').textContent,
+      hdOn: r.querySelectorAll('#lrHd button.on').length, tvAct: r.getElementById('lrTvP').classList.contains('act'),
+      sh: { on: sh.classList.contains('on'), cur: sh.classList.contains('cur'), txt: sh.querySelector('small').textContent, pressed: sh.getAttribute('aria-pressed'), tick: getComputedStyle(sh.querySelector('.ck')).display },
+      st: { on: st.classList.contains('on'), cur: st.classList.contains('cur'), txt: st.querySelector('small').textContent, pressed: st.getAttribute('aria-pressed') } };
+  });
+  const a = await open(cfg, off); await go(a.page, 'living');
+  const o = await read(a.page);
+  check('living, all off: no app tile glows and Now Playing says nothing is running (stale activity and app_id ignored)', o.appsOn === 0 && !o.run && o.title === 'Nothing running', JSON.stringify(o));
+  check('living, all off: selected Shield shows "Off" with an outline and a tick, not the green "Active"', !o.sh.on && o.sh.cur && o.sh.txt === 'Off' && o.sh.pressed === 'true' && o.sh.tick !== 'none' && !o.st.on && !o.st.cur && o.st.pressed === 'false', JSON.stringify(o.sh));
+  check('living, all off: no HDMI input is highlighted from a stale source, TV button not active, line says TV off', o.hdOn === 0 && !o.tvAct && /TV off/.test(o.sub) && /Shield · Off/.test(o.sub), JSON.stringify([o.hdOn, o.tvAct, o.sub]));
+  await sr(a.page, (r) => [...r.querySelectorAll('#lrLgrid .dv')].find((d) => d.textContent.includes('Streamer')).click());
+  const sel = await a.page.evaluate(() => window.__calls.filter((c) => c[0] === 'input_select'));
+  check('living: tapping a streamer tile still selects it', sel.length === 1 && sel[0][2].option === 'Streamer' && sel[0][2].entity_id === 'input_select.tv_remote', JSON.stringify(sel));
+  check('living, all off: no errors', a.errors.length === 0, a.errors.join(' | ')); await a.page.close();
+  // many apps: every card grows to its content (nothing runs past its padding or off the screen's bottom edge unless the page scrolls)
+  const many = JSON.parse(JSON.stringify(cfg));
+  many.living.apps = Array.from({ length: 12 }, (_, i) => ({ name: 'App ' + (i + 1), icon: 'play', package: 'com.example.app' + i })).concat([{ name: 'Close all', icon: 'close', close_all: true }]);
+  const c = await open(many, off); await go(c.page, 'living');
+  const tight = await sr(c.page, (r) => [...r.querySelectorAll('#lrScroll .abs')].filter((card) => {
+    const cr = card.getBoundingClientRect(), pb = parseFloat(getComputedStyle(card).paddingBottom) || 0; let mx = 0;
+    card.querySelectorAll('*').forEach((d) => { if (d.closest('svg') || getComputedStyle(d).position === 'absolute') return; const q = d.getBoundingClientRect(); if (q.height && q.bottom > mx) mx = q.bottom; });
+    return mx > cr.bottom - pb + 1;
+  }).map((card) => card.id));
+  const sc = await sr(c.page, (r) => { const e = r.getElementById('lrScroll'); return [e.scrollHeight, e.clientHeight, [...r.querySelectorAll('#lrAg .at')].length]; });
+  check('living, 13 apps: no card has content past its padding, all 13 tiles are there, the page can scroll if the columns are taller', tight.length === 0 && sc[2] === 13, JSON.stringify([tight, sc])); await c.page.close();
+  const on = Object.assign({}, off, {
+    'media_player.shield': { entity_id: 'media_player.shield', state: 'playing', attributes: { friendly_name: 'Shield', app_id: 'com.example.video', app_name: 'Video' } },
+    'remote.shield': { entity_id: 'remote.shield', state: 'on', attributes: { current_activity: 'com.example.video' } },
+    'media_player.tv': { entity_id: 'media_player.tv', state: 'on', attributes: { friendly_name: 'TV', source: 'HDMI 1' } } });
+  const b = await open(cfg, on); await go(b.page, 'living');
+  const n = await read(b.page);
+  check('living, Shield on: Video glows, tile green with "Active", HDMI 1 and TV button active', n.appsOn === 1 && n.run && n.title === 'Video' && n.sh.on && !n.sh.cur && n.sh.txt === 'Active' && n.hdOn === 1 && n.tvAct, JSON.stringify(n));
+  await b.page.close();
+}
+
+// ---- Home: "Coming up" card (replaces the Nova card), the Nova chat panel is gone from Home
+{
+  const room = (page) => sr(page, (r) => { const e = r.getElementById('room'), c = r.getElementById('cu'); return { room: e && e.getBoundingClientRect().bottom, cuTop: c && c.getBoundingClientRect().top, cuBottom: c && c.getBoundingClientRect().bottom, hidden: c ? c.classList.contains('hide') : null }; });
+  const rows = (page) => sr(page, (r) => [...r.querySelectorAll('#cu .cr:not(.hide)')].map((x) => [x.querySelector('b').textContent, x.querySelector('.tx span').textContent, x.querySelector('.tm').textContent]));
+  const a = await open(full); await a.page.waitForTimeout(400);
+  const rw = await rows(a.page), geo = await room(a.page);
+  check('coming up: next events, today first, finished ones left out (09:30 and 18:00 today are over), bars, "All day"', JSON.stringify(rw) === JSON.stringify([['Alex birthday', 'Today', 'All day'], ['Dentist', 'Tomorrow', '10:00'], ['Bank holiday', 'Tomorrow', 'All day']]), JSON.stringify(rw));
+  check('coming up: card sits under the room panel, inside the screen, nothing overlaps', geo.room + 1 <= geo.cuTop && geo.cuBottom <= 777 && !geo.hidden, JSON.stringify(geo));
+  const pill = await sr(a.page, (r) => r.querySelector('#cu .pill').textContent);
+  check('coming up: pill shows today\'s date', /^[A-Z][a-z]{2} \d{1,2} [A-Z][a-z]{2}$/.test(pill), pill);
+  const gone = await sr(a.page, (r) => ({ nova: !!r.getElementById('nova'), log: !!r.getElementById('log'), ni: !!r.getElementById('ni') }));
+  check('Home has no Nova card or chat box', !gone.nova && !gone.log && !gone.ni, JSON.stringify(gone));
+  await sr(a.page, (r) => r.getElementById('cu').click()); await a.page.waitForTimeout(300);
+  check('tapping the card opens the Family page', (await a.page.evaluate(() => document.querySelector('oriel-shell')._page)) === 'family');
+  check('coming up: only calendar requests, no service calls, no errors', (await a.page.evaluate(() => window.__calls.length)) === 0 && a.errors.length === 0, a.errors.join(' | ')); await a.page.close();
+  // the same calendars as Family: none set → no card, and the room panel is not held back
+  const nocal = JSON.parse(JSON.stringify(full)); nocal.family.calendars = [];
+  const b = await open(nocal); const g2 = await sr(b.page, (r) => ({ cu: !!r.getElementById('cu'), mh: r.getElementById('room').style.maxHeight })); await b.page.close();
+  check('no calendars: no Coming up card and no gap held for it', !g2.cu && g2.mh === '', JSON.stringify(g2));
+  const off = JSON.parse(JSON.stringify(full)); off.home.calendar = false;
+  const c = await open(off); const g3 = await sr(c.page, (r) => !!r.getElementById('cu')); await c.page.close();
+  check('home.calendar: false turns the card off', g3 === false);
+  // Nova installed and on: still no chat on Home, and Home makes no Nova calls
+  const nv = JSON.parse(fs.readFileSync('dev/configs/full-nova.json', 'utf8'));
+  const d = await open(nv); const g4 = await sr(d.page, (r) => ({ nova: !!r.getElementById('nova'), page: !!r.querySelector('#rail a[data-k="nova"]') })); const nws = await d.page.evaluate(() => window.__msgs.filter((m) => /^nova\//.test(m.type)).length);
+  check('Nova on: Nova page and header pill stay, Home has no chat, no Nova websocket calls from Home', !g4.nova && g4.page && nws === 0, JSON.stringify([g4, nws])); await d.page.close();
+  // empty: nothing in 7 days, one event in 10 days → "Nothing coming up" and its date; no events at all → no date line
+  const mk = (ev) => `async (method, path) => { window.__api.push(path); const n = new Date(), d = (i) => new Date(n.getFullYear(), n.getMonth(), n.getDate() + i), y = (x) => x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); return ${ev}; }`;
+  const e1 = await open(full, null, mk("[{ summary: 'Holiday', start: { date: y(d(10)) }, end: { date: y(d(11)) } }]")); await e1.page.waitForTimeout(300);
+  const t1 = await sr(e1.page, (r) => r.querySelector('#cu .none').textContent); await e1.page.close();
+  const e2 = await open(full, null, mk('[]')); await e2.page.waitForTimeout(300);
+  const t2 = await sr(e2.page, (r) => r.querySelector('#cu .none').textContent); await e2.page.close();
+  check('nothing in 7 days: "Nothing coming up" with the next date; none at all: no date', /^Nothing coming up ?Next: [A-Z][a-z]{2} \d{1,2} [A-Z][a-z]{2}$/.test(t1.replace(/\s+/g, ' ')) && t2 === 'Nothing coming up', JSON.stringify([t1, t2]));
+  // long title: one line with an ellipsis, the card is not taller
+  const long = await open(full, null, mk("[{ summary: 'A very long event title that goes on and on and does not fit in the card at all, really', start: { dateTime: new Date(n.getTime() + 3600000).toISOString() }, end: { dateTime: new Date(n.getTime() + 7200000).toISOString() } }]"));
+  await long.page.waitForTimeout(300);
+  const lg = await sr(long.page, (r) => { const b = r.querySelector('#cu .cr b'), cs = getComputedStyle(b); return { clipped: b.scrollWidth > b.clientWidth, ell: cs.textOverflow, ws: cs.whiteSpace, h: r.querySelector('#cu .cr').offsetHeight }; }); await long.page.close();
+  check('long title: single line with an ellipsis, row height unchanged', lg.clipped && lg.ell === 'ellipsis' && lg.ws === 'nowrap' && lg.h <= 56, JSON.stringify(lg));
+  // a tall room panel (the real setup): fewer rows, never half a row, never overlapping
+  const tall = JSON.parse(JSON.stringify(full)); const ap = tall.home.room_panel.appliances; while (ap.length < 6) ap.push(Object.assign({}, ap[0], { name: 'Extra ' + ap.length }));
+  const f = await open(tall); await f.page.waitForTimeout(400);
+  const g5 = await room(f.page), r5 = await rows(f.page); await f.page.close();
+  check('tall room panel: the card shows fewer rows (or hides) rather than overlap', (g5.hidden || (g5.room + 1 <= g5.cuTop && g5.cuBottom <= 777)) && r5.length <= 3, JSON.stringify([g5, r5.length]));
 }
 
 await browser.close();

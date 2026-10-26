@@ -526,12 +526,10 @@ export const S = {
   dismiss: 'Dismiss',
   camera_unavailable: 'Camera unavailable',
 
-  // Home chat (Nova)
+  // Nova chat
   chat_hello: "Hi, I'm Nova. Ask me anything.",
   chat_placeholder: 'Ask Nova anything…',
   send: 'Send',
-  talk_to_nova: 'Talk to Nova',
-  chat_failed: "I couldn't reach Nova just now.",
   done: 'Done.',
 };
 
@@ -552,7 +550,7 @@ export const ED = {
   house_example: 'Start from example', house_clear: 'Clear plan', house_clear_sure: 'Tap again to clear the plan',
   nova_found: 'Nova detected in Home Assistant.',
   nova_missing: 'Nova not detected. The Nova integration was not found in Home Assistant, so nothing is sent to it. The Nova page will say so until it is installed.',
-  nova_off: 'Off. With Nova off there is no Nova page, header pill, Home chat or calls to Nova.',
+  nova_off: 'Off. With Nova off there is no Nova page, header pill or calls to Nova.',
   detect_none: 'No suggestions. Nothing obvious matched, or the fields are already filled.',
   detect_keep: 'Fields you have already filled are never changed.',
   look: 'Look', header: 'Header', theme: 'Theme', theme_light: 'Light', theme_dark: 'Dark', theme_default: 'default',
@@ -589,7 +587,7 @@ export const ED = {
 
   // home
   'home.energy_card.solar_power': 'Solar power', 'home.energy_card.house_power': 'House power (also the history chart)', 'home.energy_card.battery_soc': 'Battery charge (%)', 'home.price': 'Electricity price',
-  'home.today': 'Tiles', 'home.today.tone': 'Colour of the value', 'home.shopping': 'Shopping list (to-do)',
+  'home.today': 'Tiles', 'home.today.tone': 'Colour of the value', 'home.shopping': 'Shopping list (to-do)', 'home.coming_up': 'Coming up', 'home.calendar': 'Show the “Coming up” card (uses the calendars on the Family page)',
   'home.quick_actions': 'Actions (up to 4)', 'home.quick_actions.subtitle': 'Small text under the label', 'home.quick_actions.primary': 'Highlight in green',
   'home.room_panel.title': 'Panel title', 'home.room_panel.motion': 'Motion or presence sensor',
   'home.room_panel.boost.start': 'Heating boost: start script', 'home.room_panel.boost.cancel': 'Heating boost: cancel script', 'home.room_panel.boost.timer': 'Heating boost: timer',
@@ -676,7 +674,7 @@ export const ED = {
   'add.system.connections': 'Add connection',
 
   // nova
-  'nova.enabled': 'Use Nova', 'nova.header_pill': 'Show the header pill', 'nova.home_chat': 'Show the chat on Home', 'nova.assist_pipeline': 'Voice pipeline for the mic', 'nova.docs_url': 'Nova documentation link',
+  'nova.enabled': 'Use Nova', 'nova.header_pill': 'Show the header pill', 'nova.assist_pipeline': 'Voice pipeline for the mic', 'nova.docs_url': 'Nova documentation link',
   'nova.entities.status': 'Status sensor', 'nova.entities.quiet': 'Quiet sensor', 'nova.entities.nap_ends': 'Nap ends sensor', 'nova.entities.lockdown': 'Lockdown sensor',
   'nova.entities.reminders': 'Reminders sensor', 'nova.entities.briefing': 'Briefing sensor', 'nova.entities.suggestions': 'Suggestions sensor', 'nova.entities.energy_note': 'Energy note sensor', 'nova.entities.camera_summary': 'Camera summary sensor',
 };
@@ -733,6 +731,9 @@ Object.assign(S, {
   this_week: 'This week',
   all_day: 'All day',
   nothing_planned: 'Nothing planned',
+  coming_up: 'Coming up',
+  nothing_coming_up: 'Nothing coming up',
+  next_event: 'Next: {d}',
   calendar_unavailable: 'Calendar not available',
   bins: 'Bins',
   bin_today: 'Today',
