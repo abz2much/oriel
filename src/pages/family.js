@@ -6,7 +6,7 @@ import { registerPage } from '../core.js';
 import { S, t } from '../strings.js';
 import { hasEntities } from '../config.js';
 import { isEnt, esc, icon, pad } from '../util.js';
-import { BIN, LINE } from '../theme/fixed.js';
+import { BIN, LINE, IDLE } from '../theme/fixed.js';
 import { isHex, lum, hex } from '../theme/colour.js';
 import { CARDS_CSS, layoutCols, fitRows } from './cards.js';
 
@@ -83,28 +83,50 @@ const fetchCal = (self, id, a, b) => self._h.callApi('GET', 'calendars/' + id + 
 
 const FamilyExt = {
   /* ---------- Coming up (a card on Home, under the room panel; uses the calendars set for this page) ---------- */
+  /* The calendars' events are fetched once into one store, shared by the Coming up card and the idle clock (the store exists
+     whenever calendars are set, even with the card switched off). */
+  _calStore() {
+    if (this._cs) return this._cs;
+    const cals = (this._c.family.calendars || []).filter((c) => c && isEnt(c.entity)).slice(0, 8);
+    return cals.length ? (this._cs = { cals, t: 0, key: '', data: null, err: false, busy: false }) : null;
+  },
+  _calStale() { const cs = this._cs; return !!cs && !cs.busy && (Date.now() - cs.t > CU_MS || cs.key !== new Date().toDateString()); },
+  /* upcoming events, soonest first (today's first, timed before all-day), finished ones left out; d = days from today */
+  _calItems(now) {
+    const cs = this._cs, base = day0(now), items = [];
+    ((cs && cs.data) || []).forEach((list) => list.forEach((e) => {
+      const [s, en] = spanOf(e, base);
+      if (en < 0 || s > CU_LOOK) return;
+      if (!e.allDay && (e.end > e.start ? e.end <= now : e.start < now)) return; /* finished */
+      items.push({ e, d: Math.max(s, 0) });
+    }));
+    items.sort((x, y) => x.d - y.d || (x.e.allDay - y.e.allDay) || x.e.start - y.e.start || x.e.title.localeCompare(y.e.title));
+    return items;
+  },
   _cuInit() {
-    const home = this.$('pgHome'), cals = (this._c.family.calendars || []).filter((c) => c && isEnt(c.entity)).slice(0, 8);
-    if (!home || !cals.length || this._c.home.calendar === false) return;
+    const home = this.$('pgHome'), cs = this._calStore();
+    if (!home || !cs || this._c.home.calendar === false) return;
     const el = document.createElement('div'); el.id = 'cu'; el.className = 'abs glass mid hide';
     el.innerHTML = `<div class="h"><b>${esc(S.coming_up)}</b><span class="pill"></span></div><div class="rows"></div>`;
     el.setAttribute('aria-label', S.coming_up + ' · ' + S.page_family);
     this.tap(el, () => this._setPage('family'));
     home.appendChild(el);
-    this._cu = { el, cals, t: 0, key: '', data: null, err: false, busy: false, fitT: 0 };
+    this._cu = Object.assign(cs, { el, fitT: 0, fitted: false, sig: undefined });
   },
-  _cuStop() { const cu = this._cu; if (!cu) return; cu.el.remove(); this._cu = null; const r = this.$('room'); if (r) r.style.maxHeight = ''; },
-  async _cuFetch() {
-    const cu = this._cu; if (!cu || cu.busy || !this._h) return; cu.busy = true;
+  _cuStop() { const cu = this._cu; this._cs = null; if (!cu) return; cu.el.remove(); this._cu = null; const r = this.$('room'); if (r) r.style.maxHeight = ''; },
+  async _calFetch() {
+    const cu = this._calStore(); if (!cu || cu.busy || !this._h) return; cu.busy = true;
     const base = day0(new Date()), end = new Date(base.getTime() + (CU_LOOK + 1) * DAY);
     const res = await Promise.all(cu.cals.map(async (c) => { try { const r = await fetchCal(this, c.entity, base, end); return Array.isArray(r) ? r : []; } catch (e) { return null; } }));
-    if (this._cu !== cu) return;
+    if (this._cs !== cu) return;
     if (res.some((r) => r !== null)) cu.data = res.map((r, i) => (r || []).map(parseEvent).filter(Boolean).map((e) => Object.assign(e, { ci: i })));
     cu.err = !cu.data; cu.t = Date.now(); cu.key = base.toDateString(); cu.busy = false;
     this._cuUpdate();
   },
-  /* the calendar's colour: the colour-blind-safe pair, then the theme's green and ink; the title says which calendar it is */
-  _cuColour(i) {
+  /* the calendar's colour: the colour-blind-safe pair, then the theme's green and ink; the title says which calendar it is.
+     onDark: the idle clock's fixed colours (theme tokens would vanish on its dark page). */
+  _cuColour(i, onDark) {
+    if (onDark) return IDLE.bars[i % 4];
     const pair = LINE[this._dark ? 'dark' : this._classic ? 'classic' : 'light'];
     return [pair[0], 'rgb(var(--oriel-accent-strong))', 'rgba(var(--oriel-ink),.85)', pair[1]][i % 4];
   },
@@ -112,14 +134,7 @@ const FamilyExt = {
     const cu = this._cu; if (!cu) return;
     const now = new Date(), base = day0(now), rows = cu.el.querySelector('.rows'), fmt = (d, o) => { try { return d.toLocaleDateString(this.lang(), o); } catch (e) { return ''; } };
     cu.el.querySelector('.pill').textContent = fmt(now, { weekday: 'short', day: 'numeric', month: 'short' });
-    const items = [];
-    (cu.data || []).forEach((list) => list.forEach((e) => {
-      const [s, en] = spanOf(e, base);
-      if (en < 0 || s > CU_LOOK) return;
-      if (!e.allDay && (e.end > e.start ? e.end <= now : e.start < now)) return; /* finished */
-      items.push({ e, d: Math.max(s, 0) });
-    }));
-    items.sort((x, y) => x.d - y.d || (x.e.allDay - y.e.allDay) || x.e.start - y.e.start || x.e.title.localeCompare(y.e.title));
+    const items = this._calItems(now);
     const list = items.filter((x) => x.d < CU_LIST).slice(0, 3), sig = JSON.stringify([list.map((x) => [x.e.title, x.d, +x.e.start, x.e.allDay, x.e.ci]), items.length && items[0].d, cu.err, this.lang(), !!this._dark, !!this._classic]) + now.toDateString();
     if (cu.sig === sig) return; cu.sig = sig; cu.fitted = false;
     rows.innerHTML = '';
@@ -156,7 +171,7 @@ const FamilyExt = {
   },
   _cuUpdate() {
     const cu = this._cu; if (!cu || !this._h) return;
-    if (!cu.busy && (Date.now() - cu.t > CU_MS || cu.key !== new Date().toDateString())) this._cuFetch();
+    if (this._calStale()) this._calFetch();
     if (cu.data || cu.err) { this._cuRender(); }
     if (this._page === 'home' && (!cu.fitted || Date.now() - cu.fitT > 1500)) { cu.fitT = Date.now(); this._cuFit(); }
   },

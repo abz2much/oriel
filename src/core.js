@@ -237,6 +237,7 @@ export class OrielShell extends HTMLElement {
     this._page = 'home'; this._pageSig = null; this._css = {};
     this._camKey = null; this._camCard = null; this._energy = null; this._td = {}; this._shopView = null; this._shopOpen = false;
     try { this._buildStatic(); } catch (e) { console.error('[oriel] build failed', e); }
+    try { this._idleInit(); } catch (e) { console.warn('[oriel] idle clock', e); }
     this._fit();
     this._ro = new ResizeObserver(() => this._fit());
     this._ro.observe(this);
@@ -248,6 +249,7 @@ export class OrielShell extends HTMLElement {
   _teardown() {
     if (!this._built) return;
     Object.keys(this._pages || {}).forEach((k) => { const p = this._pages[k]; if (p.def.stop) { try { p.def.stop.call(this); } catch (e) { /* nothing to stop */ } } });
+    try { this._idleStop(); } catch (e) { /* nothing to stop */ }
     if (this._ro) this._ro.disconnect();
     window.removeEventListener('resize', this._onWin);
     clearInterval(this._tick); clearInterval(this._etick); this._etick = null;
@@ -263,6 +265,7 @@ export class OrielShell extends HTMLElement {
     const k = Math.min(w / 1280, h / 800), W = clamp(w / k, 1280, 1700), wrap = this.$('wrap');
     wrap.style.width = W + 'px'; wrap.style.setProperty('--dx', ((W - 1280) / 2) + 'px');
     wrap.style.transform = `translate(${(w - W * k) / 2}px,${(h - 800 * k) / 2}px) scale(${k})`;
+    if (this._idle) this._idleLayout();
   }
 
   /* ---------- helpers shared by every page ---------- */
@@ -701,6 +704,7 @@ export class OrielShell extends HTMLElement {
     Object.keys(this._pages).forEach((k) => { const d = this._pages[k].def; if (d.always) { try { d.always.call(this); } catch (e) { console.warn('[oriel] ' + k, e); } } });
     const p = this._pages[this._page];
     if (p && p.def.update) { try { p.def.update.call(this); } catch (e) { console.warn('[oriel] ' + this._page + ' update', e); } }
+    try { this._idleSync(); } catch (e) { console.warn('[oriel] idle clock', e); } /* last: it reads the pop-up state set above */
   }
   _updateHeader() {
     const g = this._c.general, $ = this.$;

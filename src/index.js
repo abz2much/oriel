@@ -3,6 +3,7 @@ import { OrielShell, VERSION } from './core.js';
 import { S } from './strings.js';
 import { BANNER } from './theme/fixed.js';
 import './house.js';
+import './idle.js';
 import './pages/living.js';
 import './pages/energy.js';
 import './pages/climate.js';
