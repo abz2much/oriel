@@ -131,9 +131,10 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 
 const HTML = `
 <div id="wrap"><div id="screen">
-  <div id="hchips" class="abs"></div>
-  <div id="hdr-r" class="abs"><button class="round ghost" id="bAlarm" aria-label="${esc(S.alarm)}">${icon('shield')}</button><button class="round ghost" id="bDoor" aria-label="${esc(S.front_door)}">${icon('door')}</button><button class="round ghost" id="bWin" aria-label="${esc(S.windows)}" title="${esc(S.windows)}">${icon('win')}</button></div>
+  <div id="hdr"><div id="hchips" class="abs"></div>
+  <div id="hdr-r" class="abs"><button class="round ghost" id="bAlarm" aria-label="${esc(S.alarm)}">${icon('shield')}</button><button class="round ghost" id="bDoor" aria-label="${esc(S.front_door)}">${icon('door')}</button><button class="round ghost" id="bWin" aria-label="${esc(S.windows)}" title="${esc(S.windows)}">${icon('win')}</button></div></div>
   <nav id="rail" class="abs glass mid"></nav>
+  <nav id="tabs" class="abs glass mid" aria-label="${esc(S.pages)}"></nav>
   <div id="pages">
   <div id="pgHome" class="page">
     <div id="greet" class="abs"><div class="d" id="gDate"></div><h1 id="gHi"></h1></div>
@@ -162,6 +163,7 @@ const HTML = `
     </div>
   </div>
   </div>
+  <div id="more"><div class="pn" role="dialog" aria-label="${esc(S.more)}"><div class="mh"><div><b>${esc(S.more)}</b><span>${esc(S.more_hint)}</span></div><button type="button" class="round sm" id="moreX" aria-label="${esc(S.close)}">${icon('close')}</button></div><div class="mg" id="moreG"></div></div></div>
   <div id="shop"><div class="pn" role="dialog" aria-label="${esc(S.shopping_list)}"><div class="hd"><div><b>${esc(S.shopping_list)}</b><span id="shopCount"></span></div><button type="button" class="round sm" id="shopX" aria-label="${esc(S.close)}">${icon('close')}</button></div>
     <form id="shopForm" autocomplete="off"><input id="shopIn" placeholder="${esc(S.add_item)}" aria-label="${esc(S.add_item)}" enterkeyhint="done"><button type="submit" class="round" aria-label="${esc(S.add)}">${icon('plus')}</button></form>
     <ul id="shopList"></ul><button type="button" class="clr" id="shopClear">${esc(S.clear_completed)}</button></div></div>
@@ -238,6 +240,7 @@ export class OrielShell extends HTMLElement {
     this._camKey = null; this._camCard = null; this._energy = null; this._td = {}; this._shopView = null; this._shopOpen = false;
     try { this._buildStatic(); } catch (e) { console.error('[oriel] build failed', e); }
     try { this._idleInit(); } catch (e) { console.warn('[oriel] idle clock', e); }
+    this._phone = false; try { this._phoneInit(); } catch (e) { console.warn('[oriel] phone layout', e); }
     this._fit();
     this._ro = new ResizeObserver(() => this._fit());
     this._ro.observe(this);
@@ -249,7 +252,7 @@ export class OrielShell extends HTMLElement {
   _teardown() {
     if (!this._built) return;
     Object.keys(this._pages || {}).forEach((k) => { const p = this._pages[k]; if (p.def.stop) { try { p.def.stop.call(this); } catch (e) { /* nothing to stop */ } } });
-    try { this._idleStop(); } catch (e) { /* nothing to stop */ }
+    try { this._idleStop(); this._sheetsStop(); } catch (e) { /* nothing to stop */ }
     if (this._ro) this._ro.disconnect();
     window.removeEventListener('resize', this._onWin);
     clearInterval(this._tick); clearInterval(this._etick); this._etick = null;
@@ -262,7 +265,14 @@ export class OrielShell extends HTMLElement {
     const top = this.getBoundingClientRect().top;
     const h = Math.max(300, window.innerHeight - Math.max(0, top));
     this.style.height = h + 'px';
-    const k = Math.min(w / 1280, h / 800), W = clamp(w / k, 1280, 1700), wrap = this.$('wrap');
+    const wrap = this.$('wrap'), phone = this._isPhone(w);
+    if (phone !== !!this._phone) { this._phone = phone; wrap.classList.toggle('phone', phone); wrap.style.height = ''; this._phoneChanged(); }
+    if (phone) { /* phone layout: the real width, no canvas scaling; pages reflow and scroll */
+      wrap.style.width = w + 'px'; wrap.style.height = h + 'px'; wrap.style.transform = 'none'; wrap.style.setProperty('--dx', '0px');
+      this._phoneHouse(); this._phoneChips(); if (this._idle) this._idleLayout();
+      return;
+    }
+    const k = Math.min(w / 1280, h / 800), W = clamp(w / k, 1280, 1700);
     wrap.style.width = W + 'px'; wrap.style.setProperty('--dx', ((W - 1280) / 2) + 'px');
     wrap.style.transform = `translate(${(w - W * k) / 2}px,${(h - 800 * k) / 2}px) scale(${k})`;
     if (this._idle) this._idleLayout();
@@ -356,15 +366,18 @@ export class OrielShell extends HTMLElement {
     // page icons scroll only when they do not fit; until then nothing clips the "on" shadow or the tap areas.
     // Measured from the icons themselves: the invisible tap areas would count as overflow in scrollHeight.
     requestAnimationFrame(() => { const a = pl.firstElementChild, z = pl.lastElementChild; pl.classList.toggle('scroll', !!a && z.offsetTop + z.offsetHeight - a.offsetTop > pl.clientHeight + 1); });
+    try { this._phoneTabs(defs); } catch (e) { console.warn('[oriel] phone tabs', e); }
     if (!this._pages[this._page]) this._setPage('home');
   }
   _setPage(key) {
     const pg = this._pages && this._pages[key]; if (!pg) return;
     this._page = key;
+    this._phoneMark();
     Object.keys(this._pages).forEach((k) => this._pages[k].el.classList.toggle('off', k !== key));
     this.$('rail').querySelectorAll('a[data-k]').forEach((a) => { const on = a.dataset.k === key; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     if (pg.def.update && this._h) { try { pg.def.update.call(this); } catch (e) { console.warn('[oriel] ' + key + ' update', e); } }
     if (key === 'home' && this._cu) { this._cu.fitT = 0; this._cuUpdate(); } /* the Coming up card is measured while Home shows */
+    if (key === 'home' && this._phone) this._phoneFitLabels(true); /* the house labels are fitted while Home shows */
   }
 
   /* ---------- Home: static build ---------- */
@@ -683,14 +696,14 @@ export class OrielShell extends HTMLElement {
   }
   async _showCam(a) {
     this._camKey = a.flag; this.$('bellT').textContent = a.title || this.name(a.camera);
-    const feed = this.$('feed'); feed.innerHTML = '';
+    const feed = this.$('feed'); feed.innerHTML = ''; feed.classList.remove('msg');
     try {
       const helpers = await window.loadCardHelpers();
       const type = customElements.get('webrtc-camera') ? 'custom:webrtc-camera' : 'picture-entity';
       const cfg = type === 'picture-entity' ? { type, entity: a.camera, camera_view: 'live', show_name: false, show_state: false } : { type, entity: a.camera };
       const card = await helpers.createCardElement(cfg);
       card.hass = this._h; feed.appendChild(card); this._camCard = card;
-    } catch (e) { console.warn('[oriel] camera card failed', e); feed.textContent = S.camera_unavailable; }
+    } catch (e) { console.warn('[oriel] camera card failed', e); feed.textContent = S.camera_unavailable; feed.classList.add('msg'); }
     this.$('bell').classList.add('show');
   }
   _hideCam() { this.$('bell').classList.remove('show'); this._camKey = null; this._camCard = null; this.$('feed').innerHTML = ''; }
@@ -705,6 +718,7 @@ export class OrielShell extends HTMLElement {
     const p = this._pages[this._page];
     if (p && p.def.update) { try { p.def.update.call(this); } catch (e) { console.warn('[oriel] ' + this._page + ' update', e); } }
     try { this._idleSync(); } catch (e) { console.warn('[oriel] idle clock', e); } /* last: it reads the pop-up state set above */
+    if (this._phone) this._phoneChips();
   }
   _updateHeader() {
     const g = this._c.general, $ = this.$;

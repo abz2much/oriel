@@ -41,8 +41,8 @@ addMethods({
     }
     return false;
   },
-  /* the phone layout (a separate task) switches the idle clock off here */
-  _idlePhone() { return false; },
+  /* the phone layout has no idle clock */
+  _idlePhone() { return !!this._phone; },
 
   _idleInit() {
     const ic = this._c.general.idle_clock || {}, id = ic.presence;

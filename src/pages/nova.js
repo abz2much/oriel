@@ -135,7 +135,7 @@ const NovaExt = {
   _nvInitPage() {
     const pg = document.createElement('div');
     pg.id = 'pgNova'; pg.innerHTML = HTML();
-    const $ = (id) => pg.querySelector('#' + id);
+    const $ = (id) => pg.querySelector('#' + id) || this.shadowRoot.getElementById(id); /* the phone layout moves the confirm sheet out of the page */
     this._nvc = this._c.nova;
     this._nv = { pg, $, log: [], busy: false, sig: {}, err: {}, toastT: null, conf: null, off: null, det: null };
     // header pill, its own element in the screen, placed in the gap between the header chips and the buttons
@@ -173,6 +173,7 @@ const NovaExt = {
     $('nvLk').addEventListener('click', () => this._nvConfirm(this.sv(E.lockdown) !== 'on'));
     $('nvCx').addEventListener('click', () => this._nvConfirmClose());
     $('nvCok').addEventListener('click', () => {
+      if (this._phone && Date.now() < (N.guard || 0)) return; /* a tap meant for the page cannot confirm */
       const on = N.conf; this._nvConfirmClose(); if (on === null) return;
       this._nvCall('lockdown', { state: on ? 'on' : 'off' }, on ? S.lockdown_on : S.lockdown_off);
     });
@@ -246,7 +247,7 @@ const NovaExt = {
   /* ---------- lockdown confirm ---------- */
   _nvConfirm(on) {
     if (this._nv.off) return;
-    this._nv.conf = on; this._nv.$('nvCq').textContent = on ? S.lockdown_on_q : S.lockdown_off_q;
+    this._nv.conf = on; this._nv.guard = Date.now() + 400; this._nv.$('nvCq').textContent = on ? S.lockdown_on_q : S.lockdown_off_q;
     this._nv.$('nvConf').classList.add('show');
     setTimeout(() => { try { this._nv.$('nvCx').focus({ preventScroll: true }); } catch (e) { /* not shown */ } }, 30);
   },

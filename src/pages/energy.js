@@ -361,7 +361,8 @@ const EnergyExt = {
     const c = this._enc, E = this._en, $ = E.$, FC = c.forecast, days = (FC.days || []).filter(isEnt).slice(0, 8);
     if (!days.length && !isEnt(FC.remaining_today)) return;
     const solY = c.today.solar_yield;
-    const vals = days.map((id) => this._enKwh(id)), sig = vals.map((v) => (v === null ? '' : v.toFixed(1))).join() + '|' + (this._enKwh(solY) || 0).toFixed(1) + '|' + now.getDate();
+    const pw = this._phone ? Math.max(260, ($('enFc').clientWidth || 342) - 32) : 0; /* phone: drawn at the card's real width so the labels stay 12 px */
+    const vals = days.map((id) => this._enKwh(id)), sig = vals.map((v) => (v === null ? '' : v.toFixed(1))).join() + '|' + (this._enKwh(solY) || 0).toFixed(1) + '|' + now.getDate() + '|' + pw;
     const left = this._enKwh(FC.remaining_today), tom = vals[1];
     $('enFLeft').textContent = t('left_today', { v: left === null ? '–' : left.toFixed(1) });
     $('enFTom').textContent = t('tomorrow_kwh', { v: tom === null || tom === undefined ? '–' : tom.toFixed(1) });
@@ -373,7 +374,8 @@ const EnergyExt = {
     if (E.fcSig === sig) return; E.fcSig = sig;
     const s = $('enFcS'); s.innerHTML = '';
     const bands = FC.bands && FC.bands.length === 2 ? FC.bands : [10, 20];
-    const bw = 34, gap = 12, base = 100, max = Math.max(24, ...vals.map((v) => v || 0)), gen = this._enKwh(solY);
+    const W = pw || 372, gap = pw ? 8 : 12, bw = pw ? Math.min(56, (W - 12 - (vals.length - 1) * gap) / Math.max(1, vals.length)) : 34, base = 100, max = Math.max(24, ...vals.map((v) => v || 0)), gen = this._enKwh(solY);
+    s.setAttribute('viewBox', `0 0 ${W} 142`); s.setAttribute('width', W); s.setAttribute('height', 142); /* the box keeps the drawing's proportions at any width */
     const col = (v) => (v >= bands[1] ? ENERGY.bandHigh : v >= bands[0] ? ENERGY.bandMid : ENERGY.bandLow);
     vals.forEach((v, i) => {
       const x = i * (bw + gap) + 6, vv = v === null ? 0 : v, h = Math.max(vv / max * 84, v === null ? 0 : 3);
@@ -406,13 +408,16 @@ const EnergyExt = {
 
   _enChartDraw(now) {
     const E = this._en, h = E.hist, $ = E.$; if (!h) return;
-    const bin = Math.floor((now.getHours() * 60 + now.getMinutes()) / 180), sig = bin + '|' + h.total.toFixed(1) + '|' + E.histAt;
+    const pw = this._phone ? Math.max(260, ($('enChart').clientWidth || 342) - 32) : 0; /* phone: drawn at the card's real width so the labels stay 12 px */
+    const bin = Math.floor((now.getHours() * 60 + now.getMinutes()) / 180), sig = bin + '|' + h.total.toFixed(1) + '|' + E.histAt + '|' + pw;
     if (E.chartSig === sig) return; E.chartSig = sig;
     $('enCTot').textContent = h.total.toFixed(1);
     const up = $('enCUp');
     if (h.ySoFar > 0.05) { const pct = Math.round((h.total / h.ySoFar - 1) * 100); up.textContent = t(pct < 0 ? 'vs_yesterday_less' : 'vs_yesterday_more', { pct: Math.abs(pct) }); up.style.color = pct <= 0 ? ENERGY.trendDown : ENERGY.trendUp; } else up.textContent = '';
     const s = $('enCh'); s.innerHTML = '';
-    const H = 100, bw = 34, gap = 12, max = Math.max(1, ...h.today, ...h.yesterday, ...h.solar) * 1.1, pts = [];
+    const W = pw || 368, gap = pw ? 8 : 12, bw = pw ? (W - 12 - 7 * gap) / 8 : 34, H = 100;
+    s.setAttribute('viewBox', `0 0 ${W} 126`); s.setAttribute('width', W); s.setAttribute('height', 126);
+    const max = Math.max(1, ...h.today, ...h.yesterday, ...h.solar) * 1.1, pts = [];
     h.yesterday.forEach((v, i) => { const x = i * (bw + gap) + 6, hh = v / max * H; if (hh > 1) sv('rect', { x, y: H - hh, width: bw, height: hh, rx: 5, fill: 'none', stroke: 'rgba(var(--oriel-on-dark),.28)', 'stroke-dasharray': '2 3' }, s); });
     h.today.forEach((v, i) => { if (i > bin) return; const x = i * (bw + gap) + 6, hh = Math.max(3, v / max * H); sv('rect', { x, y: H - hh, width: bw, height: hh, rx: 5, fill: 'rgb(var(--oriel-on-dark))', opacity: i === bin ? .55 : .92 }, s); });
     if (isEnt(this._enSolar())) h.solar.forEach((v, i) => { if (i > bin) return; pts.push([i * (bw + gap) + 6 + bw / 2, H - v / max * H]); });

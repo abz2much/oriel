@@ -45,3 +45,9 @@ export function fitRows(box, rows) {
   for (let i = rows.length - 1; i >= 0 && box.scrollHeight > box.clientHeight + 1; i--) { rows[i].classList.add('hide'); hidden++; }
   return hidden;
 }
+
+/* The phone layout does not fit rows to a box (the page scrolls): it shows the first n and the caller says how many more. */
+export function capRows(rows, n) {
+  rows.forEach((r, i) => r.classList.toggle('hide', i >= n));
+  return Math.max(0, rows.length - n);
+}

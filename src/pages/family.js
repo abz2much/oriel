@@ -8,11 +8,12 @@ import { hasEntities } from '../config.js';
 import { isEnt, esc, icon, pad } from '../util.js';
 import { BIN, LINE, IDLE } from '../theme/fixed.js';
 import { isHex, lum, hex } from '../theme/colour.js';
-import { CARDS_CSS, layoutCols, fitRows } from './cards.js';
+import { CARDS_CSS, layoutCols, fitRows, capRows } from './cards.js';
 
 const CAL_MS = 10 * 60000, DAY = 86400000;
 const CU_MS = 5 * 60000, CU_LIST = 7, CU_LOOK = 14, CU_GAP = 16, CU_COL = 692; /* Coming up on Home: refresh every 5 minutes; list 7 days, look 14 days ahead for the empty message */
 const WEIGHTS = [370, 410, 320]; /* column widths in the approved mockup */
+const PHONE_EVENTS = 6; /* the phone lists every shopping and to-do item (the page scrolls); the calendar shows this many events until "+N more" is tapped */
 const CSS = `
 #cu{right:24px;bottom:24px;width:344px;padding:12px 16px 4px;display:flex;flex-direction:column;z-index:3;cursor:pointer}
 #cu .h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px 6px;min-height:34px}
@@ -160,6 +161,7 @@ const FamilyExt = {
   _cuFit() {
     const cu = this._cu, room = this.$('room'); if (!cu || this._page !== 'home' || !cu.sig) return;
     cu.el.classList.remove('hide'); room.style.maxHeight = '';
+    if (this._phone) { cu.el.querySelectorAll('.cr, .none').forEach((r) => r.classList.remove('hide')); cu.fitted = true; return; } /* phone: one column that scrolls, every row shows */
     const rows = [...cu.el.querySelectorAll('.cr, .none')]; rows.forEach((r) => r.classList.remove('hide'));
     const used = room.classList.contains('hide') ? 0 : room.scrollHeight + CU_GAP, avail = CU_COL - used;
     const hs = rows.map((r) => r.offsetHeight), chrome = cu.el.offsetHeight - hs.reduce((x, y) => x + y, 0);
@@ -213,7 +215,7 @@ const FamilyExt = {
       if (this._page !== 'family') return; /* a hidden page has no height to measure */
       const rows = [...ul.children].filter((r) => r.tagName === 'LI');
       mn.textContent = t('more_n', { n: 99 }); foot.classList.remove('hide'); sep.classList.remove('hide'); mn.classList.remove('hide');
-      hidden = fitRows(box, rows);
+      hidden = this._phone ? capRows(rows, Infinity) : fitRows(box, rows); /* phone: every item, the page scrolls */
       mn.textContent = hidden ? t('more_n', { n: hidden }) : ''; mn.classList.toggle('hide', !hidden); sep.classList.toggle('hide', !hidden || !full);
       clr.classList.toggle('hide', !full); foot.classList.toggle('hide', !hidden && !full);
     };
@@ -245,7 +247,7 @@ const FamilyExt = {
   _fmRenderCalendar() {
     const fm = this._fm; if (!fm || !fm.cal.data) return;
     const base = fm.cal.base, body = fm.$('fmCalBody');
-    const sig = JSON.stringify([fm.cal.data, fm.cal.err, this.lang()]); if (fm.sig.cal !== sig) {
+    const sig = JSON.stringify([fm.cal.data, fm.cal.err, this.lang(), !!this._phone]); if (fm.sig.cal !== sig) {
       fm.sig.cal = sig;
       const groups = [{ k: 'today', n: S.today, ev: [] }, { k: 'tomorrow', n: S.tomorrow_cap, ev: [] }, { k: 'week', n: S.this_week, ev: [] }];
       fm.cal.data.forEach((list) => list.forEach((e) => {
@@ -265,13 +267,17 @@ const FamilyExt = {
           g.ev.forEach(({ e, d }) => {
             const row = document.createElement('div'); row.className = 'row ev'; row.dataset.ev = '1';
             const wd = g.k === 'week' ? fmt(new Date(base.getTime() + d * DAY + 7200000), { weekday: 'short' }) : '';
-            const when = e.allDay ? (wd ? wd + ' · ' + S.all_day : S.all_day) : (wd ? wd + ' ' : '') + tm(e.start);
-            row.innerHTML = '<span class="tt"></span><span></span>'; row.firstChild.textContent = e.title; row.lastChild.textContent = when;
+            let when = e.allDay ? (wd ? wd + ' · ' + S.all_day : S.all_day) : (wd ? wd + ' ' : '') + tm(e.start), title = e.title;
+            if (this._phone) { /* one flat list: the day sits after the title and the time stands alone */
+              title = e.title + (g.k === 'tomorrow' ? ' · ' + S.tomorrow_cap : wd ? ' · ' + wd : ''); when = e.allDay ? S.all_day : tm(e.start);
+            }
+            row.innerHTML = '<span class="tt"></span><span></span>'; row.firstChild.textContent = title; row.lastChild.textContent = when;
             if (e.cal) row.title = e.cal;
             sec.appendChild(row);
           });
           body.appendChild(sec);
         });
+        if (this._phone && groups.every((g) => !g.ev.length)) body.insertAdjacentHTML('beforeend', `<div class="empty">${esc(S.nothing_planned)}</div>`); /* no section headers on the phone: say it once */
       }
     }
     this._fmFitCalendar();
@@ -281,9 +287,13 @@ const FamilyExt = {
     const fm = this._fm; if (!fm || this._page !== 'family') return;
     const body = fm.$('fmCalBody'), more = fm.$('fmCalMore'), secs = [...body.querySelectorAll('.cs')], rows = [...body.querySelectorAll('[data-ev]')];
     secs.forEach((s) => s.classList.remove('hide')); more.textContent = t('more_n', { n: 99 }); more.classList.remove('hide');
-    const hidden = fitRows(body, rows);
+    const hidden = this._phone ? capRows(rows, fm.calOpen ? Infinity : PHONE_EVENTS) : fitRows(body, rows);
     secs.forEach((s) => { const evs = [...s.querySelectorAll('[data-ev]')]; if (evs.length && evs.every((r) => r.classList.contains('hide'))) s.classList.add('hide'); });
-    more.textContent = t('more_n', { n: hidden }); more.classList.toggle('hide', !hidden);
+    if (this._phone && (hidden || fm.calOpen)) { /* "+N more" opens the rest; "Show less" closes it again */
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'lnk'; b.textContent = fm.calOpen ? S.show_less : t('more_n', { n: hidden }); b.setAttribute('aria-expanded', fm.calOpen ? 'true' : 'false');
+      b.addEventListener('click', () => { fm.calOpen = !fm.calOpen; this._fmFitCalendar(); });
+      more.textContent = ''; more.appendChild(b); more.classList.remove('hide');
+    } else { more.textContent = t('more_n', { n: hidden }); more.classList.toggle('hide', !hidden); }
   },
 
   /* ---------- bins ---------- */
@@ -338,7 +348,7 @@ const FamilyExt = {
     if (fm.sig.rem !== sig) { fm.sig.rem = sig; this._nvRemRows(fm.$('fmRemBody'), list, S.nothing_due, (v) => this._fmWhen(v)); }
     if (this._page !== 'family') return;
     const body = fm.$('fmRemBody'), more = fm.$('fmRemMore'); more.textContent = t('more_n', { n: 99 }); more.classList.remove('hide');
-    const hidden = fitRows(body, [...body.querySelectorAll('.nvRr')]);
+    const rr = [...body.querySelectorAll('.nvRr')], hidden = this._phone ? capRows(rr, Infinity) : fitRows(body, rr);
     more.textContent = t('more_n', { n: hidden }); more.classList.toggle('hide', !hidden);
   },
 
@@ -349,6 +359,7 @@ const FamilyExt = {
     if (fm.shop) this._todoWatch(fm.shop); if (fm.todo) this._todoWatch(fm.todo);
     if (fm.cals.length && (now - fm.cal.t > CAL_MS || fm.cal.key !== key)) this._fmFetchCalendar();
     if (fm.bins.length && (now - fm.bs.t > CAL_MS || fm.bs.key !== key)) this._fmFetchBins();
+    if (fm.cal.data) this._fmRenderCalendar(); /* redraws only when its inputs changed (the phone layout lists flat) */
     this._fmRenderReminders(); this._fmFitCalendar(); this._fmFit();
   },
 };

@@ -217,10 +217,10 @@ addMethods({
       const s2 = el('text', { x: w - 9, y: 16, 'text-anchor': 'end', 'font-size': 12, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: COL[key] }, g0);
       const v = el('text', { x: 11, y: 34, 'font-size': 16, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgb(var(--oriel-on-dark))' }, g0);
       const p = el('text', { x: w - 9, y: 34, 'text-anchor': 'end', 'font-size': 12, 'font-family': 'Outfit,sans-serif', 'font-weight': 400, fill: 'rgba(var(--oriel-on-dark),.72)' }, g0);
-      g0.setAttribute('transform', `translate(${P[0].toFixed(1)},${P[1].toFixed(1)}) scale(1.3) translate(${-w / 2},${-h / 2})`);
       g0.setAttribute('role', 'button'); g0.setAttribute('tabindex', '0'); g0.setAttribute('aria-label', name);
       this.tap(g0, () => this.moreInfo(ent));
-      this._flow.tags[key] = { g: g0, s: s2, v, t: tx, p };
+      const o = this._flow.tags[key] = { g: g0, s: s2, v, t: tx, p, rect: g0.children[1], P, w, h, nx: 0, ny: 0 };
+      this._tagPlace(o);
     };
     if (isEnt(houseId(c))) {
       const hb = pt(X + 5, dy(708), HOME.z1 + 2);
@@ -273,9 +273,13 @@ addMethods({
     paint(K.led, 'fill', (solar > TH || home > TH) ? 'rgb(var(--oriel-accent-strong))' : 'rgb(var(--oriel-off))');
   },
 
+  /* a power tag's place: its anchor (plus the phone layout's nudge, 0 on the tablet), scaled about its centre */
+  _tagPlace(o) {
+    o.g.setAttribute('transform', `translate(${(o.P[0] + o.nx).toFixed(1)},${(o.P[1] + o.ny).toFixed(1)}) scale(${this._tagK || 1.3}) translate(${-o.w / 2},${-o.h / 2})`);
+  },
   _layoutPill(o, sub) {
     const n = o.r.name, w = n.length * 7.4 + (sub ? sub.length * 7 + 14 : 0) + 38, k = this._pk || 1;
-    o.g.setAttribute('transform', `translate(${o.p[0].toFixed(1)},${o.p[1].toFixed(1)}) scale(${k}) translate(${(-w / 2).toFixed(1)},-15)`);
+    o.g.setAttribute('transform', `translate(${(o.p[0] + (o.nx || 0)).toFixed(1)},${(o.p[1] + (o.ny || 0)).toFixed(1)}) scale(${k}) translate(${(-w / 2).toFixed(1)},-15)`);
     o.rect.setAttribute('width', w.toFixed(1)); o.hit.setAttribute('width', w.toFixed(1));
     o.s.setAttribute('x', (28 + n.length * 7.4 + 8).toFixed(1));
     o.s.textContent = sub; o.sub = sub;
@@ -294,5 +298,6 @@ addMethods({
     (this._rooms || []).forEach((rm) => { if (isEnt(rm.presence)) paint(rm.el, 'fill', this.sv(rm.presence) === 'on' ? 'url(#act)' : rm.base); });
     if (this._panels && this._panels.length) { const v = this.num(solarId(c)); this._panels.forEach((q) => q.setAttribute('fill', v != null && v > 50 ? ENERGY.pvOn : ENERGY.pvOff)); }
     try { this._updateFlow(); } catch (e) { console.warn('[oriel] flow', e); }
+    if (this._phone) this._phoneFitLabels(); /* labels change width with their values; the phone layout re-fits them */
   },
 });
