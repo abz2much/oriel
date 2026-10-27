@@ -91,7 +91,7 @@ const PHONE_CSS = `
 #wrap.phone #fmBinRows{gap:8px} #wrap.phone #fmBinRows .bn{min-width:0;flex:1 1 0;padding:10px 8px} #wrap.phone #fmBinRows .bn .dy{font-size:17px;overflow-wrap:normal;white-space:nowrap}
 /* Living room */
 #lrOpenChip2{display:none}
-#wrap.phone #lrScroll{position:static;display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:0;overflow:visible;justify-content:flex-start}
+#wrap.phone #lrScroll{position:static;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;padding:0;overflow:visible;justify-content:flex-start}
 #wrap.phone #lrScroll .lrc{display:contents}
 #wrap.phone #lrScroll .lrc>.abs{width:auto;height:auto;margin:0}
 #wrap.phone #lrHero{order:1;display:flex;flex-direction:row;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:0;padding:0;min-height:0}

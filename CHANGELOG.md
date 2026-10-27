@@ -2,6 +2,14 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.5.1] - 2026-10-27
+
+### Fixed
+- Fixed: the sidebar stopped responding while on the Living room page on the tablet.
+
+### Tests
+- `dev/rail.mjs` (part of `npm test`): the rail (1280×800) and the phone's tab bar (390×844) must be on top at the centre of every item, on every page and in every state (scrolled, light panel open, an app or streamer chosen, after a page switch), and a tap must switch the page. The full-screen pop-ups must still cover the rail, and scrolling on Living must still work, including under the shortest column.
+
 ## [0.5.0] - 2026-10-27
 
 ### Added
