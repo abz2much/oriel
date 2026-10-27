@@ -41,8 +41,9 @@ const CSS = `
 #pgLiving .hd{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;padding:0 4px}
 #pgLiving .hd small{font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 #pgLiving .g{display:grid;gap:6px;margin-top:8px}
-#lrScroll{position:absolute;left:0;right:0;top:72px;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(var(--oriel-ink),.3) transparent;display:flex;justify-content:space-between;align-items:flex-start;padding:12px 24px 24px 100px}
-#lrScroll .lrc{display:flex;flex-direction:column;gap:12px;flex:none}
+/* the scroller spans the rail's area and comes later in the DOM, so it lets taps through; only its columns take them */
+#lrScroll{position:absolute;left:0;right:0;top:72px;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(var(--oriel-ink),.3) transparent;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;padding:12px 24px 24px 100px;pointer-events:none}
+#lrScroll .lrc{display:flex;flex-direction:column;gap:12px;flex:none;pointer-events:auto;align-self:stretch} /* as tall as the tallest column (a wrapping line is), so a drag under a short one still scrolls */
 #lrScroll .lrc>.abs{position:relative;flex:none}
 #lrHero{width:330px;height:230px;overflow:hidden}
 #lrHero .img{position:absolute;inset:0;background:radial-gradient(220px 160px at 50% 55%,${SCENE.panelGlow},transparent 75%),linear-gradient(160deg,${SCENE.panelA},${SCENE.panelB})}
