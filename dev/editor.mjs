@@ -149,6 +149,18 @@ check('accent: not a hex colour gives a warning', out.general.accent === 'red' &
 await R(() => window.__ed.shadowRoot.querySelector('.acc .reset').click()); await p.waitForTimeout(100);
 out = await R(() => window.__out[window.__out.length - 1]);
 check('accent: Reset removes it', !('accent' in out.general));
+// 6b. idle clock: a tab in General with the presence sensor and minutes; a missing sensor warns; nothing is written until set
+const gen = (fn, arg) => R(({ src, arg }) => { const sec = [...window.__ed.shadowRoot.querySelectorAll('.sec')].find((x) => x.textContent.includes('General')); return new Function('sec', 'arg', 'return (' + src + ')(sec, arg)')(sec, arg); }, { src: fn.toString(), arg });
+await gen((sec) => { [...sec.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Idle clock').click(); }); await p.waitForTimeout(100);
+const idleFields = await gen((sec) => [...sec.querySelectorAll('ha-form input')].map((i) => i.dataset.name));
+check('idle clock: General has an Idle clock tab with the presence sensor and minutes', idleFields.includes('idle_clock.presence') && idleFields.includes('idle_clock.minutes'), JSON.stringify(idleFields));
+await gen((sec) => { const i = sec.querySelector('ha-form input[data-name="idle_clock.presence"]'); i.value = 'binary_sensor.no_such_sensor'; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+await gen((sec) => { const i = sec.querySelector('ha-form input[data-name="idle_clock.minutes"]'); i.value = '10'; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+out = await R(() => window.__out[window.__out.length - 1]);
+check('idle clock: the sensor and minutes are saved under general.idle_clock', out.general.idle_clock && out.general.idle_clock.presence === 'binary_sensor.no_such_sensor' && Number(out.general.idle_clock.minutes) === 10, JSON.stringify(out.general.idle_clock));
+await unfold(); await p.waitForTimeout(50);
+const idleWarn = await R(() => window.__ed.shadowRoot.querySelector('.warn').textContent);
+check('idle clock: a presence sensor that does not exist gives a warning', /no_such_sensor/.test(idleWarn) && /does not exist/.test(idleWarn), idleWarn.trim().slice(0, 90));
 await R((cfg) => { const c = JSON.parse(JSON.stringify(cfg)); c.general.theme = 'sunset'; window.__ed.setConfig(c); }, input); await p.waitForTimeout(100);
 await openGeneral(); await p.waitForTimeout(100);
 await unfold(); await p.waitForTimeout(50);

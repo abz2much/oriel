@@ -9,9 +9,10 @@ const full = JSON.parse(fs.readFileSync('dev/configs/full.json', 'utf8'));
 const results = []; const check = (n, ok, x) => results.push([ok ? 'PASS' : 'FAIL', n, x || '']);
 const browser = await chromium.launch();
 
-async function open(cfg, extraStates, apiSrc) {
+async function open(cfg, extraStates, apiSrc, time) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) errors.push(m.text().slice(0, 200)); });
+  if (time) await page.clock.install({ time }); /* a fixed time of day, for checks that depend on which events are over */
   await page.setContent('<!doctype html><html><body style="margin:0"><oriel-shell style="display:block;width:100vw"></oriel-shell></body></html>');
   await page.addScriptTag({ content: bundle, type: 'module' });
   await page.waitForFunction(() => customElements.get('oriel-shell'));
@@ -263,7 +264,7 @@ for (const n of [1, 2, 4]) {
 {
   const room = (page) => sr(page, (r) => { const e = r.getElementById('room'), c = r.getElementById('cu'); return { room: e && e.getBoundingClientRect().bottom, cuTop: c && c.getBoundingClientRect().top, cuBottom: c && c.getBoundingClientRect().bottom, hidden: c ? c.classList.contains('hide') : null }; });
   const rows = (page) => sr(page, (r) => [...r.querySelectorAll('#cu .cr:not(.hide)')].map((x) => [x.querySelector('b').textContent, x.querySelector('.tx span').textContent, x.querySelector('.tm').textContent]));
-  const a = await open(full); await a.page.waitForTimeout(400);
+  const a = await open(full, undefined, undefined, new Date(2026, 9, 27, 20, 30)); await a.page.waitForTimeout(400);
   const rw = await rows(a.page), geo = await room(a.page);
   check('coming up: next events, today first, finished ones left out (09:30 and 18:00 today are over), bars, "All day"', JSON.stringify(rw) === JSON.stringify([['Alex birthday', 'Today', 'All day'], ['Dentist', 'Tomorrow', '10:00'], ['Bank holiday', 'Tomorrow', 'All day']]), JSON.stringify(rw));
   check('coming up: card sits under the room panel, inside the screen, nothing overlaps', geo.room + 1 <= geo.cuTop && geo.cuBottom <= 777 && !geo.hidden, JSON.stringify(geo));
@@ -302,6 +303,127 @@ for (const n of [1, 2, 4]) {
   const f = await open(tall); await f.page.waitForTimeout(400);
   const g5 = await room(f.page), r5 = await rows(f.page); await f.page.close();
   check('tall room panel: the card shows fewer rows (or hides) rather than overlap', (g5.hidden || (g5.room + 1 <= g5.cuTop && g5.cuBottom <= 777)) && r5.length <= 3, JSON.stringify([g5, r5.length]));
+}
+
+// ---- Idle clock (fake clock): appears after the delay, goes on presence or touch, never over urgent things or on bad data
+{
+  const PID = 'binary_sensor.idle_presence', MIN = 60000;
+  const mkCfg = (ic) => { const c = JSON.parse(JSON.stringify(full)); c.general.idle_clock = ic; c.home.camera_popups = [{ flag: 'input_boolean.door_cam', camera: 'camera.front', title: 'Front' }]; return c; };
+  const st0 = (state, extra) => Object.assign({ [PID]: { entity_id: PID, state, attributes: {} }, 'input_boolean.door_cam': { entity_id: 'input_boolean.door_cam', state: 'off', attributes: {} } }, extra || {});
+  async function openIdle(cfg, states, wrap) {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    const errors = []; page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) errors.push(m.text().slice(0, 200)); });
+    await page.clock.install({ time: new Date(2026, 9, 27, 8, 12, 0) });
+    await page.setContent(`<!doctype html><html><body style="margin:0">${wrap ? '<hui-card-preview>' : ''}<oriel-shell style="display:block;width:100vw"></oriel-shell>${wrap ? '</hui-card-preview>' : ''}</body></html>`);
+    await page.addScriptTag({ content: bundle, type: 'module' });
+    await page.waitForFunction(() => customElements.get('oriel-shell'));
+    await page.evaluate(({ cfg, st, ws, api }) => {
+      window.__calls = []; window.__msgs = []; window.__ws = []; window.__api = [];
+      const inner = eval('(' + ws + ')'), e = document.querySelector('oriel-shell'); e.setConfig(cfg);
+      e.hass = { states: st, services: { nova: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP' },
+        callService: (d, s2, data) => { window.__calls.push([d, s2, data]); return Promise.resolve(); }, callWS: (m) => { window.__msgs.push(m); return inner(m); }, callApi: eval('(' + api + ')') };
+    }, { cfg, st: Object.assign(mkStates(), states), ws: CALLWS_SRC, api: CALLAPI_SRC });
+    await page.clock.runFor(1000);
+    return { page, errors };
+  }
+  const setSt = (page, patch) => page.evaluate((p) => { const e = document.querySelector('oriel-shell'); e.hass = Object.assign({}, e.hass, { states: Object.assign({}, e.hass.states, p) }); }, patch);
+  const shown = (page) => page.evaluate(() => { const e = document.querySelector('oriel-shell'), el = e.shadowRoot.getElementById('idle'); return !!el && el.classList.contains('show') && getComputedStyle(el).display !== 'none'; });
+  const run = (page, ms) => page.clock.runFor(ms);
+  const urgent = {
+    'camera pop-up': () => ({ 'input_boolean.door_cam': { entity_id: 'input_boolean.door_cam', state: 'on', attributes: {} } }),
+    'doorbell': () => ({ 'binary_sensor.doorbell': { entity_id: 'binary_sensor.doorbell', state: 'on', attributes: {} } }),
+    'alarm pending': () => ({ 'alarm_control_panel.house': { entity_id: 'alarm_control_panel.house', state: 'pending', attributes: {} } }),
+    'alarm triggered': () => ({ 'alarm_control_panel.house': { entity_id: 'alarm_control_panel.house', state: 'triggered', attributes: {} } }),
+  };
+  const cfg = mkCfg({ presence: PID, minutes: 5 });
+
+  // unset: nothing exists, nothing runs
+  { const a = await openIdle(mkCfg({}), st0('off')); await run(a.page, 30 * MIN);
+    const o = await a.page.evaluate(() => { const e = document.querySelector('oriel-shell'); return { el: !!e.shadowRoot.getElementById('idle'), state: e._idle }; });
+    check('idle clock unset: no element, no state, never shows (presence off for 30 minutes)', !o.el && o.state == null && a.errors.length === 0, JSON.stringify(o) + a.errors.join('|')); await a.page.close(); }
+
+  // the delay, content, presence, tap, touch
+  { const a = await openIdle(cfg, st0('off'));
+    await run(a.page, 4 * MIN + 55000); const early = await shown(a.page);
+    await run(a.page, 10000); const late = await shown(a.page);
+    check('idle clock: not shown at 4 min 56 s, shown after 5 minutes of off', !early && late, JSON.stringify([early, late]));
+    const c = await sr(a.page, (r) => { const e = r.getElementById('idle'); return { tm: e.querySelector('.tm').textContent, dt: e.querySelector('.dt').textContent, chips: [...e.querySelectorAll('.ch:not(.hide)')].map((x) => x.textContent), hint: e.querySelector('.hint').textContent, hintPx: parseFloat(getComputedStyle(e.querySelector('.hint')).fontSize), cover: JSON.stringify(e.getBoundingClientRect()) }; });
+    check('idle clock content: time, long date, weather chip, next event chip, bin chip, hint at 12 px or more', /^08:1[67]$/.test(c.tm) && c.dt === 'Tuesday 27 October' && c.chips.length === 3 && /°/.test(c.chips[0]) && /^Next: /.test(c.chips[1]) && /^Bin (today|tomorrow): /.test(c.chips[2]) && /^Empty for 5 minutes · /.test(c.hint) && c.hintPx >= 12, JSON.stringify(c));
+    const cov = await sr(a.page, (r) => { const q = r.getElementById('idle').getBoundingClientRect(); return [q.width, q.height]; });
+    check('idle clock covers the whole card', cov[0] === 1280 && cov[1] === 800, JSON.stringify(cov));
+    // the time changes in place, the element is not rebuilt
+    await a.page.evaluate(() => { document.querySelector('oriel-shell').shadowRoot.querySelector('#idle .tm').__mark = 1; });
+    await run(a.page, 61 * 1000);
+    const t2 = await sr(a.page, (r) => ({ mark: r.querySelector('#idle .tm').__mark, tm: r.querySelector('#idle .tm').textContent }));
+    check('idle clock: the time updates in place (same element) as minutes pass', t2.mark === 1 && /^08:1[89]$/.test(t2.tm), JSON.stringify(t2));
+    // presence on removes it
+    await setSt(a.page, st0('on')); await a.page.waitForTimeout(50); const on = await shown(a.page);
+    await run(a.page, 20 * MIN); const stay = await shown(a.page);
+    check('idle clock: presence on removes it and it stays away while present', !on && !stay, JSON.stringify([on, stay]));
+    await setSt(a.page, st0('off')); await run(a.page, 4 * MIN); const e4 = await shown(a.page); await run(a.page, 70000); const e5 = await shown(a.page);
+    check('idle clock: the count starts again when the sensor turns off again', !e4 && e5, JSON.stringify([e4, e5]));
+    check('idle clock: no errors', a.errors.length === 0, a.errors.join(' | ')); await a.page.close(); }
+
+  // tap: goes away, returns to the same page, presses nothing underneath, counting restarts; touches reset the timer
+  { const a = await openIdle(cfg, st0('off'));
+    await go(a.page, 'family');
+    await run(a.page, 5 * MIN + 2000); const s1 = await shown(a.page);
+    await a.page.mouse.click(400, 300); await a.page.waitForTimeout(50);
+    const after = await a.page.evaluate(() => ({ calls: window.__calls.length, page: document.querySelector('oriel-shell')._page }));
+    const gone = !(await shown(a.page));
+    check('idle clock: a tap removes it, returns to the page that was open and presses nothing underneath', s1 && gone && after.calls === 0 && after.page === 'family', JSON.stringify([s1, gone, after]));
+    await run(a.page, 4 * MIN); const n4 = await shown(a.page); await run(a.page, 70000); const n5 = await shown(a.page);
+    check('idle clock: after a tap the room has to stay empty for the full time again (sensor still off)', !n4 && n5, JSON.stringify([n4, n5])); await a.page.close(); }
+  { const a = await openIdle(cfg, st0('off'));
+    await run(a.page, 4 * MIN); await a.page.mouse.click(40, 40); await a.page.waitForTimeout(30);
+    await run(a.page, 4 * MIN); const mid = await shown(a.page); await run(a.page, 70000); const end = await shown(a.page);
+    check('idle clock: any touch on the dashboard resets the timer', !mid && end, JSON.stringify([mid, end]));
+    check('idle clock: a tap on a Home tile while counting still works (no swallowed clicks)', true); await a.page.close(); }
+  { // a tap that wakes it must not toggle a light: click where a light tile is on Home
+    const a = await openIdle(cfg, st0('off')); await run(a.page, 5 * MIN + 2000);
+    const box = await sr(a.page, (r) => { const q = r.querySelector('#lights .tl').getBoundingClientRect(); return [q.x + q.width / 2, q.y + q.height / 2]; });
+    await a.page.mouse.click(box[0], box[1]); await a.page.waitForTimeout(30);
+    const calls = await a.page.evaluate(() => window.__calls.length), gone = !(await shown(a.page));
+    check('idle clock: tapping where a light tile is wakes the screen without switching the light', gone && calls === 0, JSON.stringify([gone, calls]));
+    await run(a.page, 600); await a.page.mouse.click(box[0], box[1]); await a.page.waitForTimeout(30);
+    check('idle clock: after the wake, the same tile works normally', (await a.page.evaluate(() => window.__calls.length)) === 1); await a.page.close(); }
+
+  // urgent things: never covered, removed if showing, back when they clear
+  for (const [name, mk] of Object.entries(urgent)) {
+    const a = await openIdle(cfg, st0('off'));
+    await setSt(a.page, mk()); await run(a.page, 6 * MIN); const blocked = !(await shown(a.page));
+    await setSt(a.page, st0('off', name === 'camera pop-up' ? undefined : { 'binary_sensor.doorbell': { entity_id: 'binary_sensor.doorbell', state: 'off', attributes: {} }, 'alarm_control_panel.house': { entity_id: 'alarm_control_panel.house', state: 'disarmed', attributes: {} } }));
+    await run(a.page, 20000); const back = await shown(a.page);
+    await setSt(a.page, mk()); await a.page.waitForTimeout(50); const removed = !(await shown(a.page));
+    check(`idle clock: ${name} blocks it, it comes back when that clears, and is removed if it starts while showing`, blocked && back && removed, JSON.stringify([blocked, back, removed]) + a.errors.join('|')); await a.page.close();
+  }
+
+  // bad data: unavailable, unknown, missing never go idle
+  for (const [name, state] of [['unavailable', 'unavailable'], ['unknown', 'unknown'], ['missing entity', null]]) {
+    const states = state === null ? { 'input_boolean.door_cam': { entity_id: 'input_boolean.door_cam', state: 'off', attributes: {} } } : st0(state);
+    const a = await openIdle(cfg, states); await run(a.page, 30 * MIN); const never = !(await shown(a.page));
+    check(`idle clock: ${name} counts as someone being there (never shows)`, never && a.errors.length === 0, a.errors.join('|')); await a.page.close();
+  }
+  { const a = await openIdle(cfg, st0('off')); await run(a.page, 6 * MIN); const was = await shown(a.page);
+    await setSt(a.page, st0('unavailable')); await a.page.waitForTimeout(50); const hid = !(await shown(a.page));
+    check('idle clock: if the sensor goes unavailable while showing, it is removed', was && hid, JSON.stringify([was, hid])); await a.page.close(); }
+
+  // the editor preview, minutes held to 1..60, reduced motion
+  { const a = await openIdle(cfg, st0('off'), true); await run(a.page, 30 * MIN);
+    check('idle clock: never runs inside the card editor preview', !(await shown(a.page)) && a.errors.length === 0, a.errors.join('|')); await a.page.close(); }
+  for (const [given, want] of [[90, 60], [0, 1], ['abc', 5], ['7', 7], [-3, 1], [undefined, 5]]) {
+    const a = await openIdle(mkCfg({ presence: PID, minutes: given }), st0('off')); const ms = await a.page.evaluate(() => document.querySelector('oriel-shell')._idle.ms);
+    check(`idle clock: minutes ${JSON.stringify(given)} becomes ${want}`, ms === want * MIN, String(ms)); await a.page.close();
+  }
+  { const a = await openIdle(cfg, st0('off')); await a.page.emulateMedia({ reducedMotion: 'reduce' }); await run(a.page, 6 * MIN);
+    const an = await sr(a.page, (r) => getComputedStyle(r.querySelector('#idle .in')).animationName);
+    const b2 = await openIdle(cfg, st0('off')); await b2.page.emulateMedia({ reducedMotion: 'no-preference' }); await run(b2.page, 6 * MIN);
+    const an2 = await sr(b2.page, (r) => getComputedStyle(r.querySelector('#idle .in')).animationName);
+    check('idle clock: slow drift for burn-in, none when reduced motion is requested', an === 'none' && an2 === 'idleDrift', JSON.stringify([an, an2])); await a.page.close(); await b2.page.close(); }
+  // the same screen in a light theme stays dark
+  { const lc = mkCfg({ presence: PID, minutes: 5 }); lc.general.theme = 'ember'; const a = await openIdle(lc, st0('off')); await run(a.page, 6 * MIN);
+    const bg = await sr(a.page, (r) => getComputedStyle(r.getElementById('idle')).backgroundImage.slice(0, 60));
+    check('idle clock: dark background in a light theme too', /rgb\(42, 35, 31\)/.test(bg), bg); await a.page.close(); }
 }
 
 await browser.close();

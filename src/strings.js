@@ -582,7 +582,8 @@ export const ED = {
 
   // general
   'general.weather': 'Weather', 'general.weather_label': 'Weather label (empty: “Outside”)', 'general.people': 'People shown in the header',
-  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock',
+  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock', 'g.general.main': 'General', 'g.general.idle_clock': 'Idle clock',
+  'general.idle_clock.presence': 'Presence sensor (on while someone is in the room)', 'general.idle_clock.minutes': 'Minutes empty before the clock shows (1 to 60)',
   'general.currency': 'Currency (“auto” follows Home Assistant)', 'general.settings_path': 'Settings path', 'general.kiosk_path': 'Dashboard path for leaving kiosk mode',
 
   // home
@@ -733,6 +734,14 @@ Object.assign(S, {
   nothing_planned: 'Nothing planned',
   coming_up: 'Coming up',
   nothing_coming_up: 'Nothing coming up',
+  idle_next: 'Next: {title} · {when}',
+  idle_bin_today: 'Bin today: {label}',
+  idle_bin_tomorrow: 'Bin tomorrow: {label}',
+  idle_hint: 'Empty for {n} · walk in or tap to go back',
+  idle_minute_one: '1 minute',
+  idle_minutes_many: '{n} minutes',
+  idle_hours: '{h} h {m} min',
+  idle_clock_label: 'Idle clock',
   next_event: 'Next: {d}',
   calendar_unavailable: 'Calendar not available',
   bins: 'Bins',

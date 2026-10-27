@@ -22,6 +22,18 @@ Every page and every section is optional. You set it up with a visual editor; YA
 
 A page appears in the side rail only once at least one of its entities is set.
 
+### Idle clock (not a page)
+
+The idle clock is not in the rail. It is a dark screen that covers the card when nobody has been in the room for a while, and goes away when someone comes back. It is off unless you set `general.idle_clock.presence` to a presence sensor (it can be any `binary_sensor` or `input_boolean` that is `on` while someone is there).
+
+- **When it shows:** after the sensor has been `off` for `minutes` (default 5, from 1 to 60). A touch anywhere on the dashboard starts the count again.
+- **When it goes away:** the sensor turns `on`, or anyone taps or touches the screen. You land on the page that was open. The tap that wakes the screen does not press anything under it.
+- **Bad data counts as "someone is there":** `unavailable`, `unknown` or a sensor that does not exist never starts the clock, and remove it if it is showing. After a tablet reload with the sensor already off, the count uses the sensor's own `last_changed`.
+- **It never covers anything urgent:** it is not shown, and is removed, while a camera pop-up is open, the doorbell (`security.doorbell`) is on, or the alarm (`security.alarm`, else `general.alarm`) is pending or triggered.
+- **What it shows:** the time in your locale's format, the date, and up to three chips, each hidden when it has no data: the weather (`general.weather`), the next event from `family.calendars` with its colour bar and time (the same events as the Home "Coming up" card), and "Bin today" or "Bin tomorrow" with the bin names from `family.bins`. A small line at the bottom says how long the room has been empty and how to go back.
+- **Look:** dark and warm in every theme on purpose. The content drifts a few pixels in a slow loop every minute so nothing stays lit in one place; with reduced motion switched on, it does not move.
+- **Not shown** in the card editor's preview. It covers only the card: with the Home Assistant header and sidebar visible (no kiosk mode), they stay visible.
+
 <table>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-climate.jpg" alt="Climate page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-family.jpg" alt="Family page"></td></tr>
@@ -64,8 +76,8 @@ general:
 </table>
 
 - **Accent override:** `general.accent` takes any hex colour. Oriel rebuilds the accent family from it (fills, toggles, accent text, and text on accent fills) so it stays readable.
-- **Fixed colours:** some colours stay the same in every theme because they carry meaning or are part of a picture. These are the alarm and vacuum state colours, energy sources (solar yellow, grid blue and so on), light colour swatches, camera overlays and the Living room illustration.
-- **Contrast:** every theme, Classic included, is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`, 64 checks per theme). Classic keeps its look, with slightly stronger soft text and darker green, amber and red text than the original so that it passes too.
+- **Fixed colours:** some colours stay the same in every theme because they carry meaning or are part of a picture. These are the alarm and vacuum state colours, energy sources (solar yellow, grid blue and so on), light colour swatches, camera overlays, the Living room illustration and the idle clock screen (dark in every theme).
+- **Contrast:** every theme, Classic included, is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`, 74 checks per theme). Classic keeps its look, with slightly stronger soft text and darker green, amber and red text than the original so that it passes too.
 - **An unknown theme id** shows Classic on the tablet, and the editor warns you. An accent that is not a hex colour is ignored, with a warning.
 - **Future idea:** a dim mode for night. Neon accents (Midnight Signal, Forest Mint) can glare on a wall tablet in a dark room.
 
@@ -88,7 +100,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.3.3` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.4.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -142,6 +154,7 @@ nova: { ... }
 | `kiosk_path` | text | current page | Dashboard path used by “Show header and sidebar”. |
 | `theme` | theme id | `classic` | Colour theme; see [Themes](#themes). An unknown id falls back to Classic. |
 | `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
+| `idle_clock` | object | Optional idle clock screen, see [Idle clock](#idle-clock-not-a-page). `presence`: the sensor (empty: no idle clock). `minutes`: how long the sensor must be off first (default 5, 1 to 60). |
 | `pages_order` | list | home, living, energy, climate, family, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
 
 ### home

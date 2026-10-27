@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import { THEMES, themeTokens } from '../src/theme/themes.js';
 import { ROLE, VARIANT, CLASSIC_PAGE } from '../src/theme/tokens.js';
 import { hex, mix, contrast } from '../src/theme/colour.js';
-import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC, BIN, LINE } from '../src/theme/fixed.js';
+import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC, BIN, LINE, IDLE } from '../src/theme/fixed.js';
 
 const ids = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(THEMES);
 const P = (s) => s.split(',').map(Number);
@@ -54,6 +54,7 @@ function surfaces(v) {
   s['red pill'] = v['bad-bg-2']; s['amber pill'] = v['warn-bg-2'];
   s['dark chip'] = over(s['dark panel'], v['on-dark'], 0.1);
   for (const k in BIN) s['bin ' + k] = hex(BIN[k]);
+  s.idle = hex(IDLE.bgA); s['idle chip'] = over(s.idle, [255, 255, 255], 0.07); /* the idle clock: dark in every theme; the lightest part of its background is the worst case */
   s['room label'] = over(s.page, v.glass, 0.78);
   s['power tag'] = over(s.page, v.tag, 0.9);
   return s;
@@ -85,6 +86,8 @@ function pairs(v, dark, classic) {
   add('bin chip text', v.warn, 1, 'warn chip', 4.5); add('chart line: ink', v.ink, 0.85, 'glass', 3); add('chart line: bad-strong', v['bad-strong'], 1, 'glass', 3); add('hour bars (ink 62%)', v.ink, 0.62, 'glass', 3);
   for (const k in BIN) { add(`bin tile text (${k})`, v['on-dark'], 1, 'bin ' + k, 4.5); } add('chart line: accent-ink', v['accent-ink'], 1, 'glass', 3);
   LINE[dark ? 'dark' : classic ? 'classic' : 'light'].forEach((c, i) => add(`graph line ${i + 1} (fixed ${c})`, hex(c), 1, 'glass', 3));
+  add('idle clock: time (large)', hex(IDLE.time), 1, 'idle', 3); add('idle clock: date (large)', hex(IDLE.date), 1, 'idle', 3); add('idle clock: hint (12 px)', hex(IDLE.hint), 1, 'idle', 4.5); add('idle clock: chip text', hex(IDLE.chipText), 1, 'idle chip', 4.5);
+  IDLE.bars.forEach((c, i) => add(`idle clock: calendar bar ${i + 1}`, hex(c), 1, 'idle chip', 3));
   add('greeting (large)', v.ink, 1, 'page', 3);
   add('icon: accent-strong', v['accent-strong'], 1, 'glass', 3); add('icon: bad-strong', v['bad-strong'], 1, 'glass', 3); add('icon: good-mark', v['good-mark'], 1, 'glass', 3);
   return L;

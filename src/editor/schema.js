@@ -34,6 +34,9 @@ export const SECTIONS = [
         bool('clock'), txt('currency'), txt('settings_path'), txt('kiosk_path'),
       ],
       detectLists: [{ key: 'people', domain: 'person', mode: 'multi' }],
+    }, {
+      key: 'idle_clock',
+      fields: [ent('idle_clock.presence', ['binary_sensor', 'input_boolean'], { dc: ['occupancy', 'presence', 'motion'], w: ['presence', 'occupancy', 'mmwave'] }), num('idle_clock.minutes', 1, 60)],
     }],
   },
   {

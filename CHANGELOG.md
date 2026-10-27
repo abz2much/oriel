@@ -2,6 +2,22 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.4.0] - 2026-10-27
+
+### Added
+- Idle clock: an optional screen that covers the card when a presence sensor has been off for a while (`general.idle_clock: { presence, minutes }`, default 5 minutes, 1 to 60). It shows a large light time, the date and up to three chips (weather, the next calendar event with its colour bar, and "Bin today" or "Bin tomorrow" with the bin names), plus a small hint line. It goes away when the sensor turns on or on any touch, back to the page that was open, and the waking tap presses nothing underneath. A touch anywhere restarts the count.
+- It never goes idle on bad data (`unavailable`, `unknown`, a missing entity), never covers a camera pop-up, the doorbell, or an alarm that is pending or triggered, and does not run in the card editor preview. Off, with no element and no timer, unless `presence` is set.
+- Always dark and warm, in every theme (the colours are fixed, in `src/theme/fixed.js`). The content drifts a few pixels in a slow loop each minute, and stays still when reduced motion is requested.
+- Editor: General has an Idle clock tab (presence sensor, minutes), with a warning if the sensor does not exist.
+
+### Changed
+- The calendar events are now fetched once into one store shared by the Home "Coming up" card and the idle clock (the store exists whenever calendars are set, even with `home.calendar: false`).
+- Contrast report: 74 checks per theme (the idle clock's time, date, hint, chip text and calendar bars on its dark page).
+
+### Tests
+- `dev/pages.mjs` (fake clock): not shown at 4 min 56 s and shown after 5; content; presence on; a tap (returns to the same page, presses nothing underneath); a touch resets the count; camera pop-up, doorbell, alarm pending and alarm triggered each block and remove it; unavailable, unknown and missing never show it; unset does nothing; editor preview; minutes clamped 1 to 60; reduced motion; dark in a light theme. The editor harness checks the new tab and warning. The "Coming up" check now runs at a fixed time of day.
+- `dev/idle-shots.mjs` takes screenshots of the clock.
+
 ## [0.3.3] - 2026-10-26
 
 ### Changed
