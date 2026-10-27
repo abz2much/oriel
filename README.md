@@ -77,14 +77,14 @@ general:
 
 - **Accent override:** `general.accent` takes any hex colour. Oriel rebuilds the accent family from it (fills, toggles, accent text, and text on accent fills) so it stays readable.
 - **Fixed colours:** some colours stay the same in every theme because they carry meaning or are part of a picture. These are the alarm and vacuum state colours, energy sources (solar yellow, grid blue and so on), light colour swatches, camera overlays, the Living room illustration and the idle clock screen (dark in every theme).
-- **Contrast:** every theme, Classic included, is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`, 74 checks per theme). Classic keeps its look, with slightly stronger soft text and darker green, amber and red text than the original so that it passes too.
+- **Contrast:** every theme, Classic included, is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`, 77 checks per theme). Classic keeps its look, with slightly stronger soft text and darker green, amber and red text than the original so that it passes too.
 - **An unknown theme id** shows Classic on the tablet, and the editor warns you. An accent that is not a hex colour is ignored, with a warning.
 - **Future idea:** a dim mode for night. Neon accents (Midnight Signal, Forest Mint) can glare on a wall tablet in a dark room.
 
 ## Requirements
 
 - Home Assistant 2024.1 or newer (set as the minimum; older versions have not been tested).
-- A landscape screen. Oriel draws a 1280 × 800 canvas and widens it up to 1700 wide to fill the screen, then scales it to fit. It is built for wall tablets from about 1280 × 800 up to 1700 wide. It is not designed for phones.
+- **A tablet or a phone.** On a tablet Oriel draws a 1280 × 800 canvas, widens it up to 1700 wide to fill the screen, then scales it to fit; it is built for landscape wall tablets from about 1280 × 800 up to 1700 wide. When the card is narrower than 700 px it switches to a portrait phone layout, see [Phone layout](#phone-layout).
 
 ## Install
 
@@ -100,7 +100,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.4.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.5.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -154,6 +154,7 @@ nova: { ... }
 | `kiosk_path` | text | current page | Dashboard path used by “Show header and sidebar”. |
 | `theme` | theme id | `classic` | Colour theme; see [Themes](#themes). An unknown id falls back to Classic. |
 | `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
+| `layout` | `auto` \| `tablet` \| `phone` | `auto` | `auto` uses the phone layout when the card is narrower than 700 px (the card's own width, not the screen's) and the tablet layout otherwise. `tablet` or `phone` forces one. See [Phone layout](#phone-layout). |
 | `idle_clock` | object | Optional idle clock screen, see [Idle clock](#idle-clock-not-a-page). `presence`: the sensor (empty: no idle clock). `minutes`: how long the sensor must be off first (default 5, 1 to 60). |
 | `pages_order` | list | home, living, energy, climate, family, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
 
@@ -329,6 +330,32 @@ Oriel uses Nova only when `nova.enabled: true` **and** Nova is found in Home Ass
 
 What Oriel uses from Nova: the websocket commands `nova/chat` and `nova/chat_new`, the services `nova.nap`, `nova.shush`, `nova.unshush`, `nova.lockdown`, `nova.briefing`, `nova.add_reminder`, `nova.suggestion_accept`, `nova.suggestion_dismiss`, and the sensors you list under `nova.entities`.
 
+## Phone layout
+
+The same card, pages, themes and config work on a phone. Nothing in your config changes; only the layout does.
+
+- **When it turns on:** when the card is narrower than 700 px, measured on the card itself, so the card editor's preview and a card placed in a narrow column also get it. A landscape phone wider than 700 px keeps the tablet layout. Force either with `general.layout: phone` or `tablet`.
+- **Pages:** every page in the rail has a phone layout: one column of full-width cards that scrolls, with two columns of tiles where they fit. There is no 1280 × 800 canvas scaling in phone mode, and the layout respects the safe areas (notch and home bar).
+- **Header:** the weather, clock and people chips scroll sideways in one row. The alarm, door and window buttons stay fixed on the right, so they are always reachable. People chips follow `people_display`, so nothing shows a name or picture you did not ask for.
+- **Navigation:** a floating tab bar replaces the side rail: the first four pages in rail order, then **More**, which opens a sheet with the rest (System is always reachable). With five pages or fewer there is no More. The selected tab is a raised pill with a heavier label, not colour alone.
+- **Pop-ups:** the shopping list, camera, light tune panel, vacuum settings and the confirm steps open as bottom sheets over the whole screen. The page behind does not scroll, the back button or gesture closes the sheet instead of leaving the page, and each sheet has a visible close button and closes with a swipe down. Sheets stay above the on-screen keyboard.
+- **Confirm steps** (vacuum start, cleaning rooms, Nova lockdown): Cancel, then a large Confirm button set well apart from it. A tap that was meant for the page cannot press it in the first moments after it opens. Read-only pages stay read-only; the alarm and locks are not controllable from Oriel on any layout.
+- **Home:** the whole house is drawn at the card's width. Room and power labels keep their size (12 px or more) and only the labels that fit without overlapping are shown, power labels first.
+- **What is different from the tablet:** the idle clock is not used on a phone; the Energy charts and the Climate graph are drawn at the card's width; the Calendar and bins are one list; lists on Family show every item (the page scrolls), and the Calendar's "+ N more" expands.
+- **Same data, same cost:** the phone does not poll any more often than the tablet. Camera snapshots refresh no faster than on the tablet and stop when the page is not showing.
+
+<table>
+<tr>
+<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-home.jpg" alt="Phone: Home" width="190"><br>Home</td>
+<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-living.jpg" alt="Phone: Living room" width="190"><br>Living room</td>
+<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-climate.jpg" alt="Phone: Climate" width="190"><br>Climate</td>
+<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-family.jpg" alt="Phone: Family" width="190"><br>Family</td>
+<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-more.jpg" alt="Phone: the More sheet" width="190"><br>More</td>
+</tr>
+</table>
+
+All screenshots use made-up example data.
+
 ## Wall tablet setup
 
 - **Hide Home Assistant's header and sidebar** with [kiosk-mode](https://github.com/NemesisRE/kiosk-mode) from HACS. Add `kiosk_mode: { kiosk: true }` to the dashboard's raw config (**Edit dashboard › ⋮ › Raw configuration editor**).
@@ -357,6 +384,7 @@ What Oriel uses from Nova: the websocket commands `nova/chat` and `nova/chat_new
 | Nova page says “Nova not detected” | Install the Nova integration, or turn `nova.enabled` off. |
 | Live camera view does not start | Oriel uses `webrtc-camera` if installed, otherwise Home Assistant's own live view. Check the camera works in Home Assistant first. |
 | The house pills overlap | Nudge them with `pill_offset`. |
+| A phone shows the tablet layout (or the tablet shows the phone layout) | `auto` goes by the card's own width: under 700 px is the phone layout. Set `general.layout` to `phone` or `tablet` to force one. |
 
 Open the browser console and look for lines starting with `[oriel]` for details.
 
@@ -379,6 +407,7 @@ npm run shots                     # screenshots of every page to dev/out/
 - Colours live in `src/theme/`: `tokens.js` (the CSS variables and Classic's values), `themes.js` (the themes and the rules that build them from two seed colours) and `fixed.js` (colours that never change). No other file holds a colour.
 - `node dev/theme-shots.mjs <theme ...>` screenshots every page and pop-up per theme with a frozen clock; `node dev/sheet.mjs <theme ...>` makes a contact sheet; `node dev/themediff.mjs <before> <after>` compares two runs pixel by pixel; `node dev/contrast.mjs` writes the contrast report.
 - User-facing text lives in `src/strings.js` (UK English). Pages live in `src/pages/`, the editor in `src/editor/`.
+- Phone layout: `npm run shots:phone` takes every page at 390×844, 360×740 and 412×915 (and a `-full.png` of the whole scrolled page) into `dev/out/phone/`; `node dev/phone.mjs` checks every page at those sizes (no sideways scrolling, nothing past the edge, text and tap targets) and `node dev/phone-sheets.mjs` opens every pop-up. `node dev/tablet-geometry.mjs` checks the tablet layout against `dev/tablet-geometry.json` (the 0.4.0 positions; after a deliberate tablet change, run it with `--write` and say why in the changelog). `node dev/layout-shots.mjs` plus `node dev/tablet-diff.mjs <before> <after>` compare tablet screenshots.
 - `dist/oriel.js` is committed, because HACS installs from it. CI fails if it is out of date.
 
 Releases are made by the release workflow: bump the version in `package.json`, `src/version.js` and `CHANGELOG.md`, merge to `main`, and the workflow builds, tests, tags and publishes the release.

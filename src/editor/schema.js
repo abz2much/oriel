@@ -31,7 +31,7 @@ export const SECTIONS = [
         ents('people', 'person'), sel('people_display', ['initial', 'name', 'hidden']),
         ent('alarm', 'alarm_control_panel', {}), ent('front_door', 'binary_sensor', { dc: ['door', 'opening'], w: ['front'] }),
         ents('windows', 'binary_sensor', { dc: ['window', 'opening'], w: ['window'] }),
-        bool('clock'), txt('currency'), txt('settings_path'), txt('kiosk_path'),
+        bool('clock'), txt('currency'), txt('settings_path'), txt('kiosk_path'), sel('layout', ['auto', 'tablet', 'phone']),
       ],
       detectLists: [{ key: 'people', domain: 'person', mode: 'multi' }],
     }, {

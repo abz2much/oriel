@@ -191,7 +191,7 @@ const VacuumExt = {
     const main = list[0], rest = list.slice(1, 4);
     const pg = document.createElement('div');
     pg.id = 'pgVacuum'; pg.innerHTML = HTML(rest.map((v, i) => F1_HTML(i ? '_' + (i + 1) : '')).join(''));
-    const $ = (id) => pg.querySelector('#' + id);
+    const $ = (id) => pg.querySelector('#' + id) || this.shadowRoot.getElementById(id); /* the phone layout moves the pop-ups out of the page */
     const th = Object.assign({ warn_pct: 50, low_pct: 20, low_battery: 20 }, main.thresholds || {});
     this._vcc = Object.assign({ settings: [], schedule: [], consumables: [], station: [], base_clean: {}, clean_script: {} }, main, { th, night_from: this._c.vacuum.night_from, night_to: this._c.vacuum.night_to });
     this._vc = { pg, $, rest, vis: false, tm: null, sig: null, ver: 0, sel: new Set(), rm: {}, mapSig: '', unSince: 0, lastCls: null, pend: null, toastT: null, guard: 0, f1Key: {} };
@@ -609,6 +609,7 @@ const VacuumExt = {
       });
       if (!opts.length) return;
     }
+    if (this._phone) { const x = document.createElement('button'); x.type = 'button'; x.className = 'mx'; x.textContent = S.close; x.addEventListener('click', (e) => { e.stopPropagation(); this._vcMenuClose(); }); menu.appendChild(x); } /* a visible way to close the sheet */
     menu.classList.add('show'); S0.menu = id;
     let ax = 0, ay = 0, n = anchor; const wrap = $('vcWrap');
     while (n && n !== wrap) { ax += n.offsetLeft; ay += n.offsetTop; n = n.offsetParent; }

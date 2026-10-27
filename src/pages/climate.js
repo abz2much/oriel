@@ -223,12 +223,12 @@ const ClimateExt = {
     const cl = this._cl; if (!cl || !cl.th.length) return;
     const body = cl.$('clHistBody'), lg = cl.$('clLg'), H = cl.hist, series = cl.th.slice(0, SERIES.length);
     const pair = LINE[this._dark ? 'dark' : this._classic ? 'classic' : 'light'], colour = (k) => (k < 2 ? pair[k] : SERIES[k].c);
-    const sig = JSON.stringify([H.data, H.err, H.start, !!this._dark, !!this._classic]); if (cl.sig.hist === sig) return; cl.sig.hist = sig;
+    const sig = JSON.stringify([H.data, H.err, H.start, !!this._dark, !!this._classic, !!this._phone, this._phone ? Math.round(body.clientWidth) : 0]); if (cl.sig.hist === sig) return; cl.sig.hist = sig;
     body.innerHTML = ''; lg.innerHTML = '';
     const all = series.reduce((a, x) => a.concat(((H.data || {})[x.entity] || []).filter((v) => v != null)), []);
     if (!all.length) { body.innerHTML = `<div class="empty">${esc(H.err ? S.history_unavailable : H.data ? S.no_history : S.forecast_loading)}</div>`; return; }
     // the mockup's chart: 332 × 124, grid from x 30 to 326, labels in the left 30 px
-    const W = 332, HT = 124, L = 30, R = 326, T = 8, B = 100;
+    const W = this._phone ? Math.max(260, Math.round(body.clientWidth || 310)) : 332, HT = 124, L = 30, R = W - 6, T = 8, B = 100; /* phone: drawn at the real width so the labels stay 12 px */
     let lo = Math.floor(Math.min(...all) - 0.3), hi = Math.ceil(Math.max(...all) + 0.3); if ((hi - lo) % 2) hi += 1; if (hi - lo < 2) hi = lo + 2;
     const X = (i) => L + i * ((R - L) / 11), Y = (v) => B - ((v - lo) / (hi - lo)) * (B - T), ink = 'rgba(var(--oriel-ink),var(--oriel-soft,.62))';
     const svg = el('svg', { viewBox: `0 0 ${W} ${HT}`, role: 'img' }, body);
@@ -289,6 +289,7 @@ const ClimateExt = {
     }
     if (cl.th.length) { this._renderThermo(); if (now - cl.hist.t > HISTORY_MS) this._clFetchHistory(); }
     this._clRenderRooms(); this._renderBoost();
+    if (cl.hist.data || cl.hist.err) this._clRenderHistory(); /* redraws only when its inputs changed (the phone layout draws at the real width) */
   },
 };
 

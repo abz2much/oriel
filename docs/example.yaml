@@ -9,6 +9,7 @@ general:
   alarm: alarm_control_panel.house
   front_door: binary_sensor.front_door
   windows: [binary_sensor.living_room_window, binary_sensor.kitchen_window]
+  # layout: auto                         # auto (phone layout when the card is narrower than 700 px), tablet, or phone
   # idle_clock:                          # optional: a clock screen when nobody has been in the room for a while
   #   presence: binary_sensor.room_presence   # on while someone is there; unset = no idle clock
   #   minutes: 5                                  # 1 to 60

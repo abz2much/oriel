@@ -68,7 +68,7 @@ const HTML = () => `<div id="syWrap">
     <div class="big" id="syNv">-</div>
     <div class="row"><span>${esc(S.quiet_mode)}</span><b id="syNq">-</b></div><div class="row"><span>${esc(S.lockdown)}</span><b id="syNl">-</b></div>
     <div class="row"><span>${esc(S.suggestions_waiting)}</span><b id="syNs">-</b></div><div class="row"><span>${esc(S.next_reminder)}</span><b id="syNr">-</b></div></div>
-  <div id="syTab" class="abs glass mid card"><div class="hd"><span>${esc(S.tablet)}</span></div><div style="height:10px"></div>
+  <div id="syTab" class="abs glass mid card"><div class="hd"><span data-t="tab">${esc(S.tablet)}</span></div><div style="height:10px"></div>
     <button class="btn" id="syBtnR">${ic('reload')}<span>${esc(S.reload_dashboard)}<small>${esc(S.reload_hint)}</small></span></button>
     <button class="btn" id="syBtnK">${ic('exit')}<span>${esc(S.show_header)}<small>${esc(S.show_header_hint)}</small></span></button>
     <button class="btn" id="syBtnS">${ic('gear')}<span>${esc(S.ha_settings)}<small>${esc(S.ha_settings_hint)}</small></span></button>

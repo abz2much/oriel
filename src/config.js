@@ -7,7 +7,7 @@ export const DEFAULT_CONFIG = {
     weather: '', weather_label: '', people: [], people_display: 'initial',
     alarm: '', front_door: '', windows: [], clock: true, currency: 'auto',
     settings_path: '/config', kiosk_path: '', pages_order: null,
-    theme: 'classic', accent: '', idle_clock: { presence: '', minutes: 5 },
+    theme: 'classic', accent: '', idle_clock: { presence: '', minutes: 5 }, layout: 'auto',
   },
   home: {
     energy_card: { solar_power: '', house_power: '', battery_soc: '' },

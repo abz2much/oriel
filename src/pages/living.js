@@ -115,7 +115,7 @@ const CSS = `
 
 const HTML = () => `<div id="lrScroll"><div class="lrc">
     <div id="lrHero" class="abs glass mid"><div class="img"></div><svg id="lrRm" viewBox="0 0 330 230" width="330" height="230" aria-hidden="true"></svg>
-      <div class="t"><b id="lrTitle"></b><span class="chip" id="lrPres">${icon('user')}<span>–</span></span></div>
+      <div class="t"><b id="lrTitle"></b><span class="chip" id="lrPres">${icon('user')}<span>–</span></span><span class="chip hide" id="lrOpenChip2" role="status"></span></div>
       <div class="b" id="lrChips"><span class="chip" id="lrT">${icon('sun')}<span>–</span></span><span class="chip" id="lrH">${icon('drop')}<span>–</span></span><span class="chip" id="lrL">${icon('bulb')}<span>–</span></span></div></div>
     <div id="lrOpen" class="abs glass"><div class="hd"><span>${esc(S.doors_windows)}</span><span class="chip" id="lrOpenChip" style="height:24px;font-size:12px">–</span></div><div class="g" id="lrOg"></div></div>
     <div id="lrBlinds" class="abs glass"><div class="hd"><span>${esc(S.blinds)}</span><small id="lrBsub"></small></div><div class="g" id="lrBg"></div></div>
@@ -137,7 +137,7 @@ const LivingExt = {
     pg.id = 'pgLiving'; pg.innerHTML = HTML();
     this._lvPg = pg;
     // build before attaching so getElementById works through the page
-    const $ = (id) => pg.querySelector('#' + id);
+    const $ = (id) => pg.querySelector('#' + id) || this.shadowRoot.getElementById(id); /* the phone layout moves the tune sheet out of the page */
     this._lvBuild($);
     return pg;
   },
@@ -161,7 +161,7 @@ const LivingExt = {
       this.tap(d, () => this.moreInfo(o.entity)); $('lrOg').appendChild(d);
       return { o, d, b: d.querySelector('b') };
     });
-    $('lrOpen').classList.toggle('hide', !L.open.length);
+    $('lrOpen').classList.toggle('hide', !L.open.length); $('lrOpenChip2').classList.toggle('hide', !L.open.length); /* the phone layout repeats the doors summary in its chip row */
     // blinds
     const bl = c.blinds || {};
     $('lrBsub').textContent = bl.subtitle || '';
@@ -212,7 +212,7 @@ const LivingExt = {
       const nm = l.name || this.name(l.entity); d.querySelector('.nm span').textContent = nm;
       this.tap(d, () => this._lvToggle(l)); d.setAttribute('aria-label', nm);
       const tb = d.querySelector('.tune');
-      if (tb) { tb.innerHTML = icon('sliders'); tb.setAttribute('aria-label', t('tune', { name: nm })); tb.addEventListener('click', (e) => { e.stopPropagation(); L.sel = i; this._updateLiving(); }); }
+      if (tb) { tb.innerHTML = icon('sliders'); tb.setAttribute('aria-label', t('tune', { name: nm })); tb.addEventListener('click', (e) => { e.stopPropagation(); L.sel = i; this._updateLiving(); this._lvPanel(true); }); }
       $('lrLgrid').appendChild(d);
       return { l, d, sub: d.querySelector('small') };
     });
@@ -234,12 +234,13 @@ const LivingExt = {
     $('lrDv').classList.toggle('hide', !L.dv.length);
     // tune panel
     const pn = $('lrPanel');
-    pn.innerHTML = `<div class="ph"><span id="lrPn">–</span><small>${esc(S.tune_hint)}</small></div><div><div class="lab">${esc(S.brightness)}</div><div class="pr" id="lrPb"></div></div><div><div class="lab">${esc(S.white)}</div><div class="pr" id="lrPw"></div></div><div><div class="lab">${esc(S.colour)}</div><div class="swr" id="lrPc"></div></div>`;
+    pn.innerHTML = `<div class="ph"><span id="lrPn">–</span><small>${esc(S.tune_hint)}</small><button type="button" class="round sm" id="lrPx" aria-label="${esc(S.close)}">${icon('close')}</button></div><div><div class="lab">${esc(S.brightness)}</div><div class="pr" id="lrPb"></div></div><div><div class="lab">${esc(S.white)}</div><div class="pr" id="lrPw"></div></div><div><div class="lab">${esc(S.colour)}</div><div class="swr" id="lrPc"></div></div>`;
     const mkb = (parent, html, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; if (cls) b.className = cls; b.innerHTML = html; b.addEventListener('click', fn); parent.appendChild(b); return b; };
     L.pb = [10, 25, 50, 75, 100].map((v) => ({ v, b: mkb($('lrPb'), v + '%', '', () => this._lvTune({ br: v }, { brightness_pct: v })) }));
     L.pw = WHITES.map((w) => ({ n: w[0], b: mkb($('lrPw'), `<i style="background:${w[2]}"></i>${esc(S[w[0]])}`, '', () => this._lvTune({ rgb: hexRgb(w[2]), tag: w[0] }, { color_temp_kelvin: w[1] })) }));
     L.pc = COLOURS.map((w) => { const b = mkb($('lrPc'), '', '', () => this._lvTune({ rgb: hexRgb(w[1]), tag: w[0] }, { rgb_color: hexRgb(w[1]) })); b.style.background = w[1]; b.setAttribute('aria-label', S[w[0]]); return { n: w[0], b }; });
     pn.classList.toggle('hide', L.sel < 0);
+    $('lrPx').addEventListener('click', () => this._lvPanel(false));
     // now playing, movie mode, TV inputs
     $('lrTvP').addEventListener('click', () => this.call('media_player', alive(this.st(tv.media_player)) ? 'turn_off' : 'turn_on', { entity_id: tv.media_player }));
     $('lrTvP').classList.toggle('hide', !isEnt(tv.media_player));
@@ -281,6 +282,9 @@ const LivingExt = {
     // room illustration
     if (c.room_render !== false) this._lvBuildRoom($('lrRm')); else $('lrRm').remove();
   },
+
+  /* the phone layout shows the tune panel as a bottom sheet, opened by a light's tune button */
+  _lvPanel(on) { const p = this.shadowRoot.getElementById('lrPanel'); if (p) p.classList.toggle('show', !!on && !!this._phone); },
 
   _lvInfo(l) {
     const s = this.st(l.entity), on = !!s && s.state === 'on', a = (s && s.attributes) || {};
@@ -356,6 +360,7 @@ const LivingExt = {
     let open = 0;
     L.open.forEach(({ o, d, b }) => { const s = this.sv(o.entity), on = s === 'on'; if (on) open++; d.classList.toggle('open', on); b.textContent = s === undefined || s === 'unavailable' || s === 'unknown' ? '–' : (on ? S.is_open : S.closed); });
     const oc = $('lrOpenChip'); oc.textContent = open ? t('n_open', { n: open }) : S.all_closed; oc.style.background = open ? 'rgb(var(--oriel-bad-bg))' : ''; oc.style.borderColor = open ? 'rgb(var(--oriel-bad-line))' : '';
+    const o2 = $('lrOpenChip2'); o2.textContent = oc.textContent; o2.style.background = oc.style.background; o2.style.borderColor = oc.style.borderColor;
     // sound
     const so = this.st(sp.media_player);
     this._lvVol(); if (!so) $('lrVv').textContent = '–';
@@ -465,6 +470,7 @@ const LivingExt = {
 registerPage({
   key: 'living', icon: 'sofa',
   label(c) { return c.living.title || S.page_living; },
+  tab(c) { return c.living.title && c.living.title !== S.page_living ? c.living.title : S.tab_living; }, /* the phone tab bar's short label */
   css: CSS,
   enabled(c) { return hasEntities(c.living); },
   init() { const pg = this._lvInitPage(); return pg; },

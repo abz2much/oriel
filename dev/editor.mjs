@@ -161,6 +161,13 @@ check('idle clock: the sensor and minutes are saved under general.idle_clock', o
 await unfold(); await p.waitForTimeout(50);
 const idleWarn = await R(() => window.__ed.shadowRoot.querySelector('.warn').textContent);
 check('idle clock: a presence sensor that does not exist gives a warning', /no_such_sensor/.test(idleWarn) && /does not exist/.test(idleWarn), idleWarn.trim().slice(0, 90));
+// 6c. layout: a dropdown in General (auto, tablet, phone); choosing one is saved, auto removes nothing it does not have to
+await gen((sec) => { [...sec.querySelectorAll('button')].find((b) => b.textContent.trim() === 'General').click(); }); await p.waitForTimeout(100);
+const layoutField = await gen((sec) => { const i = sec.querySelector('ha-form [data-name="layout"]'); return i ? { tag: i.tagName, name: i.dataset.name } : null; });
+check('layout: General has a layout dropdown', !!layoutField, JSON.stringify(layoutField));
+await gen((sec) => { const i = sec.querySelector('ha-form [data-name="layout"]'); i.value = 'phone'; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+out = await R(() => window.__out[window.__out.length - 1]);
+check('layout: choosing phone is saved as general.layout', out.general.layout === 'phone', String(out.general.layout));
 await R((cfg) => { const c = JSON.parse(JSON.stringify(cfg)); c.general.theme = 'sunset'; window.__ed.setConfig(c); }, input); await p.waitForTimeout(100);
 await openGeneral(); await p.waitForTimeout(100);
 await unfold(); await p.waitForTimeout(50);

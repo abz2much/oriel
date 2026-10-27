@@ -2,6 +2,28 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.5.0] - 2026-10-27
+
+### Added
+- Phone layout (portrait), inside the same card with the same config. It turns on by itself when the card is narrower than 700 px (the card's own width, so the editor preview is unaffected) or with `general.layout: phone`; `tablet` forces the tablet layout. Landscape phones wider than 700 px keep the tablet layout.
+- Every page has a phone layout: Home (energy, the whole house, Coming up, room panel, Today, quick actions), Living room, Energy, Climate, Family, Security, Vacuum, Nova and System. One column of full-width cards that scrolls, no canvas scaling, safe-area insets respected, text 12 px or more and tap targets 44 px or more.
+- Header: the chips scroll sideways in one row; a chip either fits whole in the row or is hidden, never cut off (the weather and clock chips fit whole at 360 wide); the alarm, door and window buttons stay fixed on the right.
+- Navigation: a floating tab bar (the first four pages in rail order, then More with the rest, System always reachable). The selected tab is a raised pill with a heavier label and `aria-current`, not colour alone.
+- Pop-ups are bottom sheets: shopping list, camera, light tune panel, vacuum settings menu, vacuum and Nova confirm steps, and More. The page behind is locked, the back button or gesture closes the sheet instead of leaving the page, each has a visible close button and closes with a swipe down, and they stay above the on-screen keyboard.
+- Confirm steps on the phone: Cancel, then a large (64 px) Confirm button set well apart from it; for the first 0.4 s after a confirm opens, a stray tap cannot press Confirm (Vacuum had this already; Nova has it on the phone now).
+- Phone details: the whole Home house with labels sized apart from the drawing (only the labels that fit without overlapping are shown, power first); Energy charts and the Climate graph drawn at the card's real width; Family lists show every item and the page scrolls; the Calendar's "+ N more" expands and collapses; the System page's Tablet card is "This device"; Nova "not detected" stays one centred message.
+- `general.layout` in the editor (General), strings, `docs/example.yaml` and the README, which now explains phone mode and the 700 px rule. Five phone pictures in the README.
+
+### Changed
+- The idle clock is skipped in the phone layout (one check, `_idlePhone()`).
+- Contrast report: 77 checks per theme (the phone tab bar and the More tiles).
+
+### Tests
+- `dev/phone.mjs`: layout switching by the card's own width, the tab bar and More, and every page at 390×844, 360×740 and 412×915 (no sideways scrolling, nothing past the edge, text 12 px or more, tap targets 44 px or more including their invisible tap areas), the house labels, the header, Family's full lists and the Calendar's expand, Vacuum's compact card, Nova not detected.
+- `dev/phone-sheets.mjs`: every pop-up at 360×740 (fits, controls 44 px or more, page locked, back button, close button, swipe down, the keyboard open, confirm steps).
+- `dev/tablet-geometry.mjs` and `dev/tablet-geometry.json`: the tablet layout must match the 0.4.0 positions (2,941 elements across the pages and pop-ups); new elements must take no room on the tablet.
+- Dev tools: `npm run shots:phone`, `dev/layout-shots.mjs`, `dev/tablet-diff.mjs`, `dev/freeze-time.mjs`.
+
 ## [0.4.0] - 2026-10-27
 
 ### Added

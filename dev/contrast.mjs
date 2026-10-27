@@ -55,6 +55,8 @@ function surfaces(v) {
   s['dark chip'] = over(s['dark panel'], v['on-dark'], 0.1);
   for (const k in BIN) s['bin ' + k] = hex(BIN[k]);
   s.idle = hex(IDLE.bgA); s['idle chip'] = over(s.idle, [255, 255, 255], 0.07); /* the idle clock: dark in every theme; the lightest part of its background is the worst case */
+  s['tab bar'] = over(s.page, mix(v['sheet-a'], v['sheet-b'], 0.5), 0.96); /* the phone tab bar: the sheet panel colours at .96 over the page */
+  s['sheet tile'] = over(s.sheet, v.glass, 0.55); /* a tile in the phone More sheet */
   s['room label'] = over(s.page, v.glass, 0.78);
   s['power tag'] = over(s.page, v.tag, 0.9);
   return s;
@@ -88,6 +90,7 @@ function pairs(v, dark, classic) {
   LINE[dark ? 'dark' : classic ? 'classic' : 'light'].forEach((c, i) => add(`graph line ${i + 1} (fixed ${c})`, hex(c), 1, 'glass', 3));
   add('idle clock: time (large)', hex(IDLE.time), 1, 'idle', 3); add('idle clock: date (large)', hex(IDLE.date), 1, 'idle', 3); add('idle clock: hint (12 px)', hex(IDLE.hint), 1, 'idle', 4.5); add('idle clock: chip text', hex(IDLE.chipText), 1, 'idle chip', 4.5);
   IDLE.bars.forEach((c, i) => add(`idle clock: calendar bar ${i + 1}`, hex(c), 1, 'idle chip', 3));
+  add('phone tab label (soft)', v.ink, v.soft, 'tab bar', 4.5); add('phone tab label (selected)', v.ink, 1, 'raised', 4.5); add('phone More tile text', v.ink, 1, 'sheet tile', 4.5);
   add('greeting (large)', v.ink, 1, 'page', 3);
   add('icon: accent-strong', v['accent-strong'], 1, 'glass', 3); add('icon: bad-strong', v['bad-strong'], 1, 'glass', 3); add('icon: good-mark', v['good-mark'], 1, 'glass', 3);
   return L;
