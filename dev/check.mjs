@@ -4,7 +4,7 @@
    3. the card renders every page in every dev config with no page errors and no service calls
    4. the editor checks pass
    5. the Climate and Family page checks pass
-   6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.4.0 snapshot */
+   6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.4.0 bundle */
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -49,4 +49,4 @@ try { execFileSync(process.execPath, ['dev/phone-sheets.mjs'], { encoding: 'utf8
 ok('phone pop-up checks pass (every sheet at 360x740: fits, 44 px controls, back button, swipe, keyboard, confirm steps)');
 
 try { execFileSync(process.execPath, ['dev/tablet-geometry.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('the tablet layout changed (dev/tablet-geometry.mjs)'); }
-ok('tablet layout matches the 0.4.0 snapshot');
+ok('tablet layout matches the 0.4.0 bundle (rendered in the same run)');

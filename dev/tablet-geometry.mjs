@@ -1,16 +1,17 @@
-/* Tablet guard: the position and size of every element on every page (and the open pop-ups) at tablet sizes must match
-   dev/tablet-geometry.json, which was taken from the 0.4.0 bundle before the phone layout existed. New elements (the phone's
-   tab bar, sheets and headings) must take no room on the tablet. The idle clock and phone layout never move a tablet pixel.
-   Usage: node dev/tablet-geometry.mjs                check dist/oriel.js against the snapshot (npm test runs this)
-          node dev/tablet-geometry.mjs --write [bundle]   write the snapshot from a bundle (default dist/oriel.js)
-   A deliberate tablet change: run --write on the new bundle in the same pull request and say why in the changelog. */
+/* Tablet guard: the position and size of every block and control on every page (and the open pop-ups) at tablet sizes must
+   match the 0.4.0 bundle, rendered in the same run on the same machine (so fonts and sub-pixel text never differ between the two).
+   dev/baseline/oriel-0.4.0.js is the bundle from before the phone layout existed. New elements (the phone's tab bar, sheets and
+   headings) must take no room on the tablet.
+   Usage: node dev/tablet-geometry.mjs                    compare dist/oriel.js with the baseline (npm test runs this)
+          BASELINE=path/to/older.js node dev/tablet-geometry.mjs
+   A deliberate tablet change: copy the new bundle to dev/baseline/ (and point BASELINE_FILE below at it) in the same pull request,
+   and say why in the changelog. */
 import './freeze-time.mjs';
 import fs from 'node:fs';
 import { chromium } from 'playwright';
 import { mkStates, CALLWS_SRC, CALLAPI_SRC } from './mock.mjs';
 
-const WRITE = process.argv[2] === '--write', FILE = 'dev/tablet-geometry.json', TOL = 0.6;
-const bundle = fs.readFileSync(WRITE && process.argv[3] ? process.argv[3] : 'dist/oriel.js', 'utf8');
+const BASELINE_FILE = 'dev/baseline/oriel-0.4.0.js', TOL = 0.6;
 const cfg = JSON.parse(fs.readFileSync('dev/configs/full-nova.json', 'utf8'));
 cfg.home.camera_popups = [{ flag: 'input_boolean.door_cam', camera: 'camera.front', title: 'Front' }];
 const SIZES = [[1280, 800], [1024, 768], [1366, 1024]];
@@ -27,6 +28,7 @@ const SNAP = () => {
 };
 
 const browser = await chromium.launch();
+async function takeAll(bundle) {
 const all = {};
 for (const [W, H] of SIZES) {
   const page = await browser.newPage({ viewport: { width: W, height: H } });
@@ -52,12 +54,13 @@ for (const [W, H] of SIZES) {
   }
   await page.close();
 }
+return all;
+}
+const base = await takeAll(fs.readFileSync(process.env.BASELINE || BASELINE_FILE, 'utf8')), all = await takeAll(fs.readFileSync('dist/oriel.js', 'utf8'));
 await browser.close();
-
-if (WRITE) { fs.writeFileSync(FILE, JSON.stringify(all)); console.log('wrote', FILE, Object.keys(all).length, 'views,', Object.values(all).reduce((n, v) => n + Object.keys(v).length, 0), 'elements,', Math.round(fs.statSync(FILE).size / 1024) + ' KB'); process.exit(0); }
-const base = JSON.parse(fs.readFileSync(FILE, 'utf8')), bad = [];
+const bad = [];
 for (const [view, snap] of Object.entries(all)) {
-  const b = base[view]; if (!b) { bad.push(view + ': not in the snapshot'); continue; }
+  const b = base[view]; if (!b) { bad.push(view + ': not in the baseline'); continue; }
   for (const [k, v] of Object.entries(b)) {
     const n = snap[k]; if (!n) { bad.push(`${view} ${k}: missing`); continue; }
     if (v.some((x, i) => Math.abs(x - n[i]) > TOL)) bad.push(`${view} ${k}: ${v.join(',')} -> ${n.join(',')}`);
@@ -66,5 +69,5 @@ for (const [view, snap] of Object.entries(all)) {
   const gone = Object.keys(b).filter((k) => !(k in snap)).map((k) => b[k].join()), news = Object.entries(snap).filter(([k]) => !(k in b));
   news.forEach(([k, n]) => { const i = gone.indexOf(n.join()); if (i >= 0) { gone.splice(i, 1); const j = bad.findIndex((x) => x.startsWith(`${view} `) && x.endsWith(': missing') && b[x.slice(view.length + 1, -9)] && b[x.slice(view.length + 1, -9)].join() === n.join()); if (j >= 0) bad.splice(j, 1); } else bad.push(`${view} ${k}: a new element takes room on the tablet (${n.join(',')})`); });
 }
-if (bad.length) { console.log('FAIL tablet layout differs from the 0.4.0 snapshot in ' + bad.length + ' place(s):'); bad.slice(0, 25).forEach((x) => console.log('  ' + x)); process.exit(1); }
-console.log(`ok   tablet layout matches the 0.4.0 snapshot (${Object.keys(base).length} views, ${Object.values(base).reduce((n, v) => n + Object.keys(v).length, 0)} elements)`);
+if (bad.length) { console.log('FAIL tablet layout differs from the 0.4.0 bundle in ' + bad.length + ' place(s):'); bad.slice(0, 25).forEach((x) => console.log('  ' + x)); process.exit(1); }
+console.log(`ok   tablet layout matches the 0.4.0 bundle (${Object.keys(base).length} views, ${Object.values(base).reduce((n, v) => n + Object.keys(v).length, 0)} elements, both rendered here)`);

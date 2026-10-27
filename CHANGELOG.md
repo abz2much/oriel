@@ -21,7 +21,7 @@ All notable changes are listed here. Versions follow [semantic versioning](https
 ### Tests
 - `dev/phone.mjs`: layout switching by the card's own width, the tab bar and More, and every page at 390×844, 360×740 and 412×915 (no sideways scrolling, nothing past the edge, text 12 px or more, tap targets 44 px or more including their invisible tap areas), the house labels, the header, Family's full lists and the Calendar's expand, Vacuum's compact card, Nova not detected.
 - `dev/phone-sheets.mjs`: every pop-up at 360×740 (fits, controls 44 px or more, page locked, back button, close button, swipe down, the keyboard open, confirm steps).
-- `dev/tablet-geometry.mjs` and `dev/tablet-geometry.json`: the tablet layout must match the 0.4.0 positions (2,941 elements across the pages and pop-ups); new elements must take no room on the tablet.
+- `dev/tablet-geometry.mjs` and `dev/baseline/oriel-0.4.0.js`: the 0.4.0 bundle and the current one are rendered in the same run, and the tablet layout must match (2,941 blocks and controls across the pages and pop-ups); new elements must take no room on the tablet.
 - Dev tools: `npm run shots:phone`, `dev/layout-shots.mjs`, `dev/tablet-diff.mjs`, `dev/freeze-time.mjs`.
 
 ## [0.4.0] - 2026-10-27
