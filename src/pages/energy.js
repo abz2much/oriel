@@ -23,6 +23,8 @@ const P = {
 const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.bolt}"/></svg>`;
 const sv = el;
 const k2 = (v) => v.toFixed(2);
+/* an amount that shows as zero (0.00 kW, £0.00) gets the class z: dimmed on the phone */
+const zero = (el) => el.classList.toggle('z', /\d/.test(el.textContent) && !/[1-9]/.test(el.textContent));
 const nice = (s) => cap(String(s).replace(/_/g, ' '));
 
 const CSS = `
@@ -292,7 +294,7 @@ const EnergyExt = {
     $('enFHB').classList.toggle('on', h2b > T); $('enFHG').classList.remove('on');
     if (h2b > T && b2h <= T) { $('enPBH').classList.add('on'); $('enPBH').textContent = k2(h2b) + ' kW'; }
     const val = (v) => (v === null ? '–' : k2(v)) + '<em>kW</em>';
-    $('enVSol').innerHTML = val(S0); $('enVHouse').innerHTML = val(H);
+    $('enVSol').innerHTML = val(S0); $('enVHouse').innerHTML = val(H); zero($('enVSol')); zero($('enVHouse'));
     const pv = E.strings.map((s) => this._enKw(s.entity));
     $('enSPV').innerHTML = E.strings.map((s, i) => `${esc(s.name || 'PV' + (i + 1))} <b>${pv[i] === null ? '–' : k2(pv[i])}</b>`).join(' · ');
     E.panels.forEach(([r, si]) => {
@@ -302,7 +304,7 @@ const EnergyExt = {
     const soc = this._enSoc(), socT = soc === null ? '–' : String(Math.round(soc));
     const bs = B === null ? '' : B > T ? t('charging_kw', { kw: k2(B) }) : B < -T ? t('discharging_kw', { kw: k2(-B) }) : S.idle, bsShort = B === null ? '' : B > T ? S.charging : B < -T ? S.discharging : S.idle;
     $('enVBat').innerHTML = socT + '<em>%</em>'; $('enSBat').textContent = bsShort; $('enBBat').style.width = (soc || 0) + '%';
-    $('enVGrid').innerHTML = val(grid === null ? null : Math.abs(grid));
+    $('enVGrid').innerHTML = val(grid === null ? null : Math.abs(grid)); zero($('enVGrid'));
     $('enSGrid').textContent = grid === null ? '' : grid > T ? S.importing : grid < -T ? S.exporting : S.balanced;
     $('enClock').lastChild.textContent = hm(now);
     // battery card
@@ -327,16 +329,17 @@ const EnergyExt = {
     // today tiles
     E.tiles.forEach((tl) => {
       const s = this.st(tl.x[2]);
-      if (!s || !Number.isFinite(parseFloat(s.state))) { tl.b.innerHTML = '–'; tl.n.innerHTML = '&nbsp;'; return; }
+      if (!s || !Number.isFinite(parseFloat(s.state))) { tl.b.innerHTML = '–'; tl.n.innerHTML = '&nbsp;'; zero(tl.b); return; }
       const v = parseFloat(s.state);
       if (tl.x[3]) { tl.d.classList.toggle('good', (tl.x[3] === 'good') !== (v < 0)); tl.d.classList.toggle('bad', (tl.x[3] === 'bad') !== (v < 0)); }
       if (tl.money) { tl.b.textContent = this.money(v); const sc = Number(c.today.standing_charge); tl.n.textContent = sc ? t('incl_standing', { v: this.money(sc) }) : ' '; }
       else { tl.b.innerHTML = v.toFixed(1) + '<em>kWh</em>'; tl.n.innerHTML = '&nbsp;'; }
+      zero(tl.b);
     });
     const pr = this.num(c.price); $('enPrice').textContent = pr === null ? '–' : t('price_now', { price: this.money(pr) });
     this._enForecast(now);
     // consumers
-    const HP = c.consumers.heat_pump, hp = this._enKw(HP.power); $('enHpW').textContent = hp === null ? '–' : k2(hp);
+    const HP = c.consumers.heat_pump, hp = this._enKw(HP.power); $('enHpW').textContent = hp === null ? '–' : k2(hp); zero($('enHpW'));
     const hk = this.num(HP.today), hmo = this.num(HP.month);
     $('enHpD').textContent = isEnt(HP.today) ? t('kwh_today', { v: hk === null ? '–' : hk.toFixed(1) }) : '';
     $('enHpM').textContent = hmo === null ? '' : t('kwh_month', { v: Math.round(hmo) });
@@ -411,7 +414,7 @@ const EnergyExt = {
     const pw = this._phone ? Math.max(260, ($('enChart').clientWidth || 342) - 32) : 0; /* phone: drawn at the card's real width so the labels stay 12 px */
     const bin = Math.floor((now.getHours() * 60 + now.getMinutes()) / 180), sig = bin + '|' + h.total.toFixed(1) + '|' + E.histAt + '|' + pw;
     if (E.chartSig === sig) return; E.chartSig = sig;
-    $('enCTot').textContent = h.total.toFixed(1);
+    $('enCTot').textContent = h.total.toFixed(1); zero($('enCTot'));
     const up = $('enCUp');
     if (h.ySoFar > 0.05) { const pct = Math.round((h.total / h.ySoFar - 1) * 100); up.textContent = t(pct < 0 ? 'vs_yesterday_less' : 'vs_yesterday_more', { pct: Math.abs(pct) }); up.style.color = pct <= 0 ? ENERGY.trendDown : ENERGY.trendUp; } else up.textContent = '';
     const s = $('enCh'); s.innerHTML = '';

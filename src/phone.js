@@ -129,6 +129,12 @@ const PHONE_CSS = `
 #wrap.phone #enToday{padding:14px 16px}
 #wrap.phone #enChart,#wrap.phone #enFc,#wrap.phone #enCons{padding:14px 16px}
 #wrap.phone #enCh,#wrap.phone #enFcS{width:100%;height:auto;max-width:none}
+#wrap.phone #pgEnergy .z,#wrap.phone #enTg .tl b.z{color:rgba(var(--oriel-ink),var(--oriel-soft,.62))} #wrap.phone :is(#enHpW,#enCTot).z{color:rgba(var(--oriel-on-dark),.6)} /* zero amounts: the soft colour of their unit */
+/* invisible tap areas that reached into the next control: Home's heating rows meet halfway (their rows are 42 px apart);
+   the Security header chips and Nova's status chip keep their 46 px area, moved up clear of the row below */
+#wrap.phone #heat :is(.l,.round.sm)::after{top:-4px;bottom:-4px} #wrap.phone #heat .boost::after{top:-2px}
+#wrap.phone :is(#scOpenChip,#scTamper)::after{top:calc(min(0px,calc(50% - 23px)) - 5px);bottom:calc(min(0px,calc(50% - 23px)) + 5px)}
+#wrap.phone #nvQs::after{top:calc(min(0px,calc(50% - 23px)) - 3px);bottom:calc(min(0px,calc(50% - 23px)) + 3px)}
 #wrap.phone #enFc .ch{flex-wrap:wrap}
 #wrap.phone #enCons .hp{height:auto;min-height:96px;gap:6px}
 #wrap.phone #enHealth{height:auto;flex-wrap:wrap;padding:10px 12px;border-radius:24px;gap:8px} #wrap.phone #enHealth .sp{display:none}
@@ -158,7 +164,7 @@ const PHONE_CSS = `
 #wrap.phone .vcF1 .row{flex-wrap:wrap} #wrap.phone .vcF1 .f1c{width:100%} #wrap.phone .vcF1 .f1c .vcB{flex:1} #wrap.phone .vcF1 .kv{grid-template-columns:1fr} #wrap.phone .vcF1 .kv .vcT[style*="visibility: hidden"]{display:none} /* unused slots of the tablet's three-column row */
 #wrap.phone #vcWg{grid-template-columns:repeat(2,1fr)} #wrap.phone .vcW{height:auto;min-height:48px}
 /* Nova */
-#wrap.phone #nvWrap>#nvChat{order:1;height:460px} #wrap.phone #nvQuiet{order:2;height:auto} #wrap.phone #nvLock{order:3;height:auto;padding-bottom:16px}
+#wrap.phone #nvWrap>#nvChat{order:1;height:460px;height:min(460px,60dvh)} #wrap.phone #nvQuiet{order:2;height:auto} #wrap.phone #nvLock{order:3;height:auto;padding-bottom:16px}
 #wrap.phone #nvBrief{order:4;height:auto} #wrap.phone #nvRem{order:5;height:auto} #wrap.phone #nvSug{order:6;height:auto}
 #wrap.phone #nvBt,#wrap.phone #nvRl,#wrap.phone #nvSl{flex:none;overflow:visible}
 #wrap.phone #nvRf{grid-template-columns:1fr auto} #wrap.phone #nvRf .round{width:44px;height:44px}
