@@ -37,6 +37,9 @@ const CSS = `
 #pgSystem .tap{cursor:pointer}
 #pgSystem .pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500;background:rgba(var(--oriel-glass),.6);white-space:nowrap}
 #pgSystem .pill.ok{background:rgb(var(--oriel-good-bg));color:rgb(var(--oriel-good-ink))} #pgSystem .pill.warn{background:rgb(var(--oriel-warn-bg-2));color:rgb(var(--oriel-warn-ink))} #pgSystem .pill.red{background:rgb(var(--oriel-bad-bg-2));color:rgb(var(--oriel-bad-ink-2))}
+#pgSystem button.pill{border:0;font-family:inherit;cursor:pointer;position:relative;color:inherit}
+#pgSystem button.pill.warn{color:rgb(var(--oriel-warn-ink))} #pgSystem button.pill.red{color:rgb(var(--oriel-bad-ink-2))}
+#pgSystem button.pill:active{box-shadow:inset 0 0 0 999px rgba(var(--oriel-ink),.12);transform:scale(.96)}
 #pgSystem .bar{height:8px;border-radius:4px;background:rgba(var(--oriel-ink),.12);margin:2px 0 6px;overflow:hidden}
 #pgSystem .bar i{display:block;height:100%;border-radius:4px;background:rgb(var(--oriel-good-bar));transform:translateX(-100%);transition:transform .4s}
 #pgSystem .bar i.mid{background:rgb(var(--oriel-warn-mark))} #pgSystem .bar i.hi{background:rgb(var(--oriel-bad-mark))}
@@ -92,6 +95,7 @@ const SystemExt = {
       this.navigate(base + '?disable_km'); setTimeout(() => { try { location.reload(); } catch (e) { /* nothing */ } }, 150);
     });
     $('syBtnS').addEventListener('click', () => this.navigate(g.settings_path || '/config'));
+    $('syHealth').addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#syUpBtn')) this.navigate('/config/updates'); }); /* Home Assistant's updates page; the button is rebuilt, so the listener sits on its parent */
     $('syBtnN').addEventListener('click', async () => {
       try { await this.call('nova', 'nap', { duration_minutes: 60 }); this._syToast(S.nova_napping); }
       catch (e) { this._syToast(S.nap_failed); console.warn('[oriel] system nap', e); }
@@ -169,8 +173,13 @@ const SystemExt = {
     const allUpd = Object.keys(Sx).filter((k) => k.startsWith('update.') && Sx[k].state === 'on').length;
     const stale = st(B.stale) === 'on';
     const health = stale ? S.backups_stale : allUpd ? t(allUpd > 1 ? 'n_updates_waiting' : 'one_update_waiting', { n: allUpd }) : S.all_good;
-    const hn = $('syHealth'), hcls = stale ? 'red' : allUpd ? 'warn' : 'ok';
-    hn.innerHTML = `<span></span><span class="pill ${hcls}"></span>`; hn.firstChild.textContent = health; hn.lastChild.textContent = stale ? S.check : allUpd ? S.update : S.healthy;
+    /* The pill says what is wrong. With updates waiting (and no stale backup) it is a button that opens Home Assistant's updates page; it is only rebuilt when it changes, so keyboard focus stays. */
+    const hn = $('syHealth'), hcls = stale ? 'red' : allUpd ? 'warn' : 'ok', plabel = stale ? S.check : allUpd ? S.update : S.healthy, asBtn = !stale && allUpd > 0, sig = [health, hcls, plabel, asBtn].join('|');
+    if (hn.dataset.s !== sig) {
+      hn.dataset.s = sig;
+      hn.innerHTML = asBtn ? `<span></span><button type="button" class="pill ${hcls}" id="syUpBtn" aria-label="${esc(S.open_updates)}"></button>` : `<span></span><span class="pill ${hcls}"></span>`;
+      hn.firstChild.textContent = health; hn.lastChild.textContent = plabel;
+    }
     set('syUp', bad(st(H.uptime)) ? '-' : span(st(H.uptime)));
     const bl = st(B.last), bn = st(B.next);
     set('syBk', bad(bl) ? '-' : this._syWhen(bl) + (bad(bn) ? '' : ' · ' + t('next_x', { x: this._syWhen(bn) })));

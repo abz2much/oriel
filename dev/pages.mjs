@@ -426,6 +426,39 @@ for (const n of [1, 2, 4]) {
     check('idle clock: dark background in a light theme too', /rgb\(42, 35, 31\)/.test(bg), bg); await a.page.close(); }
 }
 
+// ---- System: the Update chip opens Home Assistant's updates page (nothing is installed from the card)
+{
+  const sysCfg = JSON.parse(fs.readFileSync('dev/configs/full-nova.json', 'utf8'));
+  const spy = (page) => page.evaluate(() => { window.__push = []; window.__loc = 0; history.pushState = (a, b, u) => { window.__push.push(u); }; /* recorded only: the blank test page cannot change its URL */ window.addEventListener('location-changed', () => { window.__loc++; }); });
+  /* no updates waiting: the headline pill is a plain label, not a button */
+  { const { page, errors } = await open(sysCfg, { 'update.some_addon': { entity_id: 'update.some_addon', state: 'off', attributes: {} } }); await go(page, 'system');
+    const n = await sr(page, (r) => ({ btn: !!r.getElementById('syUpBtn'), txt: r.querySelector('#syHealth .pill') && r.querySelector('#syHealth .pill').textContent }));
+    check('System: with no updates waiting there is no Update button', !n.btn && n.txt !== 'Update', JSON.stringify(n)); check('System (no updates): no page errors', errors.length === 0, errors.join(' | ')); await page.close(); }
+  /* updates waiting */
+  { const { page, errors } = await open(sysCfg); await go(page, 'system'); await spy(page);
+    const b = await sr(page, (r) => { const e = r.getElementById('syUpBtn'); if (!e) return null; const af = getComputedStyle(e, '::after'), q = e.getBoundingClientRect(); return { tag: e.tagName, type: e.getAttribute('type'), label: e.getAttribute('aria-label'), text: e.textContent, area: q.height - parseFloat(af.top) - parseFloat(af.bottom), areaW: q.width - parseFloat(af.left) - parseFloat(af.right), pos: getComputedStyle(e).position, cursor: getComputedStyle(e).cursor }; });
+    check('System: with updates waiting the chip is a real button labelled "Open updates"', !!b && b.tag === 'BUTTON' && b.type === 'button' && b.label === 'Open updates' && b.text === 'Update', JSON.stringify(b));
+    check('System: the Update button has a tap area of at least 44 px (invisible area included)', !!b && b.area >= 43.9 && b.areaW >= 43.9 && b.cursor === 'pointer', JSON.stringify(b));
+    const pt = await sr(page, (r) => { const q = (r.getElementById('syUpBtn') || document.body).getBoundingClientRect(); return [q.x + q.width / 2, q.y + q.height / 2]; });
+    /* a state update must not rebuild it (keyboard focus stays) */
+    await sr(page, (r) => { const e = r.getElementById('syUpBtn') || document.body; e.focus(); window.__upd = e; });
+    await page.evaluate(() => { const e = document.querySelector('oriel-shell'); e.hass = Object.assign({}, e.hass, { states: Object.assign({}, e.hass.states) }); }); await page.waitForTimeout(200);
+    const same = await sr(page, (r) => r.getElementById('syUpBtn') === window.__upd && r.activeElement === window.__upd);
+    check('System: a state update does not rebuild the button or take its focus', same);
+    await page.mouse.move(pt[0], pt[1]); await page.mouse.down();
+    const down = await sr(page, (r) => getComputedStyle(r.getElementById('syUpBtn') || document.body).boxShadow); await page.mouse.up(); await page.waitForTimeout(100);
+    const up = await sr(page, (r) => getComputedStyle(r.getElementById('syUpBtn') || document.body).boxShadow);
+    check('System: the Update button has a pressed state', down !== up && down !== 'none', JSON.stringify([down, up]));
+    const t1 = await page.evaluate(() => [window.__push.slice(), window.__loc]);
+    check('System: one tap pushes /config/updates and fires location-changed once (no reload)', t1[0].length === 1 && t1[0][0] === '/config/updates' && t1[1] === 1, JSON.stringify(t1));
+    await sr(page, (r) => (r.getElementById('syUpBtn') || document.body).focus()); await page.keyboard.press('Enter'); await page.keyboard.press('Space'); await page.waitForTimeout(100);
+    const t2 = await page.evaluate(() => [window.__push.length, window.__loc]);
+    check('System: Enter and Space also open it (once each)', t2[0] === 3 && t2[1] === 3, JSON.stringify(t2));
+    const calls = await page.evaluate(() => window.__calls);
+    check('System: nothing is installed or called from the card', calls.length === 0, JSON.stringify(calls));
+    check('System (updates): no page errors', errors.length === 0, errors.join(' | ')); await page.close(); }
+}
+
 await browser.close();
 results.forEach((r) => console.log(r.join('  ')));
 process.exit(results.some((r) => r[0] === 'FAIL') ? 1 : 0);

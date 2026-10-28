@@ -32,8 +32,8 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 .round.alert{background:rgb(var(--oriel-bad-bg));color:rgb(var(--oriel-bad-ink))}
 .round.alert::before{content:"!";position:absolute;top:-3px;right:-3px;width:17px;height:17px;border-radius:50%;background:rgb(var(--oriel-bad-strong));color:rgb(var(--oriel-on-dark));font-size:12px;font-weight:700;line-height:17px;text-align:center;box-shadow:0 0 0 2px rgb(var(--oriel-raised))}
 /* Touch: small controls get an invisible tap area of at least 44×44; it grows only on a side shorter than 44. */
-:is(.round,#hchips .chip,#rail a,#room .l,.boost,#fridge,#shop .clr,#bellX){position:relative}
-:is(.round,#hchips .chip,#rail a,#room .l,.boost,#fridge,#shop .clr,#bellX)::after,#nvPill::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
+:is(.round,#hchips .chip,#rail a,#room .l,.boost,#fridge,#shop .clr,#bellX,#syUpBtn){position:relative}
+:is(.round,#hchips .chip,#rail a,#room .l,.boost,#fridge,#shop .clr,#bellX,#syUpBtn)::after,#nvPill::after{content:"";position:absolute;top:min(0px,calc(50% - 23px));bottom:min(0px,calc(50% - 23px));left:min(0px,calc(50% - 23px));right:min(0px,calc(50% - 23px))}
 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:15px;font-size:13px;background:rgba(var(--oriel-glass),.35);border:1px solid rgba(var(--oriel-glass),.5);color:rgb(var(--oriel-ink))}
 .chip .ic{width:15px;height:15px} .chip.on{background:rgb(var(--oriel-accent-fill));color:rgb(var(--oriel-ink-on-accent));border-color:rgba(var(--oriel-glass),.6)}
 #hchips{left:100px;top:22px;display:flex;gap:8px;align-items:center}

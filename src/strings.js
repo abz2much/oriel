@@ -424,7 +424,7 @@ export const S = {
   one_update_waiting: '{n} update waiting',
   n_updates_waiting: '{n} updates waiting',
   check: 'Check',
-  update: 'Update',
+  update: 'Update', open_updates: 'Open updates',
   healthy: 'Healthy',
   next_x: 'next {x}',
   n_waiting: '{n} waiting',
