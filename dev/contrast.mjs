@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import { THEMES, themeTokens } from '../src/theme/themes.js';
 import { ROLE, VARIANT, CLASSIC_PAGE } from '../src/theme/tokens.js';
-import { hex, mix, contrast } from '../src/theme/colour.js';
+import { hex, mix, contrast, navFilter } from '../src/theme/colour.js';
 import { STATE, STATE_ON_DARK, STATE_ON_CLASSIC, BIN, LINE, IDLE } from '../src/theme/fixed.js';
 
 const ids = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(THEMES);
@@ -28,7 +28,7 @@ function values(id) {
   v.pageMid = stops[2] ? mix(stops[1], stops[2], 0.3) : stops[0];
   v.softA = t.extra && t.extra['soft-on-accent'] ? +t.extra['soft-on-accent'] : 0.62;
   v.soft = t.extra && t.extra.soft ? +t.extra.soft : 0.62; v.softPage = t.extra && t.extra['soft-page'] ? +t.extra['soft-page'] : v.soft;
-  v.navA = +t.extra['nav-a']; v.navTint = +t.extra['nav-tint']; v.navSoft = +t.extra['nav-soft']; /* the phone bar's opacity, the bubble's accent tint, the inactive label alpha */
+  v.navA = +t.extra['nav-a']; v.navTint = +t.extra['nav-tint']; v.navSoft = +t.extra['nav-soft']; v.navC = +t.extra['nav-c']; v.navK = +t.extra['nav-k']; v.navSheen = +t.extra['nav-sheen']; /* the phone bar's opacity, the bubble's accent tint, the inactive label alpha */
   return { v, dark: THEMES[id].style === 'dark', classic: !!t.classic };
 }
 
@@ -63,9 +63,9 @@ function surfaces(v) {
   /* the tablet rail (0.6.0): its fill at .86 over the page, and the chip that slides to the active item */
   s.rail = over(s.page, v.rail, 0.86); s.chip = v.chip;
   /* the phone bar (0.6.0) is glass over whatever card is under it: every surface above is a possible backdrop. The bubble's three gradient stops sit on the bar. */
-  Object.keys(s).filter((k) => !k.startsWith('idle') && !k.startsWith('bar over') && k !== 'rail' && k !== 'chip').forEach((k) => {
-    const bar = over(s[k], v['nav-fill'], v.navA);
-    s['bar over ' + k] = bar;
+  Object.keys(s).filter((k) => !k.startsWith('idle') && !k.startsWith('bar over') && !k.startsWith('bar top') && k !== 'rail' && k !== 'chip').forEach((k) => {
+    const bar = over(navFilter(s[k], v.navC, v.navK), v['nav-fill'], v.navA); /* what is under the bar is pulled toward a calm tone by the glass's own filter */
+    s['bar over ' + k] = bar; s['bar top over ' + k] = over(bar, v['nav-line'], v.navSheen); /* the sheen on the bar's top half */
     s['bubble top over ' + k] = over(bar, v.bubble, 0.88); s['bubble mid over ' + k] = over(bar, v.bubble, 0.46); s['bubble tint over ' + k] = over(bar, v.accent, v.navTint);
   });
   return s;
@@ -106,7 +106,8 @@ function pairs(v, dark, classic, S) {
   Object.keys(S).filter((k) => k.startsWith('bar over ')).forEach((k) => {
     const b = k.slice(9);
     add(`phone tab label, inactive (${Math.round(v.navSoft * 100)}%) over ${b}`, v.ink, v.navSoft, k, 4.5);
-    add(`phone bubble outline (shape) over ${b}`, v['accent-ink'], 0.9, k, 3);
+    add(`phone tab icon and label, inactive, on the bar's sheen over ${b}`, v.ink, v.navSoft, 'bar top over ' + b, 4.5);
+    add(`phone bubble outline (shape) over ${b}`, v['accent-ink'], 1, k, 3);
     for (const part of ['top', 'mid', 'tint']) add(`phone tab label, active, on the bubble (${part}) over ${b}`, v.ink, 1, `bubble ${part} over ${b}`, 4.5);
   });
   /* Energy on the phone: an amount that shows as zero is drawn in the soft colour (flow nodes, Today tiles, heat pump, house use) */
