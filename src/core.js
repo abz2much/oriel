@@ -53,6 +53,9 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #rail{background:rgba(var(--oriel-rail),.86);border:1px solid rgba(var(--oriel-rail-line),.12);box-shadow:0 22px 44px rgba(var(--oriel-rail-shadow),.35)}
 @supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){#rail{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}}
 #rail.nv a.on{background:none;box-shadow:none}
+/* a tap on a tab, a rail item or a More tile draws no square: no browser tap highlight, no selectable label, no focus box after a pointer tap (keyboard focus keeps its ring) */
+#rail a,#tabs a,#more .mt{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+#rail a:focus:not(:focus-visible),#tabs a:focus:not(:focus-visible),#more .mt:focus:not(:focus-visible){outline:none}
 .navI{position:absolute;left:0;top:0;pointer-events:none;box-sizing:border-box;opacity:1}
 .navI.hid{opacity:0}
 #rail .navI{border-radius:16px;background:rgb(var(--oriel-chip));box-shadow:0 8px 16px rgba(var(--oriel-chip-shadow),.28)}

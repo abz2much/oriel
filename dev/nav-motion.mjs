@@ -153,6 +153,30 @@ for (const [label, cfg, expectMore] of [['four pages', few, false], ['more than 
   await page.context().close();
 }
 
+/* ---------- no square flash when a tab or rail item is tapped ---------- */
+/* The mobile tap highlight, a focus box after a pointer tap, a pressed background and a selectable label all draw a square round a rounded button. */
+for (const [W, H, nav] of [[390, 844, 'tabs'], [1280, 800, 'rail']]) {
+  const { page, errors } = await open(W, H, full);
+  const info = await run(page, `const a = r.querySelector('#${nav} a'), cs = getComputedStyle(a); return { hl: cs.getPropertyValue('-webkit-tap-highlight-color'), us: cs.userSelect, tc: cs.getPropertyValue('-webkit-touch-callout') };`);
+  check(`tap flash (${nav}): the tap highlight colour is transparent`, /rgba\(0, 0, 0, 0\)|transparent/.test(info.hl), info.hl);
+  check(`tap flash (${nav}): labels are not selectable`, info.us === 'none', info.us);
+  const pt = await run(page, `const q = r.querySelector('#${nav} a:not(.on)').getBoundingClientRect(); return [q.x + q.width / 2, q.y + q.height / 2];`);
+  if (nav === 'tabs') await page.touchscreen.tap(pt[0], pt[1]); else await page.mouse.click(pt[0], pt[1]);
+  await page.waitForTimeout(150);
+  const after = await run(page, `const f = r.activeElement; const a = f && f.closest ? f : null; const cs = a ? getComputedStyle(a) : null; return { focused: !!a, visible: a ? a.matches(':focus-visible') : false, outline: cs ? cs.outlineStyle + ' ' + cs.outlineWidth : 'none', shadow: cs ? cs.boxShadow : 'none' };`);
+  check(`tap flash (${nav}): no focus ring after a pointer tap`, !after.focused || (!after.visible && /^(none|auto) 0px$|^none/.test(after.outline) ), JSON.stringify(after));
+  const pt2 = await run(page, `const q = r.querySelector('#${nav} a:not(.on)').getBoundingClientRect(); return [q.x + q.width / 2, q.y + q.height / 2];`);
+  await page.mouse.move(pt2[0], pt2[1]); await page.mouse.down();
+  const down = await run(page, `const a = r.querySelector('#${nav} a:not(.on):active') || r.querySelector('#${nav} a:not(.on)'), cs = getComputedStyle(a); return { bg: cs.backgroundColor, img: cs.backgroundImage, shadow: cs.boxShadow };`);
+  await page.mouse.up();
+  check(`tap flash (${nav}): no pressed background box while a finger is down`, (down.bg === 'rgba(0, 0, 0, 0)' || down.bg === 'transparent') && down.img === 'none' && down.shadow === 'none', JSON.stringify(down));
+  /* every layer that moves or shows has a radius, so no square can appear mid-slide */
+  const rad = await run(page, `const i = r.querySelector('#${nav} .navI'), n = r.getElementById('${nav}'); return { ind: i ? getComputedStyle(i).borderTopLeftRadius : 'none', nav: getComputedStyle(n).borderTopLeftRadius, link: getComputedStyle(r.querySelector('#${nav} a')).borderTopLeftRadius };`);
+  check(`tap flash (${nav}): the indicator, the bar and the links all have rounded corners`, [rad.ind, rad.nav, rad.link].every((x) => parseFloat(x) >= 16), JSON.stringify(rad));
+  check(`tap flash (${nav}): no page errors`, errors.length === 0, errors.join(' | '));
+  await page.context().close();
+}
+
 /* ---------- the glass reads as glass, and the labels stay readable on real pixels ---------- */
 /* Classic's bar is as clear as the mockup (0.26); in each theme, with a black card and then a light card scrolled under the bar, the label colour is measured on the
    bar's real rendered pixels (beside the icons, top and bottom), so the filter model in dev/contrast.mjs is checked against what a browser draws. */
