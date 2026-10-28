@@ -8,6 +8,7 @@ export const DEFAULT_CONFIG = {
     alarm: '', front_door: '', windows: [], clock: true, currency: 'auto',
     settings_path: '/config', kiosk_path: '', pages_order: null,
     theme: 'classic', accent: '', idle_clock: { presence: '', minutes: 5 }, layout: 'auto',
+    auto_rotate: { enabled: false, idle_seconds: 60, after_touch_seconds: 300 },
   },
   home: {
     energy_card: { solar_power: '', house_power: '', battery_soc: '' },

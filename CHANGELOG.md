@@ -2,6 +2,29 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.6.0] - 2026-10-28
+
+The navigation looks and moves differently, on the tablet and on the phone. Auto rotation is new and is off by default.
+
+### Changed
+- **Phone tab bar:** a frosted glass pill. A bubble slides to the selected tab, and it takes the theme's accent as a tint at its far corner. The solid white chip on the selected tab is gone. The bar keeps its size and position. Without `backdrop-filter` support it stays the solid bar it was.
+- **Glass tint, per theme:** the bar is tinted between 0.60 and 0.74 (Classic 0.64), not the 0.26 of the first mockup. At 0.26 a black card scrolling under the bar left the labels at about 1.3:1. Each theme gets the least tint that keeps the labels at 4.5:1 over the lightest and darkest cards it has; the bubble's accent tint is lowered in themes where the selected label would not read on it.
+- **Tablet rail:** dark glass with a chip that slides to the active page, in every theme. Classic holds the approved values; the other themes build the rail from their own dark panel colour, and the chip from their own raised colour, so each keeps its character. The rail keeps its size and position.
+- **Page change:** the cards of the new page fade in and rise 16 px, 70 ms apart (the last no later than 500 ms). It runs on a tap, from auto rotation and from anything else that changes the page, never on a state update. The animation ends with no transform left behind.
+- **Reduced motion:** with it switched on, the bubble and the chip jump, and the cards just appear.
+- **Tablet baseline replaced on purpose:** `dev/baseline/oriel-0.4.0.js` is now `dev/baseline/oriel-0.6.0.js`, because this release deliberately changes how the tablet rail looks. The guard compares the position and size of every block, and it found no difference against 0.4.0 (the rail's colours and motion are not geometry), but from now on it holds the 0.6.0 rail as the reference. The guard itself is unchanged.
+
+### Added
+- **Auto rotation** (`general.auto_rotate`, off by default): moves through the pages in rail order every `idle_seconds` (default 60), wraps after the last, and waits `after_touch_seconds` (default 300) after a person changed the page or touched the card. It waits while the idle clock shows, a pop-up, sheet, More menu or dialog is open, a text field has focus, or the tab is hidden. On the phone it steps through the pages under More too. In the editor under General › Auto rotation. See the README.
+
+### Tests
+- `dev/nav-motion.mjs` (part of `npm test`): the indicator is non-interactive, hidden from assistive tech and behind the links; it lines up with the active item after a page change, a resize, a layout flip and a rebuild; no transition on first paint; the phone bar with four pages and with more than five; reduced motion; the fade ends clean and does not run on a state update; Nova's own classes are untouched.
+- `dev/auto-rotate.mjs` (part of `npm test`, fake clock): off by default; rotates, wraps, waits after a tap, a touch restarts the wait; paused for the idle clock, a pop-up, a focused field and a hidden tab; one timer, cleared on disconnect; a config change applies with no reload.
+- `dev/contrast.mjs` (now part of `npm test`, so CI guards the per-theme glass tint): the rail labels, and the phone bar's inactive labels and the selected label on the bubble, over every surface a card can have, in all 12 themes.
+
+### Rolling back
+This release is one commit. To go back: in HACS use **Redownload** and pick v0.5.2, or revert the single commit (`git revert <sha>`), which undoes the rail, the bar, the fade, auto rotation and the baseline together. There is no setting to switch the new look off.
+
 ## [0.5.2] - 2026-10-27
 
 Phone layout only. The tablet is unchanged.

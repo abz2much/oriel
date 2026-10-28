@@ -582,8 +582,9 @@ export const ED = {
 
   // general
   'general.weather': 'Weather', 'general.weather_label': 'Weather label (empty: “Outside”)', 'general.people': 'People shown in the header',
-  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock', 'general.layout': 'Layout (auto: phone layout when the card is narrower than 700 px)', 'g.general.main': 'General', 'g.general.idle_clock': 'Idle clock',
+  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock', 'general.layout': 'Layout (auto: phone layout when the card is narrower than 700 px)', 'g.general.main': 'General', 'g.general.idle_clock': 'Idle clock', 'g.general.auto_rotate': 'Auto rotation',
   'general.idle_clock.presence': 'Presence sensor (on while someone is in the room)', 'general.idle_clock.minutes': 'Minutes empty before the clock shows (1 to 60)',
+  'general.auto_rotate.enabled': 'Move through the pages by itself', 'general.auto_rotate.idle_seconds': 'Seconds on each page (5 to 3600)', 'general.auto_rotate.after_touch_seconds': 'Seconds to wait after a touch or a page change (5 to 86400)',
   'general.currency': 'Currency (“auto” follows Home Assistant)', 'general.settings_path': 'Settings path', 'general.kiosk_path': 'Dashboard path for leaving kiosk mode',
 
   // home

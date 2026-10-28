@@ -37,6 +37,9 @@ export const SECTIONS = [
     }, {
       key: 'idle_clock',
       fields: [ent('idle_clock.presence', ['binary_sensor', 'input_boolean'], { dc: ['occupancy', 'presence', 'motion'], w: ['presence', 'occupancy', 'mmwave'] }), num('idle_clock.minutes', 1, 60)],
+    }, {
+      key: 'auto_rotate',
+      fields: [bool('auto_rotate.enabled'), num('auto_rotate.idle_seconds', 5, 3600), num('auto_rotate.after_touch_seconds', 5, 86400)],
     }],
   },
   {

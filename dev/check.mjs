@@ -4,9 +4,11 @@
    3. the card renders every page in every dev config with no page errors and no service calls
    4. the editor checks pass
    5. the Climate and Family page checks pass
-   6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.4.0 bundle
+   6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.6.0 bundle
    7. no two tap areas overlap on any phone page (dev/phone-taps.mjs)
-   8. the rail and the phone's tab bar are the topmost element over every item, on every page and state */
+   8. the rail and the phone's tab bar are the topmost element over every item, on every page and state
+   9. the sliding indicator and the card fade (dev/nav-motion.mjs), and auto rotation (dev/auto-rotate.mjs)
+   10. every theme passes contrast (dev/contrast.mjs), the navigation glass included */
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -56,5 +58,14 @@ ok('phone tap areas: no two controls overlap on any page at 360, 390 and 412 wid
 try { execFileSync(process.execPath, ['dev/rail.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('rail and tab bar checks'); }
 ok('rail and tab bar are on top on every page and state, and every tap switches the page; the pop-ups still cover the rail');
 
+try { execFileSync(process.execPath, ['dev/nav-motion.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('navigation motion checks (dev/nav-motion.mjs)'); }
+ok('sliding indicator is behind the links, measured, and in place at every page, resize and rebuild; the card fade ends clean; reduced motion turns both off');
+
+try { execFileSync(process.execPath, ['dev/auto-rotate.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('auto rotation checks (dev/auto-rotate.mjs)'); }
+ok('auto rotation: off by default; rotates, wraps, waits after a touch, pauses for pop-ups, focus, idle clock and a hidden tab; one timer; config changes apply');
+
+try { execFileSync(process.execPath, ['dev/contrast.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('contrast (dev/contrast.mjs): a pair is under target'); }
+ok('contrast: every theme passes on every surface, the rail and the phone bar (over any card) included');
+
 try { execFileSync(process.execPath, ['dev/tablet-geometry.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('the tablet layout changed (dev/tablet-geometry.mjs)'); }
-ok('tablet layout matches the 0.4.0 bundle (rendered in the same run)');
+ok('tablet layout matches the 0.6.0 bundle (rendered in the same run)');

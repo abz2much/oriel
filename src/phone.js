@@ -41,10 +41,17 @@ const PHONE_CSS = `
 #wrap.phone .page:not(.off){position:relative;inset:auto;display:flex;flex-direction:column;gap:12px;pointer-events:auto}
 /* floating tab bar */
 #wrap.phone #tabs{display:flex;position:absolute;left:calc(env(safe-area-inset-left,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:64px;z-index:40;border-radius:32px;padding:6px;gap:2px;align-items:stretch;background:linear-gradient(150deg,rgba(var(--oriel-sheet-a),.96),rgba(var(--oriel-sheet-b),.96))}
-#wrap.phone #tabs a{flex:1 1 0;min-width:0;border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));cursor:pointer}
+#wrap.phone #tabs a{position:relative;flex:1 1 0;min-width:0;border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;color:rgba(var(--oriel-ink),var(--oriel-nav-soft,.66));cursor:pointer}
 #wrap.phone #tabs a .ic{width:22px;height:22px}
 #wrap.phone #tabs a .lb{font-size:12px;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#wrap.phone #tabs a.on{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink));box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25);font-weight:500}
+#wrap.phone #tabs a.on{color:rgb(var(--oriel-ink));font-weight:500}
+#wrap.phone #tabs:not(.nv) a.on{background:rgb(var(--oriel-raised));box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)} /* until the bubble exists */
+/* the glass bar and its bubble (0.6.0). Without backdrop-filter the bar stays the solid gradient above. The bubble slides behind the links and never takes a tap. */
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){
+#wrap.phone #tabs{background:rgba(var(--oriel-nav-fill),var(--oriel-nav-a));backdrop-filter:blur(26px) saturate(1.35);-webkit-backdrop-filter:blur(26px) saturate(1.35);border:1px solid rgba(var(--oriel-nav-line),.55);box-shadow:0 18px 36px rgba(var(--oriel-nav-shadow),.25),inset 0 1px 0 rgba(var(--oriel-nav-line),.6)}
+}
+#wrap.phone #tabs .navI{border-radius:26px;background:linear-gradient(160deg,rgba(var(--oriel-bubble),.88),rgba(var(--oriel-bubble),.46) 55%,rgba(var(--oriel-accent),var(--oriel-nav-tint,.6)));border:1px solid rgba(var(--oriel-bubble),.85);box-shadow:0 10px 22px rgba(var(--oriel-nav-shadow),.22),inset 0 1px 0 rgba(var(--oriel-bubble),.95)}
+#wrap.phone #tabs .navI.go{transition:transform .38s cubic-bezier(.3,1.3,.45,1),width .38s ease,height .38s ease,opacity .2s ease}
 /* the More sheet: floats above the tab bar, closes by its button, a tap outside, or a swipe down */
 #wrap.phone #more{position:absolute;inset:0;z-index:35;background:rgba(var(--oriel-scrim),.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;padding:0 calc(env(safe-area-inset-right,0px) + 12px) calc(var(--tb) - 8px) calc(env(safe-area-inset-left,0px) + 12px)}
 #wrap.phone #more.show{display:flex}
@@ -292,7 +299,7 @@ addMethods({
 
   /* the layout just flipped between phone and tablet */
   _phoneChanged() {
-    this._phoneHouse(); this._phoneMore(false); this._phoneMark(); this._phonePill(); this._phoneTitles(); this._phoneChips(); this._phoneOverlays(); this._sheetsChanged();
+    this._phoneHouse(); this._phoneMore(false); this._phoneMark(); this._phonePill(); this._phoneTitles(); this._phoneChips(); this._phoneOverlays(); this._sheetsChanged(); this._navPlace(false); /* the rail or the tab bar just appeared: measure it */
     if (this._idle) this._idleSync();
     requestAnimationFrame(() => { if (this._built && this._h) this._update(); }); /* pages re-measure at the new size */
   },

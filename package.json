@@ -1,6 +1,6 @@
 {
   "name": "oriel",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Wall-tablet dashboard card for Home Assistant",
   "main": "dist/oriel.js",
   "scripts": {

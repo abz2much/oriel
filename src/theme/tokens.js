@@ -96,6 +96,18 @@ export const VARIANT = {
   'ok-fill': ['185,220,138', 'good-bg'], /* "all OK" chips (Classic: the sage accent) */
   'good-bg': ['220,235,196', 'accent'], /* System green pill */
   'good-ink': ['47,74,20', 'good'],
+  /* Navigation (0.6.0). Classic holds the approved mockup values; the others derive from the roles named here. */
+  'nav-fill': ['255,255,255', 'glass'], /* phone tab bar glass tint (its opacity is the extra nav-a, set per theme so labels read over any card) */
+  'nav-line': ['255,255,255', 'glass'], /* phone tab bar border and top highlight */
+  'nav-shadow': ['60,40,28', 'shadow'], /* shadow under the phone tab bar and its bubble */
+  bubble: ['255,255,255', 'raised'], /* the bubble that slides to the active phone tab */
+  rail: ['31,26,23', 'dark-b'], /* tablet rail fill */
+  'rail-line': ['255,255,255', 'on-dark'], /* tablet rail border */
+  'rail-ink': ['247,242,235', 'on-dark-text'], /* inactive rail labels and icons (at .74) */
+  'rail-shadow': ['26,21,19', 'shadow-dark'], /* shadow under the rail */
+  chip: ['255,255,255', 'raised'], /* the chip that slides to the active rail item */
+  'chip-ink': ['31,26,23', 'ink'], /* the active rail label and icon, on the chip */
+  'chip-shadow': ['26,21,19', 'shadow-dark'], /* shadow under the chip */
 };
 
 /* The Classic page background, written with the tokens it is not made of (it is one fixed picture). */
