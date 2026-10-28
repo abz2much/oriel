@@ -108,6 +108,7 @@ function dark(base, accent) {
     /* Nova panel: a deep accent-tinted glass, not a slab of neon. */
     'nova-a': mix(B, A, 0.2), 'nova-b': mix(B, A, 0.08), 'on-nova': ink, 'nova-glass': mix(B, WHITE, g * 0.75),
     'nav-fill': mix(B, BLACK, 0.5), /* the phone tab bar is a deep tint of the base: light ink reads on it over any card */
+    chip: fill, 'chip-ink': inkOnAccent, /* the rail chip is the accent fill with its own text colour: a dark chip on the dark rail was only about 2:1 */
   };
   return { role, variant };
 }

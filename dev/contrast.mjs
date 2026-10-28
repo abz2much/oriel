@@ -102,10 +102,11 @@ function pairs(v, dark, classic, S) {
   add('phone tab label (soft)', v.ink, v.soft, 'tab bar', 4.5); add('phone tab label (selected)', v.ink, 1, 'raised', 4.5); add('phone More tile text', v.ink, 1, 'sheet tile', 4.5);
   add('greeting (large)', v.ink, 1, 'page', 3);
   /* navigation: the rail, and the phone bar's labels over every possible card (inactive labels at the theme's soft value, the active one in full ink on the bubble) */
-  add('rail label (74%)', v['rail-ink'], 0.74, 'rail', 4.5); add('rail label, active', v['chip-ink'], 1, 'chip', 4.5);
+  add('rail label (74%)', v['rail-ink'], 0.74, 'rail', 4.5); add('rail label, active', v['chip-ink'], 1, 'chip', 4.5); add('rail chip against the rail (shape)', v.chip, 1, 'rail', 3);
   Object.keys(S).filter((k) => k.startsWith('bar over ')).forEach((k) => {
     const b = k.slice(9);
     add(`phone tab label, inactive (${Math.round(v.navSoft * 100)}%) over ${b}`, v.ink, v.navSoft, k, 4.5);
+    add(`phone bubble outline (shape) over ${b}`, v['accent-ink'], 0.9, k, 3);
     for (const part of ['top', 'mid', 'tint']) add(`phone tab label, active, on the bubble (${part}) over ${b}`, v.ink, 1, `bubble ${part} over ${b}`, 4.5);
   });
   /* Energy on the phone: an amount that shows as zero is drawn in the soft colour (flow nodes, Today tiles, heat pump, house use) */
