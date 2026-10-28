@@ -182,6 +182,45 @@ for (const [W, H] of PHONES) {
   check('Home phone: Coming up shows all its rows (no tablet-column fitting)', o.rows === 3, String(o.rows)); await a.page.close();
 }
 
+// Nova's chat card: min(460px, 60dvh), so it fits short screens; the tablet keeps its own size
+{
+  const hts = [];
+  for (const [W, H] of [[360, 640], [360, 740], [390, 844], [412, 915]]) {
+    const a = await open(base, W, H);
+    await a.page.evaluate(() => document.querySelector('oriel-shell')._setPage('nova')); await a.page.waitForTimeout(400);
+    hts.push([W, H, Math.round(await sr(a.page, (r) => r.getElementById('nvChat').getBoundingClientRect().height)), Math.min(460, Math.round(H * 0.6))]); await a.page.close();
+  }
+  check('Nova phone: the chat card is min(460 px, 60% of the screen height) tall', hts.every((h) => Math.abs(h[2] - h[3]) <= 1), JSON.stringify(hts.map((h) => `${h[0]}x${h[1]}: ${h[2]} (want ${h[3]})`)));
+}
+
+// Energy: an amount that shows as zero is drawn in the soft colour (the colour of its unit) on the phone; the tablet is unchanged
+{
+  const zero = { 'sensor.solar_power': ['0', { unit_of_measurement: 'W', device_class: 'power', friendly_name: 'Solar power' }], 'sensor.grid_power': ['0', { unit_of_measurement: 'W', device_class: 'power', friendly_name: 'Grid power' }],
+    'sensor.grid_import_today': ['0', { unit_of_measurement: 'kWh', device_class: 'energy', friendly_name: 'Grid import today' }], 'sensor.energy_cost_today': ['0', { unit_of_measurement: 'GBP', friendly_name: 'Energy cost today' }],
+    'sensor.heatpump_power': ['0', { unit_of_measurement: 'W', device_class: 'power', friendly_name: 'Heat pump power' }] };
+  const look = async (W, H) => {
+    const a = await open(base, W, H);
+    await a.page.evaluate((z) => { const e = document.querySelector('oriel-shell'), st = Object.assign({}, e.hass.states); for (const [k, v] of Object.entries(z)) st[k] = { entity_id: k, state: v[0], attributes: v[1], last_changed: new Date().toISOString(), last_updated: new Date().toISOString() }; e.hass = Object.assign({}, e.hass, { states: st }); e._setPage('energy'); }, zero);
+    await a.page.waitForTimeout(600);
+    const o = await sr(a.page, (r) => {
+      const E = r.host._en; if (E.hist) { E.hist.total = 0; E.chartSig = null; r.host._enChartDraw(new Date()); }
+      const c = (el) => getComputedStyle(el).color, tile = (i) => r.querySelectorAll('#enTg .tl')[i];
+      /* [name, the value, what it should match when dimmed (its unit or label), its text] */
+      const rows = [['solar', r.getElementById('enVSol'), r.querySelector('#enVSol em')], ['grid', r.getElementById('enVGrid'), r.querySelector('#enVGrid em')], ['house (not zero)', r.getElementById('enVHouse'), r.querySelector('#enVHouse em')],
+        ...[...r.querySelectorAll('#enTg .tl')].map((t) => ['tile ' + t.querySelector('small').textContent.trim(), t.querySelector('b'), t.querySelector('small')]),
+        ['heat pump', r.getElementById('enHpW'), r.querySelector('#enHpBox .w em')], ['house use total', r.getElementById('enCTot'), r.querySelector('#enChart .k small')]];
+      return rows.map(([n, v, u]) => ({ n, text: v.textContent.replace(/\s+/g, ' ').trim(), soft: c(v) === c(u) }));
+    });
+    await a.page.close(); return o;
+  };
+  const isZero = (s) => /\d/.test(s) && !/[1-9]/.test(s);
+  const ph = await look(390, 844), tb = await look(1280, 800);
+  const zs = ph.filter((x) => isZero(x.text)).map((x) => x.n);
+  check('Energy phone: the test sets zeros for solar, grid, a tile, the net cost, the heat pump and the house use total', zs.length >= 6, zs.join(', '));
+  check('Energy phone: every amount that shows as zero is in the soft colour, every other amount is not', ph.every((x) => x.soft === isZero(x.text)), JSON.stringify(ph.filter((x) => x.soft !== isZero(x.text))));
+  check('Energy tablet: zero amounts are unchanged (not dimmed)', tb.every((x) => !x.soft), JSON.stringify(tb.filter((x) => x.soft)));
+}
+
 results.forEach((r) => console.log(r.join('  ')));
 await browser.close();
 process.exit(results.some((r) => r[0] === 'FAIL') ? 1 : 0);

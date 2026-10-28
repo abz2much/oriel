@@ -2,6 +2,22 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.5.2] - 2026-10-27
+
+Phone layout only. The tablet is unchanged.
+
+### Changed
+- Nova: the chat card is never taller than 60% of the screen (460 px at most), so it fits short phones.
+- Energy: an amount that shows as zero (0.00 kW, 0.0 kWh, £0.00) is drawn in the soft text colour, the same colour as its unit, so it doesn't draw the eye. This covers the live flow values, the Today tiles, the heat pump and the house use total. It passes contrast in all 12 themes.
+
+### Fixed
+- Some invisible tap areas reached into the control next to them: Home's heating rows and their − and + buttons, the Security "open" and "Tamper" chips, and Nova's status chip. They no longer overlap. Nothing looks different.
+
+### Tests
+- `dev/phone-taps.mjs` (part of `npm test`): on every phone page at 360, 390 and 412 wide, no two tappable controls have overlapping tap areas, counting the invisible area round small controls.
+- `dev/phone.mjs`: Nova's chat height at four phone sizes; zero amounts on Energy are dimmed on the phone and unchanged on the tablet.
+- `dev/contrast.mjs`: the dimmed zero amounts on every surface they sit on (81 pairs per theme).
+
 ## [0.5.1] - 2026-10-27
 
 ### Fixed

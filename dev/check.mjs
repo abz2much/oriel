@@ -5,7 +5,8 @@
    4. the editor checks pass
    5. the Climate and Family page checks pass
    6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.4.0 bundle
-   7. the rail and the phone's tab bar are the topmost element over every item, on every page and state */
+   7. no two tap areas overlap on any phone page (dev/phone-taps.mjs)
+   8. the rail and the phone's tab bar are the topmost element over every item, on every page and state */
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -48,6 +49,9 @@ ok('phone layout checks pass');
 
 try { execFileSync(process.execPath, ['dev/phone-sheets.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('phone pop-up checks'); }
 ok('phone pop-up checks pass (every sheet at 360x740: fits, 44 px controls, back button, swipe, keyboard, confirm steps)');
+
+try { execFileSync(process.execPath, ['dev/phone-taps.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('phone tap-area checks'); }
+ok('phone tap areas: no two controls overlap on any page at 360, 390 and 412 wide (invisible tap areas included)');
 
 try { execFileSync(process.execPath, ['dev/rail.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('rail and tab bar checks'); }
 ok('rail and tab bar are on top on every page and state, and every tap switches the page; the pop-ups still cover the rail');

@@ -92,6 +92,9 @@ function pairs(v, dark, classic) {
   IDLE.bars.forEach((c, i) => add(`idle clock: calendar bar ${i + 1}`, hex(c), 1, 'idle chip', 3));
   add('phone tab label (soft)', v.ink, v.soft, 'tab bar', 4.5); add('phone tab label (selected)', v.ink, 1, 'raised', 4.5); add('phone More tile text', v.ink, 1, 'sheet tile', 4.5);
   add('greeting (large)', v.ink, 1, 'page', 3);
+  /* Energy on the phone: an amount that shows as zero is drawn in the soft colour (flow nodes, Today tiles, heat pump, house use) */
+  add('Energy zero amount (soft, large: 24 px)', v.ink, v.soft, 'on fill', 3); add('Energy zero amount (soft)', v.ink, v.soft, 'cell', 4.5);
+  add('Energy zero amount (60%)', v['on-dark'], 0.6, 'dark panel', 4.5); add('Energy zero amount (60%)', v['on-dark'], 0.6, 'black', 4.5);
   add('icon: accent-strong', v['accent-strong'], 1, 'glass', 3); add('icon: bad-strong', v['bad-strong'], 1, 'glass', 3); add('icon: good-mark', v['good-mark'], 1, 'glass', 3);
   return L;
 }
