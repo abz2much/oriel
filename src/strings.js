@@ -424,7 +424,7 @@ export const S = {
   one_update_waiting: '{n} update waiting',
   n_updates_waiting: '{n} updates waiting',
   check: 'Check',
-  update: 'Update', open_updates: 'Open updates',
+  update: 'Update', open_updates: 'Open updates', auto_rotate: 'Auto rotate', auto_rotate_sub: 'Every {idle} s, {after} min after a touch',
   healthy: 'Healthy',
   next_x: 'next {x}',
   n_waiting: '{n} waiting',

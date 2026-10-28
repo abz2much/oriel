@@ -10,6 +10,7 @@ const FADE_STEP = 70, FADE_SPREAD = 500; /* ms between cards; the last card star
 /* every pop-up that can sit over a page, by id (the phone's More sheet included) */
 const OVERLAYS = ['more', 'shop', 'bell', 'vcConf', 'vcMenu', 'nvConf', 'lrPanel'];
 const MAX_TIMER = 2147483000;
+const KEY = 'oriel.auto_rotate'; /* the choice made with the System page's switch on this device: '1' or '0' */
 const reduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const seconds = (v, d, lo, hi) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
 
@@ -81,10 +82,24 @@ addMethods({
   },
 
   /* ---------- auto rotation ---------- */
+  /* The choice on this device (the System page's switch) beats the config; with no choice, or when storage fails, the config decides. */
+  _arStored() { try { const v = localStorage.getItem(KEY); return v === '1' ? true : v === '0' ? false : null; } catch (e) { return null; } },
+  _arWanted() {
+    if (typeof this._arMem === 'boolean') return this._arMem; /* storage failed when the switch was flipped: this session only */
+    const st = this._arStored(); if (st !== null) return st;
+    return ((this._c.general || {}).auto_rotate || {}).enabled === true;
+  },
+  _arTimings() { const o = (this._c.general || {}).auto_rotate || {}; return { idle: seconds(o.idle_seconds, 60, 5, 3600), after: seconds(o.after_touch_seconds, 300, 5, 86400) }; },
+  /* the switch: store the choice, start or stop the one timer at once, and count the flip as a touch (the first move waits after_touch_seconds) */
+  _arSet(on) {
+    let saved = true; try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) { saved = false; }
+    this._arMem = saved ? undefined : on;
+    this._arInit(); if (on) this._arNote(false);
+  },
   _arInit() {
     this._arStop();
     const o = (this._c.general || {}).auto_rotate || {};
-    if (o.enabled !== true || this._idleInEditor()) return; /* off unless it is switched on; never in the card editor's preview */
+    if (!this._arWanted() || this._idleInEditor()) return; /* off unless it is switched on (in the config or on this device); never in the card editor's preview */
     const a = this._ar = { idle: seconds(o.idle_seconds, 60, 5, 3600) * 1000, after: seconds(o.after_touch_seconds, 300, 5, 86400) * 1000, at: Date.now(), by: 'auto', timer: null };
     a.down = () => this._arNote(false); /* any touch on the card */
     a.vis = () => { if (!document.hidden) { a.at = Date.now(); a.by = 'auto'; this._arSchedule(); } }; /* back on screen: a fresh interval */
