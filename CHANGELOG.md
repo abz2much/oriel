@@ -2,6 +2,10 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.6.2] - 2026-10-28
+
+- The idle clock no longer shows the small “Empty for N minutes · walk in or tap to go back” line at the bottom. Nothing else on it changes.
+
 ## [0.6.1] - 2026-10-28
 
 Fixes after 0.6.0, and two new controls on the System page. Each item is its own commit, so any one can be reverted alone.

@@ -30,7 +30,7 @@ The idle clock is not in the rail. It is a dark screen that covers the card when
 - **When it goes away:** the sensor turns `on`, or anyone taps or touches the screen. You land on the page that was open. The tap that wakes the screen does not press anything under it.
 - **Bad data counts as "someone is there":** `unavailable`, `unknown` or a sensor that does not exist never starts the clock, and remove it if it is showing. After a tablet reload with the sensor already off, the count uses the sensor's own `last_changed`.
 - **It never covers anything urgent:** it is not shown, and is removed, while a camera pop-up is open, the doorbell (`security.doorbell`) is on, or the alarm (`security.alarm`, else `general.alarm`) is pending or triggered.
-- **What it shows:** the time in your locale's format, the date, and up to three chips, each hidden when it has no data: the weather (`general.weather`), the next event from `family.calendars` with its colour bar and time (the same events as the Home "Coming up" card), and "Bin today" or "Bin tomorrow" with the bin names from `family.bins`. A small line at the bottom says how long the room has been empty and how to go back.
+- **What it shows:** the time in your locale's format, the date, and up to three chips, each hidden when it has no data: the weather (`general.weather`), the next event from `family.calendars` with its colour bar and time (the same events as the Home "Coming up" card), and "Bin today" or "Bin tomorrow" with the bin names from `family.bins`.
 - **Look:** dark and warm in every theme on purpose. The content drifts a few pixels in a slow loop every minute so nothing stays lit in one place; with reduced motion switched on, it does not move.
 - **Not shown** in the card editor's preview. It covers only the card: with the Home Assistant header and sidebar visible (no kiosk mode), they stay visible.
 
@@ -119,7 +119,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.6.1` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.6.2` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 

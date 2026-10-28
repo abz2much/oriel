@@ -25,7 +25,6 @@ const CSS = `
 #idle .ch .ic{width:calc(var(--u)*22px);height:calc(var(--u)*22px);min-width:16px;flex:none}
 #idle .ch .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(var(--u)*560px)}
 #idle .ch .bar{width:4px;height:calc(var(--u)*28px);border-radius:2px;flex:none}
-#idle .hint{position:absolute;left:0;right:0;bottom:calc(var(--u)*32px);text-align:center;font-size:max(12px,calc(var(--u)*14px));color:${IDLE.hint};padding:0 16px}
 `;
 
 addMethods({
@@ -49,7 +48,7 @@ addMethods({
     if (!isEnt(id)) return;
     this.addCss('idle', CSS);
     const el = document.createElement('div'); el.id = 'idle'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', S.idle_clock_label); el.tabIndex = -1;
-    el.innerHTML = '<div class="in"><div class="tm"></div><div class="dt"></div><div class="cs"><span class="ch hide" data-k="wx"></span><span class="ch hide" data-k="ev"></span><span class="ch hide" data-k="bin"></span></div><div class="hint"></div></div>';
+    el.innerHTML = '<div class="in"><div class="tm"></div><div class="dt"></div><div class="cs"><span class="ch hide" data-k="wx"></span><span class="ch hide" data-k="ev"></span><span class="ch hide" data-k="bin"></span></div></div>';
     this.shadowRoot.appendChild(el);
     const u = this._idle = { id, ms: minutes(ic.minutes) * MIN_MS, off: 0, touch: 0, guard: 0, shown: false, el, timer: null, tick: 0, n: 0, sig: '', time: '', timeSig: '' };
     u.down = () => { /* any touch on the card: the count starts again; a touch on the clock removes it */
@@ -121,7 +120,7 @@ addMethods({
     const day = now.toDateString();
     if (day !== u.day) { u.day = day; let dt = ''; try { dt = now.toLocaleDateString(this.lang(), { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) { dt = day; } u.el.querySelector('.dt').textContent = dt; }
   },
-  /* the chips and the hint; rebuilt only when what they say changes */
+  /* the chips; rebuilt only when what they say changes */
   _idleFill(force) {
     const u = this._idle, now = new Date(), g = this._c.general, chips = {};
     const w = this.st(g.weather);
@@ -145,15 +144,12 @@ addMethods({
       if (td.length) chips.bin = { txt: t('idle_bin_today', { label: td.join(', ') }) };
       else if (tm.length) chips.bin = { txt: t('idle_bin_tomorrow', { label: tm.join(', ') }) };
     }
-    const mins = Math.max(0, Math.floor((now - u.off) / MIN_MS)), h = Math.floor(mins / 60);
-    const span = mins < 1 ? t('idle_minutes_many', { n: 0 }) : mins === 1 ? S.idle_minute_one : h < 1 ? t('idle_minutes_many', { n: mins }) : t('idle_hours', { h, m: mins % 60 });
-    const sig = JSON.stringify([chips, span, this.lang()]);
+    const sig = JSON.stringify([chips, this.lang()]);
     if (!force && sig === u.sig) return; u.sig = sig;
     ['wx', 'ev', 'bin'].forEach((k) => {
       const el = u.el.querySelector(`[data-k="${k}"]`), c = chips[k]; el.classList.toggle('hide', !c); if (!c) return;
       el.innerHTML = (c.ic ? icon(c.ic) : '') + (c.bar ? '<i class="bar"></i>' : '') + '<span class="tx"></span>';
       el.querySelector('.tx').textContent = c.txt; if (c.bar) el.querySelector('.bar').style.background = c.bar;
     });
-    u.el.querySelector('.hint').textContent = t('idle_hint', { n: span });
   },
 });

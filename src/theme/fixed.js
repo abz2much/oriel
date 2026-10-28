@@ -77,5 +77,5 @@ export const BANNER = ['background:#b9dc8a;color:#1f1a17;font-weight:600', 'back
    bgA..bgC: dark warm page with a faint glow in the middle; chip: a faint lighter pill; bars: calendar colours that read on dark. */
 export const IDLE = {
   bgA: '#2a231f', bgB: '#1d1815', bgC: '#14100e', time: '#efe9e2', date: '#cfc6bc', chipText: '#ece4dc', chip: 'rgba(255,255,255,.07)', chipLine: 'rgba(255,255,255,.13)',
-  hint: '#a79d92', bars: [LINE.dark[0], STATE.green[0], '#ece4dc', LINE.dark[1]],
+  bars: [LINE.dark[0], STATE.green[0], '#ece4dc', LINE.dark[1]],
 };

@@ -97,7 +97,7 @@ function pairs(v, dark, classic, S) {
   add('bin chip text', v.warn, 1, 'warn chip', 4.5); add('chart line: ink', v.ink, 0.85, 'glass', 3); add('chart line: bad-strong', v['bad-strong'], 1, 'glass', 3); add('hour bars (ink 62%)', v.ink, 0.62, 'glass', 3);
   for (const k in BIN) { add(`bin tile text (${k})`, v['on-dark'], 1, 'bin ' + k, 4.5); } add('chart line: accent-ink', v['accent-ink'], 1, 'glass', 3);
   LINE[dark ? 'dark' : classic ? 'classic' : 'light'].forEach((c, i) => add(`graph line ${i + 1} (fixed ${c})`, hex(c), 1, 'glass', 3));
-  add('idle clock: time (large)', hex(IDLE.time), 1, 'idle', 3); add('idle clock: date (large)', hex(IDLE.date), 1, 'idle', 3); add('idle clock: hint (12 px)', hex(IDLE.hint), 1, 'idle', 4.5); add('idle clock: chip text', hex(IDLE.chipText), 1, 'idle chip', 4.5);
+  add('idle clock: time (large)', hex(IDLE.time), 1, 'idle', 3); add('idle clock: date (large)', hex(IDLE.date), 1, 'idle', 3); add('idle clock: chip text', hex(IDLE.chipText), 1, 'idle chip', 4.5);
   IDLE.bars.forEach((c, i) => add(`idle clock: calendar bar ${i + 1}`, hex(c), 1, 'idle chip', 3));
   add('phone tab label (soft)', v.ink, v.soft, 'tab bar', 4.5); add('phone tab label (selected)', v.ink, 1, 'raised', 4.5); add('phone More tile text', v.ink, 1, 'sheet tile', 4.5);
   add('greeting (large)', v.ink, 1, 'page', 3);
