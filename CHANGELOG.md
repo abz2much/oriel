@@ -2,6 +2,32 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.6.1] - 2026-10-28
+
+Fixes after 0.6.0, and two new controls on the System page. Each item is its own commit, so any one can be reverted alone.
+
+### Fixed
+- **Phone tab bar looked like a solid cream pill.** To keep labels readable over a black card, 0.6.0 tinted the bar 0.6 to 0.7. The glass now flattens what is under it (contrast and brightness in its backdrop filter) before the tint, so the tint drops to 0.28 to 0.64 (Classic 0.46), the page shows through, and there is a soft sheen along the top. It is still worked out per theme, and `dev/contrast.mjs` models the filter. A new check measures label contrast on the real rendered pixels over a black card and a light card (at least 4.5:1 in five themes). Without `backdrop-filter` support the bar is still the solid bar. The built file, the tokens and the ancestors were checked: nothing was lost in the build.
+- **The bubble and the rail chip stand out in every theme.** The bubble has an outline in the theme's accent text colour. In the dark themes the rail chip is the accent fill (it was about 2:1 against the rail). New contrast checks: both must be at least 3:1 as shapes. (These two changes were made after the 0.6.0 pull request was checked, but were not in it.)
+- **A square flashed round tabs and rail items when tapped.** It was the browser's default tap highlight. Tabs, rail items and the More tiles now have a transparent tap highlight, no selectable label and no focus box after a pointer tap. Keyboard focus rings stay.
+- **Text overflowing its box on the tablet** (Energy: the PV line under the Solar box, "incl. … standing" under Net cost; Vacuum: the settings values; System: the Home Assistant, Host and Tablet cards). These boxes had a fixed height and 3 to 10 px to spare, so any larger text (Android text scaling, a minimum font size) pushed lines past the edge. They now have a minimum height and grow; Net cost can wrap to two lines; System stacks each column by the cards' real heights. Text size adjustment is switched off on the card. These problems were already in 0.5.2 and 0.6.0; none is new in 0.6.0. At normal size the Solar box grows 7.6 px, the Today tiles 2 px, and System's Host card 4 px.
+
+### Added
+- **System: the Update chip is a button.** While updates are waiting, the chip next to “n updates waiting” opens Home Assistant's updates page (`/config/updates`) without a page reload. Nothing is installed from the card. It has a 44 px tap area, a pressed state and a label, and works with Enter and Space.
+- **System: an Auto rotate switch**, per device (also on the phone). The choice is kept in the browser's local storage, wins over `general.auto_rotate.enabled` on that device, and takes effect at once. Flipping it counts as a touch. If storage is blocked the page uses the config. The config and editor fields stay.
+
+### Changed
+- **Tablet baseline replaced on purpose** (now `dev/baseline/oriel-0.6.1.js`): the boxes above grow by a few pixels and the Tablet card on System gains a row. The guard itself is unchanged.
+
+### Tests
+- `dev/overflow.mjs` (part of `npm test`): on Energy, Vacuum and System, at 1024×768, 1180×820, 1280×800, 1366×1024 and 1920×1200, at normal text and with every text 25% larger, no text outside its box and nothing clipped; the Update chip and the Auto rotate row are there.
+- `dev/nav-motion.mjs`: no tap highlight, no focus box and no pressed box on a tap; label contrast on real pixels over a black and a light card.
+- `dev/pages.mjs`: the Update chip is hidden with no updates; with updates a tap pushes `/config/updates` and fires `location-changed` once; Enter and Space work; a state update does not rebuild it.
+- `dev/auto-rotate.mjs`: default off; the switch turns it on and off with no reload, counts as a touch, survives a re-render, falls back to the config when storage fails, and a stored choice beats the config both ways.
+
+### Rolling back
+In HACS use **Redownload** and pick v0.6.0, or revert the commit for the one item that caused a problem (`git revert <sha>`).
+
 ## [0.6.0] - 2026-10-28
 
 The navigation looks and moves differently, on the tablet and on the phone. Auto rotation is new and is off by default.
