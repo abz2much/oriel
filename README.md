@@ -290,7 +290,7 @@ Each vacuum: `name`, `entity` (vacuum), `integration` (`generic` or `dreame`), `
 | Key | Type | What it does |
 |---|---|---|
 | `host` | object | `uptime`, `cpu`, `memory`, `disk`, `cpu_temperature`. |
-| `updates` | object | `core`, `os`, `supervisor` (update entities, for version numbers). Pending updates are counted automatically. |
+| `updates` | object | `core`, `os`, `supervisor` (update entities, for version numbers). Pending updates are counted automatically. While any are waiting, the **Update** chip next to “n updates waiting” is a button that opens Home Assistant's updates page (`/config/updates`) without reloading the page. Nothing is installed from the card, and there is no setting for it. |
 | `backups` | object | `last`, `next`, `stale`. |
 | `connections` | list | `name`, `entity`, `ok_state`, `ok_label`, `other_label`. |
 | `low_battery_pct` | number | Default 20. |
