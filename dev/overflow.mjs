@@ -74,6 +74,10 @@ for (const ZOOM of ZOOMS) for (const [W, H] of SIZES) {
   for (const key of PAGES) {
     await page.evaluate((k) => document.querySelector('oriel-shell')._setPage(k), key); await page.clock.runFor(1200); await page.waitForTimeout(400);
     const bad = await page.evaluate(SCAN, key);
+    if (key === 'system') { /* the Update chip (updates are waiting in the mock) and the Auto rotate row are on the page and are inside what was scanned */
+      const here = await page.evaluate(() => { const r = document.querySelector('oriel-shell').shadowRoot, u = r.getElementById('syUpBtn'), a = r.getElementById('syBtnA'); return { chip: !!u && u.getClientRects().length > 0, row: !!a && a.getClientRects().length > 0, rowH: a ? a.getBoundingClientRect().height : 0 }; });
+      check(`${W}x${H} text x${ZOOM} system: the Update chip and the Auto rotate row are there`, here.chip && here.row, JSON.stringify(here));
+    }
     check(`${W}x${H} text x${ZOOM} ${key}: no text outside its box, nothing clipped`, bad.length === 0, bad.slice(0, LIST ? 99 : 6).map((o) => `${o.kind} "${o.text}" (${o.el} in ${o.box}) by ${o.by}px at the ${o.side}`).join(' | '));
   }
   check(`${W}x${H} text x${ZOOM}: no page errors`, errors.length === 0, errors.join(' | '));

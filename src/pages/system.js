@@ -46,6 +46,7 @@ const CSS = `
 #pgSystem .btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;margin-bottom:10px;border:1px solid rgba(var(--oriel-glass),.7);border-radius:18px;background:rgba(var(--oriel-glass),.5);color:rgb(var(--oriel-ink));font-size:14.5px;font-weight:500;cursor:pointer}
 #pgSystem .btn small{display:block;font-size:12px;font-weight:400;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:1px}
 #pgSystem .btn:active{background:rgba(var(--oriel-glass),.8)}
+#syBtnA .tg{margin-left:auto;flex:none} #syBtnA.on .tg{background:rgb(var(--oriel-accent-strong))} #syBtnA.on .tg::after{left:14px}
 #pgSystem button{font-family:inherit}
 #syToast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));border-radius:18px;padding:10px 18px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
 #syToast.on{opacity:1}
@@ -76,6 +77,7 @@ const HTML = () => `<div id="syWrap">
     <button class="btn" id="syBtnK">${ic('exit')}<span>${esc(S.show_header)}<small>${esc(S.show_header_hint)}</small></span></button>
     <button class="btn" id="syBtnS">${ic('gear')}<span>${esc(S.ha_settings)}<small>${esc(S.ha_settings_hint)}</small></span></button>
     <button class="btn" id="syBtnN">${ic('moon')}<span>${esc(S.nova_nap)}<small>${esc(S.nova_nap_hint)}</small></span></button>
+    <button class="btn" id="syBtnA" role="switch" aria-checked="false">${ic('reload')}<span>${esc(S.auto_rotate)}<small id="syArSub"></small></span><i class="tg" aria-hidden="true"></i></button>
     <div class="hd" style="margin-top:18px"><span>Oriel</span><small>v${VERSION}</small></div></div>
   <div id="syDbg" class="abs glass mid card"><div class="hd"><span>${esc(S.debug)}</span><small id="syDbgS"></small></div><div id="syDbgL"></div></div>
   <div id="syToast" role="status"></div>
@@ -95,6 +97,7 @@ const SystemExt = {
       this.navigate(base + '?disable_km'); setTimeout(() => { try { location.reload(); } catch (e) { /* nothing */ } }, 150);
     });
     $('syBtnS').addEventListener('click', () => this.navigate(g.settings_path || '/config'));
+    $('syBtnA').addEventListener('click', () => { this._arSet(!this._arWanted()); this._syAuto(); }); /* per device; takes effect at once */
     $('syHealth').addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#syUpBtn')) this.navigate('/config/updates'); }); /* Home Assistant's updates page; the button is rebuilt, so the listener sits on its parent */
     $('syBtnN').addEventListener('click', async () => {
       try { await this.call('nova', 'nap', { duration_minutes: 60 }); this._syToast(S.nova_napping); }
@@ -145,6 +148,13 @@ const SystemExt = {
         y += n.offsetHeight + gap;
       });
     });
+  },
+  /* the Auto rotate row: the switch shows what is in force on this device, the sub text what the config says about the timings */
+  _syAuto() {
+    const b = this._sy && this._sy.$ && this._sy.$('syBtnA'); if (!b) return;
+    const on = this._arWanted(), { idle, after } = this._arTimings(), tx = t('auto_rotate_sub', { idle, after: Math.round(after / 6) / 10 });
+    b.classList.toggle('on', on); if (b.getAttribute('aria-checked') !== String(on)) b.setAttribute('aria-checked', String(on));
+    const sub = this._sy.$('syArSub'); if (sub.textContent !== tx) sub.textContent = tx;
   },
   _syToast(tx) {
     const n = this._sy.$('syToast'); if (!n) return; n.textContent = tx; n.classList.add('on');
@@ -257,7 +267,7 @@ registerPage({
   css: CSS,
   enabled() { return true; },
   init() { return this._syInitPage(); },
-  update() { this._updateSystem(); this._syPack(); },
+  update() { this._updateSystem(); this._syAuto(); this._syPack(); },
   stop() { this._syStop(); },
   methods: SystemExt,
 });

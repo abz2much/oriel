@@ -18,7 +18,7 @@ Every page and every section is optional. You set it up with a visual editor; YA
 | **Security** | Alarm status, doors and windows, presence by floor, camera snapshots with live view on tap, recent events and device health. Read-only: it never arms, disarms or unlocks anything. |
 | **Vacuum** | One or more robot vacuums: status, controls with confirm steps, cleaning settings, schedule, and for Dreame vacuums the room map, parts and base station. |
 | **Nova** | Chat and controls for the separate Nova assistant integration. Off unless you turn it on. |
-| **System** | Home Assistant and host status, backups, connections, low batteries, unavailable entities, tablet buttons, the Oriel version and an optional debug panel. Always shown. |
+| **System** | Home Assistant and host status, backups, connections, low batteries, unavailable entities, tablet buttons, an Auto rotate switch, the Oriel version and an optional debug panel. Always shown. |
 
 A page appears in the side rail only once at least one of its entities is set. On the tablet the rail is dark glass with a chip that slides to the active page, and the cards of a page fade in when you change page (both are off with reduced motion).
 
@@ -51,6 +51,7 @@ general:
 - **It waits, and asks again later, while:** the idle clock is showing, a pop-up, sheet, More menu or dialog is open, a text field has focus (typing to Nova, for example), or the browser tab is hidden. When the block ends, the next move comes after one full `idle_seconds`.
 - **Same as a tap:** it uses the same page change as a tap, so the slide and the fade run as usual. Hass updates never reset its timer. One timer only; it stops when the card is removed and restarts on a config change, with no reload.
 - **Not in the card editor's preview.** Set it in the editor under General › Auto rotation, or in YAML.
+- **On-screen switch:** the System page has an **Auto rotate** row with a switch (on the phone too), with the timings from the config underneath (“Every 60 s, 5 min after a touch”). It is per device: the choice is kept in that browser's local storage, and once someone flips it, the stored choice wins over `enabled` on that device. Until then `enabled` decides (default off). It takes effect at once, and flipping it counts as a touch, so the first move waits `after_touch_seconds`. If the browser's storage is blocked, the page still works and uses `enabled` (a flip then lasts only until the card reloads). The timings stay in the config and the editor.
 
 <table>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
