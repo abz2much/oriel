@@ -153,6 +153,34 @@ for (const [label, cfg, expectMore] of [['four pages', few, false], ['more than 
   await page.context().close();
 }
 
+/* ---------- the glass reads as glass, and the labels stay readable on real pixels ---------- */
+/* Classic's bar is as clear as the mockup (0.26); in each theme, with a black card and then a light card scrolled under the bar, the label colour is measured on the
+   bar's real rendered pixels (beside the icons, top and bottom), so the filter model in dev/contrast.mjs is checked against what a browser draws. */
+{
+  const lumOf = (c) => { const f = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+  const ratio = (a, b) => { const x = lumOf(a), y = lumOf(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  for (const theme of ['classic', 'ember', 'deep-teal', 'midnight-signal', 'violet-mist']) {
+    const cfg = JSON.parse(JSON.stringify(full)); cfg.general.theme = theme;
+    const { page, errors } = await open(390, 844, cfg);
+    await run(page, "e._setPage('energy');"); await page.waitForTimeout(1300);
+    const css = await run(page, `const w = r.getElementById('wrap'), cs = getComputedStyle(w), t = getComputedStyle(r.getElementById('tabs')); return { ink: cs.getPropertyValue('--oriel-ink').trim(), soft: cs.getPropertyValue('--oriel-nav-soft').trim(), bg: t.backgroundColor, bf: t.backdropFilter };`);
+    if (theme === 'classic') { const a = +css.bg.match(/[\d.]+(?=\))/)[0]; check('glass: Classic bar fill is far clearer than the 0.64 of 0.6.0 (at most 0.5)', a <= 0.5 && /blur\(26px\) saturate\(1.35\)/.test(css.bf), css.bg + ' ' + css.bf); }
+    const ink = css.ink.split(',').map(Number), soft = +css.soft;
+    for (const [what, sel] of [['a black card', '#pgEnergy .black, #pgEnergy .dark'], ['a light card', '#pgEnergy .glass']]) {
+      await run(page, `const pg = r.getElementById('pages'), bar = r.getElementById('tabs').getBoundingClientRect(), all = [...r.querySelectorAll('${sel}')].filter((x) => x.getClientRects().length && x.getBoundingClientRect().height > 150 && !x.closest('.glass .glass')); const b = all[all.length - 1]; if (b) { const q = b.getBoundingClientRect(); pg.scrollTop += (q.top + q.height / 2) - (bar.top + bar.height / 2); }`);
+      await page.waitForTimeout(400);
+      const box = await run(page, `const b = r.getElementById('tabs').getBoundingClientRect(), tabs = [...r.querySelectorAll('#tabs a')].map((a) => a.getBoundingClientRect()); return { top: b.top, bottom: b.bottom, centres: tabs.map((q) => q.x + q.width / 2), active: [...r.querySelectorAll('#tabs a')].findIndex((a) => a.classList.contains('on')) };`);
+      const png = (await page.screenshot()).toString('base64');
+      const pts = []; box.centres.forEach((cx, i) => { if (i === box.active) return; [-30, 30].forEach((dx) => [box.top + 10, box.bottom - 10].forEach((y) => pts.push([Math.round(cx + dx), Math.round(y)]))); });
+      const px = await page.evaluate(async ({ png, pts }) => { const img = new Image(); img.src = 'data:image/png;base64,' + png; await img.decode(); const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); return pts.map(([x, y]) => [...g.getImageData(x, y, 1, 1).data].slice(0, 3)); }, { png, pts });
+      let worst = 99; px.forEach((p) => { const label = p.map((v, i) => v + (ink[i] - v) * soft); worst = Math.min(worst, ratio(label, p)); });
+      check(`glass: ${theme}: labels stay readable on the real bar over ${what} (worst ${worst.toFixed(2)}:1, needs 4.5)`, worst >= 4.5, `samples ${px.length}`);
+    }
+    check(`glass: ${theme}: no page errors`, errors.length === 0, errors.join(' | '));
+    await page.context().close();
+  }
+}
+
 /* ---------- the glass is inside @supports, with today's solid bar as the fallback ---------- */
 {
   const { page } = await open(390, 844, full);

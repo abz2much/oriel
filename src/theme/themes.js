@@ -1,7 +1,7 @@
 /* Theme registry and builder. Classic keeps Oriel's original look exactly, variants included. Every other theme
    is built from two seed colours (base and accent) by the rules below, then checked by dev/contrast.mjs. */
 import { themeCss, ROLE, VARIANT, CLASSIC_PAGE } from './tokens.js';
-import { hex, trip, mix, reach, contrast, WHITE, BLACK, isHex } from './colour.js';
+import { hex, trip, mix, reach, contrast, lum, navFilter, WHITE, BLACK, isHex } from './colour.js';
 
 export const DEFAULT_THEME = 'classic';
 
@@ -186,7 +186,9 @@ const CLASSIC_READABLE = {
    theme: the least tint at which the inactive labels read (4.6:1, soft ink) over the lightest and darkest surfaces the theme has under it.
    dev/contrast.mjs re-checks the result over every surface it knows. nav-tint is how much accent the bubble's far corner carries
    (0.6 in the approved mockup), lowered where the active label would not read on it. */
-const NAV_A_FROM = 0.26, NAV_A_MAX = 0.96, NAV_TINT = 0.6, NAV_SOFT = 0.66;
+const NAV_A_FROM = 0.26, NAV_A_MAX = 0.96, NAV_TINT = 0.6, NAV_SOFT = 0.66, NAV_SHEEN = 0.16;
+/* The glass pulls whatever is under it toward a calm tone first (contrast, then brightness), as frosted glass does: a light theme flattens it to an even frosted tone, a dark one sinks it. That is what keeps the tint to 0.3 to 0.5 instead of 0.6 to 0.7, so the page still shows through. */
+const NAV_FILTER = { light: [0.2, 1.0], dark: [0.5, 0.55] };
 const r2 = (x) => Math.round(x * 100) / 100;
 function navLevels(out) {
   const P = (v) => v.split(',').map(Number);
@@ -202,12 +204,14 @@ function navLevels(out) {
   const backs = [page, g20, cell, mix(g20, glass, 0.66), get('raised'), get('black'), mix(page, mix(get('dark-a'), get('dark-b'), 0.5), 0.87), get('accent-fill'), mix(g20, mix(get('accent-hi'), get('accent-lo'), 0.5), 0.88)];
   const soft = Math.max(NAV_SOFT, out.extra && out.extra.soft ? +out.extra.soft : 0);
   const fill = get('nav-fill'), bubble = get('bubble'), accent = get('accent');
+  const [con, bri] = NAV_FILTER[lum(ink) > 0.5 ? 'dark' : 'light'], line = get('nav-line');
+  const bar = (b, a) => mix(navFilter(b, con, bri), fill, a), top = (b, a) => mix(bar(b, a), line, NAV_SHEEN); /* the bar, and its top where the sheen sits */
   let a = NAV_A_FROM;
-  while (a < NAV_A_MAX && !backs.every((b) => { const bar = mix(b, fill, a); return contrast(mix(bar, ink, soft), bar) >= 4.6; })) a = r2(a + 0.02);
+  while (a < NAV_A_MAX && !backs.every((b) => [bar(b, a), top(b, a)].every((s) => contrast(mix(s, ink, soft), s) >= 5.0))) a = r2(a + 0.02);
   let tint = NAV_TINT;
-  const reads = (t) => backs.every((b) => { const bar = mix(b, fill, a); return [mix(bar, bubble, 0.88), mix(bar, bubble, 0.46), mix(bar, accent, t)].every((s) => contrast(ink, s) >= 4.6); });
+  const reads = (t) => backs.every((b) => { const s = bar(b, a); return [mix(s, bubble, 0.88), mix(s, bubble, 0.46), mix(s, accent, t)].every((x) => contrast(ink, x) >= 4.6); });
   while (tint > 0 && !reads(tint)) tint = r2(tint - 0.05);
-  return { 'nav-a': String(a), 'nav-tint': String(Math.max(0, tint)), 'nav-soft': String(soft) };
+  return { 'nav-a': String(a), 'nav-tint': String(Math.max(0, tint)), 'nav-soft': String(soft), 'nav-c': String(con), 'nav-k': String(bri), 'nav-sheen': String(NAV_SHEEN) };
 }
 
 /* Full token values for a theme id, as triplet strings ({ role, variant }). An accent override rebuilds the accent

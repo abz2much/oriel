@@ -13,4 +13,6 @@ export function reach(c, bg, ratio, to) {
   for (let t = 0.02; t <= 1; t += 0.02) { const x = mix(c, to, t); if (contrast(x, bg) >= ratio) return x; }
   return to;
 }
+/* What backdrop-filter contrast(c) brightness(k) does to a colour behind the phone bar (CSS filter functions work on sRGB values, in that order). */
+export const navFilter = (col, c, k) => col.map((v) => Math.max(0, Math.min(255, (((v / 255 - 0.5) * c + 0.5) * k) * 255)));
 export const isHex = (s) => typeof s === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(s.trim());
