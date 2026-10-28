@@ -347,8 +347,10 @@ for (const n of [1, 2, 4]) {
     await run(a.page, 4 * MIN + 55000); const early = await shown(a.page);
     await run(a.page, 10000); const late = await shown(a.page);
     check('idle clock: not shown at 4 min 56 s, shown after 5 minutes of off', !early && late, JSON.stringify([early, late]));
-    const c = await sr(a.page, (r) => { const e = r.getElementById('idle'); return { tm: e.querySelector('.tm').textContent, dt: e.querySelector('.dt').textContent, chips: [...e.querySelectorAll('.ch:not(.hide)')].map((x) => x.textContent), hint: e.querySelector('.hint').textContent, hintPx: parseFloat(getComputedStyle(e.querySelector('.hint')).fontSize), cover: JSON.stringify(e.getBoundingClientRect()) }; });
-    check('idle clock content: time, long date, weather chip, next event chip, bin chip, hint at 12 px or more', /^08:1[67]$/.test(c.tm) && c.dt === 'Tuesday 27 October' && c.chips.length === 3 && /°/.test(c.chips[0]) && /^Next: /.test(c.chips[1]) && /^Bin (today|tomorrow): /.test(c.chips[2]) && /^Empty for 5 minutes · /.test(c.hint) && c.hintPx >= 12, JSON.stringify(c));
+    const c = await sr(a.page, (r) => { const e = r.getElementById('idle'); return { tm: e.querySelector('.tm').textContent, dt: e.querySelector('.dt').textContent, chips: [...e.querySelectorAll('.ch:not(.hide)')].map((x) => x.textContent), cover: JSON.stringify(e.getBoundingClientRect()) }; });
+    check('idle clock content: time, long date, weather chip, next event chip, bin chip', /^08:1[67]$/.test(c.tm) && c.dt === 'Tuesday 27 October' && c.chips.length === 3 && /°/.test(c.chips[0]) && /^Next: /.test(c.chips[1]) && /^Bin (today|tomorrow): /.test(c.chips[2]), JSON.stringify(c));
+    const lo = await sr(a.page, (r) => { const e = r.getElementById('idle'); return { text: /Empty for|walk in|go back/i.test(e.textContent), hintEl: !!e.querySelector('.hint,[class*=hint]'), kids: [...e.querySelector('.in').children].map((x) => x.className), css: [...r.querySelectorAll('style')].some((st) => /#idle \.hint/.test(st.textContent)) }; });
+    check('idle clock: no "Empty for" line and nothing left over from it (no text, no element, no style)', !lo.text && !lo.hintEl && !lo.css && lo.kids.join() === 'tm,dt,cs', JSON.stringify(lo));
     const cov = await sr(a.page, (r) => { const q = r.getElementById('idle').getBoundingClientRect(); return [q.width, q.height]; });
     check('idle clock covers the whole card', cov[0] === 1280 && cov[1] === 800, JSON.stringify(cov));
     // the time changes in place, the element is not rebuilt
