@@ -58,7 +58,7 @@ const CSS = `
 #enFlow .nd .v{font-size:26px;font-weight:200;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #enFlow .nd .v em{font-style:normal;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-left:3px}
 #enFlow .nd .s{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#enSol{left:170px;top:10px;width:220px;height:130px;padding:8px 12px;text-align:center}
+#enSol{left:170px;top:10px;width:220px;min-height:130px;padding:8px 12px;text-align:center}
 #enSol .l{justify-content:center}#enSol .v{font-size:28px;margin-top:0}
 #enSol svg{margin:3px auto 2px}
 #enSol .s b{font-weight:500;color:rgb(var(--oriel-ink))}
@@ -81,14 +81,14 @@ const CSS = `
 #enBatC .pk b{font-weight:400;font-size:13.5px}
 #enBatC .pk .p{font-size:20px;font-weight:200;text-align:right;font-variant-numeric:tabular-nums}
 #enBatC .pk small{grid-column:1/-1;font-size:12px;color:rgba(var(--oriel-on-dark),.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#enToday{left:972px;top:84px;width:284px;height:350px;padding:16px}
-#enTg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
-#enTg .tl{border-radius:18px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);padding:9px 11px;height:84px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;min-width:0;color:rgb(var(--oriel-ink))}
+#enToday{left:972px;top:84px;width:284px;min-height:350px;padding:16px}
+#enTg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;grid-auto-rows:minmax(84px,auto)} /* a row grows when a tile needs more room (the standing charge wraps to a second line) */
+#enTg .tl{border-radius:18px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);padding:9px 11px;height:auto;display:flex;flex-direction:column;justify-content:space-between;gap:2px;cursor:pointer;min-width:0;color:rgb(var(--oriel-ink))}
 #enTg .tl small{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));display:flex;align-items:center;gap:5px;white-space:nowrap}
 #enTg .tl small .ic{width:14px;height:14px}
 #enTg .tl b{font-weight:300;font-size:25px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #enTg .tl b em{font-style:normal;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-left:2px}
-#enTg .tl .n{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
+#enTg .tl .n{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
 #enTg .tl.good b{color:rgb(var(--oriel-good))}#enTg .tl.bad b{color:rgb(var(--oriel-bad))}
 #enChart{left:100px;top:450px;width:400px;height:272px;padding:16px}
 #enChart .k{font-size:30px;font-weight:200;margin-top:6px;font-variant-numeric:tabular-nums}
