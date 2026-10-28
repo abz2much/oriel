@@ -16,6 +16,7 @@ let failed = 0;
 for (const name of names) {
   const cfg = JSON.parse(fs.readFileSync(`dev/configs/${name}.json`, 'utf8'));
   const page = await browser.newPage({ viewport: { width: W, height: H } });
+  await page.emulateMedia({ reducedMotion: 'reduce' }); /* no card fade or slide in the pictures */
   const errors = [];
   page.on('pageerror', (e) => errors.push('PAGEERROR ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errors.push(m.type().toUpperCase() + ' ' + m.text().slice(0, 300)); });
