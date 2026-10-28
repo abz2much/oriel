@@ -1,7 +1,8 @@
 /* Tablet guard: the position and size of every block and control on every page (and the open pop-ups) at tablet sizes must
-   match the 0.4.0 bundle, rendered in the same run on the same machine (so fonts and sub-pixel text never differ between the two).
-   dev/baseline/oriel-0.4.0.js is the bundle from before the phone layout existed. New elements (the phone's tab bar, sheets and
-   headings) must take no room on the tablet.
+   match the baseline bundle, rendered in the same run on the same machine (so fonts and sub-pixel text never differ between the two).
+   dev/baseline/oriel-0.6.0.js is the 0.6.0 bundle: the rail got its dark fill and sliding chip, and pages got the fade, so the baseline
+   was replaced on purpose (it was the 0.4.0 bundle, from before the phone layout). New elements (the phone's tab bar, sheets and
+   headings, the sliding indicators) must take no room on the tablet.
    Usage: node dev/tablet-geometry.mjs                    compare dist/oriel.js with the baseline (npm test runs this)
           BASELINE=path/to/older.js node dev/tablet-geometry.mjs
    A deliberate tablet change: copy the new bundle to dev/baseline/ (and point BASELINE_FILE below at it) in the same pull request,
@@ -11,7 +12,7 @@ import fs from 'node:fs';
 import { chromium } from 'playwright';
 import { mkStates, CALLWS_SRC, CALLAPI_SRC } from './mock.mjs';
 
-const BASELINE_FILE = 'dev/baseline/oriel-0.4.0.js', TOL = 0.6;
+const BASELINE_FILE = 'dev/baseline/oriel-0.6.0.js', TOL = 0.6;
 const cfg = JSON.parse(fs.readFileSync('dev/configs/full-nova.json', 'utf8'));
 cfg.home.camera_popups = [{ flag: 'input_boolean.door_cam', camera: 'camera.front', title: 'Front' }];
 const SIZES = [[1280, 800], [1024, 768], [1366, 1024]];
@@ -69,5 +70,5 @@ for (const [view, snap] of Object.entries(all)) {
   const gone = Object.keys(b).filter((k) => !(k in snap)).map((k) => b[k].join()), news = Object.entries(snap).filter(([k]) => !(k in b));
   news.forEach(([k, n]) => { const i = gone.indexOf(n.join()); if (i >= 0) { gone.splice(i, 1); const j = bad.findIndex((x) => x.startsWith(`${view} `) && x.endsWith(': missing') && b[x.slice(view.length + 1, -9)] && b[x.slice(view.length + 1, -9)].join() === n.join()); if (j >= 0) bad.splice(j, 1); } else bad.push(`${view} ${k}: a new element takes room on the tablet (${n.join(',')})`); });
 }
-if (bad.length) { console.log('FAIL tablet layout differs from the 0.4.0 bundle in ' + bad.length + ' place(s):'); bad.slice(0, 25).forEach((x) => console.log('  ' + x)); process.exit(1); }
-console.log(`ok   tablet layout matches the 0.4.0 bundle (${Object.keys(base).length} views, ${Object.values(base).reduce((n, v) => n + Object.keys(v).length, 0)} elements, both rendered here)`);
+if (bad.length) { console.log('FAIL tablet layout differs from the 0.6.0 bundle in ' + bad.length + ' place(s):'); bad.slice(0, 25).forEach((x) => console.log('  ' + x)); process.exit(1); }
+console.log(`ok   tablet layout matches the 0.6.0 bundle (${Object.keys(base).length} views, ${Object.values(base).reduce((n, v) => n + Object.keys(v).length, 0)} elements, both rendered here)`);

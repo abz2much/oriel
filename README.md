@@ -20,7 +20,7 @@ Every page and every section is optional. You set it up with a visual editor; YA
 | **Nova** | Chat and controls for the separate Nova assistant integration. Off unless you turn it on. |
 | **System** | Home Assistant and host status, backups, connections, low batteries, unavailable entities, tablet buttons, the Oriel version and an optional debug panel. Always shown. |
 
-A page appears in the side rail only once at least one of its entities is set.
+A page appears in the side rail only once at least one of its entities is set. On the tablet the rail is dark glass with a chip that slides to the active page, and the cards of a page fade in when you change page (both are off with reduced motion).
 
 ### Idle clock (not a page)
 
@@ -33,6 +33,24 @@ The idle clock is not in the rail. It is a dark screen that covers the card when
 - **What it shows:** the time in your locale's format, the date, and up to three chips, each hidden when it has no data: the weather (`general.weather`), the next event from `family.calendars` with its colour bar and time (the same events as the Home "Coming up" card), and "Bin today" or "Bin tomorrow" with the bin names from `family.bins`. A small line at the bottom says how long the room has been empty and how to go back.
 - **Look:** dark and warm in every theme on purpose. The content drifts a few pixels in a slow loop every minute so nothing stays lit in one place; with reduced motion switched on, it does not move.
 - **Not shown** in the card editor's preview. It covers only the card: with the Home Assistant header and sidebar visible (no kiosk mode), they stay visible.
+
+### Auto rotation (not a page)
+
+Auto rotation moves through the pages by itself, one after the other in rail order, then back to the first. It is **off** unless you turn it on, so an existing config behaves exactly as before.
+
+```yaml
+general:
+  auto_rotate:
+    enabled: true             # default false
+    idle_seconds: 60          # seconds on each page (5 to 3600, default 60)
+    after_touch_seconds: 300  # seconds to wait after a touch or a page change (5 to 86400, default 300)
+```
+
+- **Order:** the rail's order (System last). On the phone it also steps through the pages under **More**. A page that does not show is skipped; with one page, nothing happens.
+- **After a touch:** when a person changes the page (a tap on the rail or tab bar, or any other page change that is not automatic), the next automatic move waits `after_touch_seconds` from that moment, then carries on at `idle_seconds`. A touch anywhere on the card starts that wait again.
+- **It waits, and asks again later, while:** the idle clock is showing, a pop-up, sheet, More menu or dialog is open, a text field has focus (typing to Nova, for example), or the browser tab is hidden. When the block ends, the next move comes after one full `idle_seconds`.
+- **Same as a tap:** it uses the same page change as a tap, so the slide and the fade run as usual. Hass updates never reset its timer. One timer only; it stops when the card is removed and restarts on a config change, with no reload.
+- **Not in the card editor's preview.** Set it in the editor under General › Auto rotation, or in YAML.
 
 <table>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
@@ -100,7 +118,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.5.2` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.6.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -156,6 +174,7 @@ nova: { ... }
 | `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
 | `layout` | `auto` \| `tablet` \| `phone` | `auto` | `auto` uses the phone layout when the card is narrower than 700 px (the card's own width, not the screen's) and the tablet layout otherwise. `tablet` or `phone` forces one. See [Phone layout](#phone-layout). |
 | `idle_clock` | object | Optional idle clock screen, see [Idle clock](#idle-clock-not-a-page). `presence`: the sensor (empty: no idle clock). `minutes`: how long the sensor must be off first (default 5, 1 to 60). |
+| `auto_rotate` | object | off | Optional auto rotation, see [Auto rotation](#auto-rotation-not-a-page). `enabled` (default `false`), `idle_seconds` (default 60), `after_touch_seconds` (default 300). |
 | `pages_order` | list | home, living, energy, climate, family, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
 
 ### home
@@ -337,7 +356,7 @@ The same card, pages, themes and config work on a phone. Nothing in your config 
 - **When it turns on:** when the card is narrower than 700 px, measured on the card itself, so the card editor's preview and a card placed in a narrow column also get it. A landscape phone wider than 700 px keeps the tablet layout. Force either with `general.layout: phone` or `tablet`.
 - **Pages:** every page in the rail has a phone layout: one column of full-width cards that scrolls, with two columns of tiles where they fit. There is no 1280 × 800 canvas scaling in phone mode, and the layout respects the safe areas (notch and home bar).
 - **Header:** the weather, clock and people chips scroll sideways in one row. The alarm, door and window buttons stay fixed on the right, so they are always reachable. People chips follow `people_display`, so nothing shows a name or picture you did not ask for.
-- **Navigation:** a floating tab bar replaces the side rail: the first four pages in rail order, then **More**, which opens a sheet with the rest (System is always reachable). With five pages or fewer there is no More. The selected tab is a raised pill with a heavier label, not colour alone.
+- **Navigation:** a floating tab bar replaces the side rail: the first four pages in rail order, then **More**, which opens a sheet with the rest (System is always reachable). With five pages or fewer there is no More. The bar is frosted glass, and a bubble slides to the selected tab (with a heavier label, so it is not colour alone). The glass is tinted more or less strongly depending on the theme, so the labels stay readable over any card scrolling underneath. Without `backdrop-filter` support the bar stays solid. With reduced motion switched on, the bubble jumps instead of sliding.
 - **Pop-ups:** the shopping list, camera, light tune panel, vacuum settings and the confirm steps open as bottom sheets over the whole screen. The page behind does not scroll, the back button or gesture closes the sheet instead of leaving the page, and each sheet has a visible close button and closes with a swipe down. Sheets stay above the on-screen keyboard.
 - **Confirm steps** (vacuum start, cleaning rooms, Nova lockdown): Cancel, then a large Confirm button set well apart from it. A tap that was meant for the page cannot press it in the first moments after it opens. Read-only pages stay read-only; the alarm and locks are not controllable from Oriel on any layout.
 - **Home:** the whole house is drawn at the card's width. Room and power labels keep their size (12 px or more) and only the labels that fit without overlapping are shown, power labels first.

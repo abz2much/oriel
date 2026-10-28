@@ -1,6 +1,6 @@
 /* Theme registry and builder. Classic keeps Oriel's original look exactly, variants included. Every other theme
    is built from two seed colours (base and accent) by the rules below, then checked by dev/contrast.mjs. */
-import { themeCss, ROLE, VARIANT } from './tokens.js';
+import { themeCss, ROLE, VARIANT, CLASSIC_PAGE } from './tokens.js';
 import { hex, trip, mix, reach, contrast, WHITE, BLACK, isHex } from './colour.js';
 
 export const DEFAULT_THEME = 'classic';
@@ -107,6 +107,7 @@ function dark(base, accent) {
     'accent-glow': mix(A, WHITE, 0.3), 'ink-on-accent': inkOnAccent, 'accent-fill': fill, 'my-bubble': mix(A, BLACK, 0.72),
     /* Nova panel: a deep accent-tinted glass, not a slab of neon. */
     'nova-a': mix(B, A, 0.2), 'nova-b': mix(B, A, 0.08), 'on-nova': ink, 'nova-glass': mix(B, WHITE, g * 0.75),
+    'nav-fill': mix(B, BLACK, 0.5), /* the phone tab bar is a deep tint of the base: light ink reads on it over any card */
   };
   return { role, variant };
 }
@@ -179,6 +180,35 @@ const CLASSIC_READABLE = {
   extra: { soft: '.78', 'soft-page': '.86', 'soft-on-accent': '.7' },
 };
 
+
+/* Navigation glass (0.6.0). The phone tab bar is a translucent tint over whatever card sits under it, so its opacity is worked out per
+   theme: the least tint at which the inactive labels read (4.6:1, soft ink) over the lightest and darkest surfaces the theme has under it.
+   dev/contrast.mjs re-checks the result over every surface it knows. nav-tint is how much accent the bubble's far corner carries
+   (0.6 in the approved mockup), lowered where the active label would not read on it. */
+const NAV_A_FROM = 0.26, NAV_A_MAX = 0.96, NAV_TINT = 0.6, NAV_SOFT = 0.66;
+const r2 = (x) => Math.round(x * 100) / 100;
+function navLevels(out) {
+  const P = (v) => v.split(',').map(Number);
+  const get = (k) => {
+    if (out.role[k] !== undefined) return P(out.role[k]);
+    let x = k;
+    while (x in VARIANT) { if (out.variant[x] !== undefined) return P(out.variant[x]); if (out.classic) return P(VARIANT[x][0]); x = VARIANT[x][1]; }
+    return P(out.role[x] !== undefined ? out.role[x] : ROLE[x]);
+  };
+  const stops = [...(out.role.page || CLASSIC_PAGE).matchAll(/(?:rgb\((\d+,\d+,\d+)\)|(#[0-9a-f]{6}))\s+\d+%/gi)].map((m) => (m[1] ? P(m[1]) : hex(m[2])));
+  const page = stops[2] ? mix(stops[1], stops[2], 0.3) : stops[0], glass = get('glass'), ink = get('ink');
+  const g20 = mix(page, glass, 0.2), cell = mix(g20, glass, 0.34);
+  const backs = [page, g20, cell, mix(g20, glass, 0.66), get('raised'), get('black'), mix(page, mix(get('dark-a'), get('dark-b'), 0.5), 0.87), get('accent-fill'), mix(g20, mix(get('accent-hi'), get('accent-lo'), 0.5), 0.88)];
+  const soft = Math.max(NAV_SOFT, out.extra && out.extra.soft ? +out.extra.soft : 0);
+  const fill = get('nav-fill'), bubble = get('bubble'), accent = get('accent');
+  let a = NAV_A_FROM;
+  while (a < NAV_A_MAX && !backs.every((b) => { const bar = mix(b, fill, a); return contrast(mix(bar, ink, soft), bar) >= 4.6; })) a = r2(a + 0.02);
+  let tint = NAV_TINT;
+  const reads = (t) => backs.every((b) => { const bar = mix(b, fill, a); return [mix(bar, bubble, 0.88), mix(bar, bubble, 0.46), mix(bar, accent, t)].every((s) => contrast(ink, s) >= 4.6); });
+  while (tint > 0 && !reads(tint)) tint = r2(tint - 0.05);
+  return { 'nav-a': String(a), 'nav-tint': String(Math.max(0, tint)), 'nav-soft': String(soft) };
+}
+
 /* Full token values for a theme id, as triplet strings ({ role, variant }). An accent override rebuilds the accent
    family (fills, toggles, accent text, text on accent) from the new colour, so it stays readable. */
 export function themeTokens(id, accent) {
@@ -196,6 +226,7 @@ export function themeTokens(id, accent) {
       STATUS_VARIANTS.forEach((k) => { if (!(k in out.variant)) out.variant[k] = VARIANT[k][0]; });
     }
   }
+  Object.assign(out.extra, navLevels(out));
   return out;
 }
 

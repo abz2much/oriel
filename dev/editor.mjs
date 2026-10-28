@@ -161,6 +161,18 @@ check('idle clock: the sensor and minutes are saved under general.idle_clock', o
 await unfold(); await p.waitForTimeout(50);
 const idleWarn = await R(() => window.__ed.shadowRoot.querySelector('.warn').textContent);
 check('idle clock: a presence sensor that does not exist gives a warning', /no_such_sensor/.test(idleWarn) && /does not exist/.test(idleWarn), idleWarn.trim().slice(0, 90));
+// 6b2. auto rotation: a tab in General with the switch and both timings; nothing is written until one is changed; it is saved under general.auto_rotate
+await gen((sec) => { [...sec.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Auto rotation').click(); }); await p.waitForTimeout(100);
+const arFields = await gen((sec) => [...sec.querySelectorAll('ha-form input')].map((i) => i.dataset.name));
+check('auto rotation: General has an Auto rotation tab with the switch and both timings', ['auto_rotate.enabled', 'auto_rotate.idle_seconds', 'auto_rotate.after_touch_seconds'].every((n) => arFields.includes(n)), JSON.stringify(arFields));
+const arLabels = await gen((sec) => sec.textContent);
+check('auto rotation: the labels are in plain words', /Move through the pages by itself/.test(arLabels) && /Seconds on each page/.test(arLabels) && /Seconds to wait after a touch/.test(arLabels), arLabels.replace(/\s+/g, ' ').slice(0, 160));
+await p.screenshot({ path: 'dev/out/editor-auto-rotate.png' });
+await gen((sec) => { const i = sec.querySelector('ha-form input[data-name="auto_rotate.enabled"]'); i.checked = true; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+await gen((sec) => { const i = sec.querySelector('ha-form input[data-name="auto_rotate.idle_seconds"]'); i.value = '45'; i.dispatchEvent(new Event('change')); }); await p.waitForTimeout(100);
+out = await R(() => window.__out[window.__out.length - 1]);
+check('auto rotation: the switch and the seconds are saved under general.auto_rotate', out.general.auto_rotate && out.general.auto_rotate.enabled === true && Number(out.general.auto_rotate.idle_seconds) === 45, JSON.stringify(out.general.auto_rotate));
+await gen((sec) => { [...sec.querySelectorAll('button')].find((b) => b.textContent.trim() === 'General').click(); }); await p.waitForTimeout(100);
 // 6c. layout: a dropdown in General (auto, tablet, phone); choosing one is saved, auto removes nothing it does not have to
 await gen((sec) => { [...sec.querySelectorAll('button')].find((b) => b.textContent.trim() === 'General').click(); }); await p.waitForTimeout(100);
 const layoutField = await gen((sec) => { const i = sec.querySelector('ha-form [data-name="layout"]'); return i ? { tag: i.tagName, name: i.dataset.name } : null; });

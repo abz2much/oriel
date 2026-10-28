@@ -13,6 +13,10 @@ general:
   # idle_clock:                          # optional: a clock screen when nobody has been in the room for a while
   #   presence: binary_sensor.room_presence   # on while someone is there; unset = no idle clock
   #   minutes: 5                                  # 1 to 60
+  # auto_rotate:                         # optional: move through the pages by itself (off by default)
+  #   enabled: true
+  #   idle_seconds: 60                   # seconds on each page (5 to 3600)
+  #   after_touch_seconds: 300           # seconds to wait after a touch or a page change (5 to 86400)
 home:
   energy_card:
     solar_power: sensor.solar_power

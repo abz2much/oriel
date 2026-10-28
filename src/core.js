@@ -46,9 +46,21 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 #hchips .chip.off{background:rgb(var(--oriel-warn-bg));color:rgb(var(--oriel-warn));border-color:transparent;font-weight:500;padding:0 14px 0 12px}
 #hdr-r{right:24px;top:20px;display:flex;gap:10px;align-items:center}
 #rail{left:16px;top:96px;bottom:36px;height:fit-content;margin:auto 0;width:72px;max-height:668px;border-radius:28px;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
-#rail .pl{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;align-self:stretch} #rail .pl.scroll{overflow-y:auto;scrollbar-width:none} #rail .pl.scroll::-webkit-scrollbar{display:none} #rail .end{margin-top:6px}
-#rail a{width:64px;min-height:52px;flex-shrink:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;box-sizing:border-box;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));cursor:pointer}
-#rail a.on{background:rgb(var(--oriel-raised));color:rgb(var(--oriel-ink));box-shadow:0 8px 16px rgba(var(--oriel-shadow),.25)}
+#rail .pl{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;align-self:stretch;position:relative} #rail .pl.scroll{overflow-y:auto;scrollbar-width:none} #rail .pl.scroll::-webkit-scrollbar{display:none} #rail .end{margin-top:6px}
+#rail a{width:64px;min-height:52px;flex-shrink:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;box-sizing:border-box;color:rgba(var(--oriel-rail-ink),.74);cursor:pointer}
+#rail a.on{background:rgb(var(--oriel-chip));color:rgb(var(--oriel-chip-ink));box-shadow:0 8px 16px rgba(var(--oriel-chip-shadow),.28);font-weight:500}
+/* dark rail; the chip that slides to the active item is #rail .navI, behind the links, so the link itself keeps no chip once it exists (#rail.nv) */
+#rail{background:rgba(var(--oriel-rail),.86);border:1px solid rgba(var(--oriel-rail-line),.12);box-shadow:0 22px 44px rgba(var(--oriel-rail-shadow),.35)}
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){#rail{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}}
+#rail.nv a.on{background:none;box-shadow:none}
+.navI{position:absolute;left:0;top:0;pointer-events:none;box-sizing:border-box;opacity:1}
+.navI.hid{opacity:0}
+#rail .navI{border-radius:16px;background:rgb(var(--oriel-chip));box-shadow:0 8px 16px rgba(var(--oriel-chip-shadow),.28)}
+#rail .navI.go{transition:transform .36s cubic-bezier(.3,1.25,.45,1),width .36s ease,height .36s ease,opacity .2s ease}
+/* a page change: the cards of the new page fade in and rise (the animation ends at transform:none, so no transform is left behind) */
+@keyframes nvFade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.navFx{animation:nvFade .42s ease backwards;animation-delay:var(--nd,0ms)}
+@media (prefers-reduced-motion:reduce){.navFx{animation:none}.navI,.navI.go{transition:none!important}}
 #rail a .lb{font-size:12px;line-height:1.15;text-align:center;max-width:60px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
 #pages{display:contents}
 .page{position:absolute;inset:0;pointer-events:none}
@@ -241,6 +253,7 @@ export class OrielShell extends HTMLElement {
     try { this._buildStatic(); } catch (e) { console.error('[oriel] build failed', e); }
     try { this._idleInit(); } catch (e) { console.warn('[oriel] idle clock', e); }
     this._phone = false; try { this._phoneInit(); } catch (e) { console.warn('[oriel] phone layout', e); }
+    try { this._arInit(); } catch (e) { console.warn('[oriel] auto rotation', e); }
     this._fit();
     this._ro = new ResizeObserver(() => this._fit());
     this._ro.observe(this);
@@ -252,7 +265,7 @@ export class OrielShell extends HTMLElement {
   _teardown() {
     if (!this._built) return;
     Object.keys(this._pages || {}).forEach((k) => { const p = this._pages[k]; if (p.def.stop) { try { p.def.stop.call(this); } catch (e) { /* nothing to stop */ } } });
-    try { this._idleStop(); this._sheetsStop(); } catch (e) { /* nothing to stop */ }
+    try { this._idleStop(); this._sheetsStop(); this._arStop(); this._navStop(); } catch (e) { /* nothing to stop */ }
     if (this._ro) this._ro.disconnect();
     window.removeEventListener('resize', this._onWin);
     clearInterval(this._tick); clearInterval(this._etick); this._etick = null;
@@ -367,10 +380,13 @@ export class OrielShell extends HTMLElement {
     // Measured from the icons themselves: the invisible tap areas would count as overflow in scrollHeight.
     requestAnimationFrame(() => { const a = pl.firstElementChild, z = pl.lastElementChild; pl.classList.toggle('scroll', !!a && z.offsetTop + z.offsetHeight - a.offsetTop > pl.clientHeight + 1); });
     try { this._phoneTabs(defs); } catch (e) { console.warn('[oriel] phone tabs', e); }
+    this._navOrder = defs.filter((d) => this._pages[d.key] && !d.bottom).concat(defs.filter((d) => this._pages[d.key] && d.bottom)).map((d) => d.key); /* rail order: auto rotation follows it */
+    try { this._navBuild(); } catch (e) { console.warn('[oriel] nav indicator', e); }
     if (!this._pages[this._page]) this._setPage('home');
   }
-  _setPage(key) {
+  _setPage(key, opts) {
     const pg = this._pages && this._pages[key]; if (!pg) return;
+    const prev = this._page; /* opts.auto: auto rotation moved the page (a person did not) */
     this._page = key;
     this._phoneMark();
     Object.keys(this._pages).forEach((k) => this._pages[k].el.classList.toggle('off', k !== key));
@@ -378,6 +394,7 @@ export class OrielShell extends HTMLElement {
     if (pg.def.update && this._h) { try { pg.def.update.call(this); } catch (e) { console.warn('[oriel] ' + key + ' update', e); } }
     if (key === 'home' && this._cu) { this._cu.fitT = 0; this._cuUpdate(); } /* the Coming up card is measured while Home shows */
     if (key === 'home' && this._phone) this._phoneFitLabels(true); /* the house labels are fitted while Home shows */
+    try { this._arNote(!!(opts && opts.auto)); this._navPlace(prev !== key); if (prev !== key) this._navFade(pg.el); } catch (e) { console.warn('[oriel] nav', e); }
   }
 
   /* ---------- Home: static build ---------- */

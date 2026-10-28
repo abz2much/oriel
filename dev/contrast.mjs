@@ -28,6 +28,7 @@ function values(id) {
   v.pageMid = stops[2] ? mix(stops[1], stops[2], 0.3) : stops[0];
   v.softA = t.extra && t.extra['soft-on-accent'] ? +t.extra['soft-on-accent'] : 0.62;
   v.soft = t.extra && t.extra.soft ? +t.extra.soft : 0.62; v.softPage = t.extra && t.extra['soft-page'] ? +t.extra['soft-page'] : v.soft;
+  v.navA = +t.extra['nav-a']; v.navTint = +t.extra['nav-tint']; v.navSoft = +t.extra['nav-soft']; /* the phone bar's opacity, the bubble's accent tint, the inactive label alpha */
   return { v, dark: THEMES[id].style === 'dark', classic: !!t.classic };
 }
 
@@ -59,11 +60,19 @@ function surfaces(v) {
   s['sheet tile'] = over(s.sheet, v.glass, 0.55); /* a tile in the phone More sheet */
   s['room label'] = over(s.page, v.glass, 0.78);
   s['power tag'] = over(s.page, v.tag, 0.9);
+  /* the tablet rail (0.6.0): its fill at .86 over the page, and the chip that slides to the active item */
+  s.rail = over(s.page, v.rail, 0.86); s.chip = v.chip;
+  /* the phone bar (0.6.0) is glass over whatever card is under it: every surface above is a possible backdrop. The bubble's three gradient stops sit on the bar. */
+  Object.keys(s).filter((k) => !k.startsWith('idle') && !k.startsWith('bar over') && k !== 'rail' && k !== 'chip').forEach((k) => {
+    const bar = over(s[k], v['nav-fill'], v.navA);
+    s['bar over ' + k] = bar;
+    s['bubble top over ' + k] = over(bar, v.bubble, 0.88); s['bubble mid over ' + k] = over(bar, v.bubble, 0.46); s['bubble tint over ' + k] = over(bar, v.accent, v.navTint);
+  });
   return s;
 }
 
 /* [label, text colour, alpha, surface, target] */
-function pairs(v, dark, classic) {
+function pairs(v, dark, classic, S) {
   const st = (t) => hex(dark ? STATE_ON_DARK[t] || t : classic ? STATE_ON_CLASSIC[t] || t : t);
   const L = [];
   const add = (label, fg, a, surf, target) => L.push([label, fg, a, surf, target]);
@@ -92,6 +101,13 @@ function pairs(v, dark, classic) {
   IDLE.bars.forEach((c, i) => add(`idle clock: calendar bar ${i + 1}`, hex(c), 1, 'idle chip', 3));
   add('phone tab label (soft)', v.ink, v.soft, 'tab bar', 4.5); add('phone tab label (selected)', v.ink, 1, 'raised', 4.5); add('phone More tile text', v.ink, 1, 'sheet tile', 4.5);
   add('greeting (large)', v.ink, 1, 'page', 3);
+  /* navigation: the rail, and the phone bar's labels over every possible card (inactive labels at the theme's soft value, the active one in full ink on the bubble) */
+  add('rail label (74%)', v['rail-ink'], 0.74, 'rail', 4.5); add('rail label, active', v['chip-ink'], 1, 'chip', 4.5);
+  Object.keys(S).filter((k) => k.startsWith('bar over ')).forEach((k) => {
+    const b = k.slice(9);
+    add(`phone tab label, inactive (${Math.round(v.navSoft * 100)}%) over ${b}`, v.ink, v.navSoft, k, 4.5);
+    for (const part of ['top', 'mid', 'tint']) add(`phone tab label, active, on the bubble (${part}) over ${b}`, v.ink, 1, `bubble ${part} over ${b}`, 4.5);
+  });
   /* Energy on the phone: an amount that shows as zero is drawn in the soft colour (flow nodes, Today tiles, heat pump, house use) */
   add('Energy zero amount (soft, large: 24 px)', v.ink, v.soft, 'on fill', 3); add('Energy zero amount (soft)', v.ink, v.soft, 'cell', 4.5);
   add('Energy zero amount (60%)', v['on-dark'], 0.6, 'dark panel', 4.5); add('Energy zero amount (60%)', v['on-dark'], 0.6, 'black', 4.5);
@@ -103,7 +119,7 @@ let md = '# Oriel contrast report\n\nTargets: 4.5:1 body text, 3:1 large text an
 let fails = 0;
 for (const id of ids) {
   const { v, dark, classic } = values(id), s = surfaces(v);
-  const rows = pairs(v, dark, classic).map(([label, fg, a, surf, target]) => {
+  const rows = pairs(v, dark, classic, s).map(([label, fg, a, surf, target]) => {
     const r = contrast(over(s[surf], fg, a), s[surf]);
     return { label, surf, r, target, ok: r >= target };
   });
