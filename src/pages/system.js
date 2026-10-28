@@ -46,9 +46,9 @@ const CSS = `
 #pgSystem button{font-family:inherit}
 #syToast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:rgb(var(--oriel-ink-fill));color:rgb(var(--oriel-on-dark));border-radius:18px;padding:10px 18px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
 #syToast.on{opacity:1}
-#syHA{left:100px;top:84px;width:380px;height:214px} #syHost{left:100px;top:312px;width:380px;height:232px} #syConn{left:100px;top:558px;width:380px;height:150px}
-#syAtt{left:496px;top:84px;width:400px;height:300px} #syNova{left:496px;top:398px;width:400px;height:262px}
-#syTab{left:912px;top:84px;width:268px;height:420px}
+#syHA{left:100px;top:84px;width:380px;min-height:214px} #syHost{left:100px;top:312px;width:380px;min-height:232px} #syConn{left:100px;top:558px;width:380px;min-height:150px}
+#syAtt{left:496px;top:84px;width:400px;min-height:300px} #syNova{left:496px;top:398px;width:400px;min-height:262px}
+#syTab{left:912px;top:84px;width:268px;min-height:420px}
 #syDbg{left:912px;top:516px;width:344px;height:260px;display:flex;flex-direction:column}
 #syDbgL{flex:1;min-height:0;overflow-y:auto;margin-top:6px}
 #syDbgL .row{font-size:12px;min-height:28px;padding:4px 0}
@@ -118,16 +118,29 @@ const SystemExt = {
     // Home Assistant card
     this.tap($('syUpR'), () => this.moreInfo(H.uptime)); $('syUpR').classList.toggle('hide', !isEnt(H.uptime));
     this.tap($('syBkR'), () => this.moreInfo(B.last)); $('syBkR').classList.toggle('hide', !isEnt(B.last));
-    // left column stacks without gaps
-    let y = 84; [['syHA', 214], ['syHost', 232], ['syConn', 150]].forEach(([id, h]) => { const n = $(id); if (n.classList.contains('hide')) return; n.style.top = y + 'px'; y += h + 14; });
+    this._syPack();
     // Nova (only when enabled), debug panel (only when asked for)
     const nova = this._c.nova.enabled;
     $('syNova').classList.toggle('hide', !nova); $('syBtnN').classList.toggle('hide', !nova);
     const NE = this._c.nova.entities;
     [['syNv', NE.status], ['syNq', NE.quiet], ['syNl', NE.lockdown], ['syNs', NE.suggestions], ['syNr', NE.reminders]].forEach(([id, ent]) => { const n = $(id); if (n && isEnt(ent)) { const row = n.closest('.row') || n; row.classList.add('tap'); this.tap(row, () => this.moreInfo(ent)); } });
     $('syDbg').classList.toggle('hide', !c.debug_panel);
-    this._sy.tick = setInterval(() => { if (this._page === 'system') { try { this._updateSystem(); } catch (e) { /* next tick */ } } }, 30000);
+    this._sy.tick = setInterval(() => { if (this._page === 'system') { try { this._updateSystem(); this._syPack(); } catch (e) { /* next tick */ } } }, 30000);
     return pg;
+  },
+  /* Each column stacks by the cards' real heights, so a card that needs more room (long names, larger text) pushes the next one down instead of being cut off or overlapped. At normal size it lands exactly where the fixed tops were. The Debug card fills what is left of the column. */
+  _syPack() {
+    const $ = this._sy && this._sy.$; if (!$) return;
+    [[['syHA', 'syHost', 'syConn'], 14], [['syAtt', 'syNova'], 14], [['syTab', 'syDbg'], 12]].forEach(([ids, gap]) => {
+      let y = 84;
+      ids.forEach((id) => {
+        const n = $(id); if (!n || n.classList.contains('hide')) return;
+        if (!n.offsetHeight) return; /* the page is not showing: measure when it is */
+        n.style.top = y + 'px';
+        if (id === 'syDbg') n.style.height = Math.max(120, 776 - y) + 'px';
+        y += n.offsetHeight + gap;
+      });
+    });
   },
   _syToast(tx) {
     const n = this._sy.$('syToast'); if (!n) return; n.textContent = tx; n.classList.add('on');
@@ -235,7 +248,7 @@ registerPage({
   css: CSS,
   enabled() { return true; },
   init() { return this._syInitPage(); },
-  update() { this._updateSystem(); },
+  update() { this._updateSystem(); this._syPack(); },
   stop() { this._syStop(); },
   methods: SystemExt,
 });

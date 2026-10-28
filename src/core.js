@@ -10,7 +10,7 @@ import { ENERGY, LIGHT, CAM, STATE_ON_DARK, STATE_ON_CLASSIC } from './theme/fix
 import { themeStyle, isDarkTheme, isClassicTheme } from './theme/themes.js';
 
 const CSS = `
-:host{display:block;position:relative;width:100%;overflow:hidden;background:rgb(var(--oriel-frame));font-family:'Outfit','Avenir Next','Segoe UI',system-ui,sans-serif}
+:host{-webkit-text-size-adjust:100%;text-size-adjust:100%;display:block;position:relative;width:100%;overflow:hidden;background:rgb(var(--oriel-frame));font-family:'Outfit','Avenir Next','Segoe UI',system-ui,sans-serif}
 *{box-sizing:border-box}
 #wrap{position:absolute;left:0;top:0;width:1280px;height:800px;transform-origin:0 0}
 #screen{width:100%;height:800px;position:relative;overflow:hidden;color:rgb(var(--oriel-ink));

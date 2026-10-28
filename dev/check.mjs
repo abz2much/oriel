@@ -4,11 +4,12 @@
    3. the card renders every page in every dev config with no page errors and no service calls
    4. the editor checks pass
    5. the Climate and Family page checks pass
-   6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.6.0 bundle
+   6. the phone layout checks pass (every page at three phone sizes), the phone pop-up checks pass, and the tablet layout still matches the 0.6.1 bundle
    7. no two tap areas overlap on any phone page (dev/phone-taps.mjs)
    8. the rail and the phone's tab bar are the topmost element over every item, on every page and state
    9. the sliding indicator and the card fade (dev/nav-motion.mjs), and auto rotation (dev/auto-rotate.mjs)
-   10. every theme passes contrast (dev/contrast.mjs), the navigation glass included */
+   10. every theme passes contrast (dev/contrast.mjs), the navigation glass included
+   11. no text outside its box or clipped on Energy, Vacuum and System at five tablet sizes, at normal and 25% larger text (dev/overflow.mjs) */
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -67,5 +68,8 @@ ok('auto rotation: off by default; rotates, wraps, waits after a touch, pauses f
 try { execFileSync(process.execPath, ['dev/contrast.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('contrast (dev/contrast.mjs): a pair is under target'); }
 ok('contrast: every theme passes on every surface, the rail and the phone bar (over any card) included');
 
+try { execFileSync(process.execPath, ['dev/overflow.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('text overflow checks (dev/overflow.mjs)'); }
+ok('no text outside its box or clipped on Energy, Vacuum and System at 1024x768, 1180x820, 1280x800, 1366x1024 and 1920x1200, at normal and 25% larger text');
+
 try { execFileSync(process.execPath, ['dev/tablet-geometry.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('the tablet layout changed (dev/tablet-geometry.mjs)'); }
-ok('tablet layout matches the 0.6.0 bundle (rendered in the same run)');
+ok('tablet layout matches the 0.6.1 bundle (rendered in the same run)');
