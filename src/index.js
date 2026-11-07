@@ -6,6 +6,7 @@ import './house.js';
 import './idle.js';
 import './phone.js';
 import './nav.js';
+import './fullscreen.js';
 import './pages/living.js';
 import './pages/energy.js';
 import './pages/climate.js';

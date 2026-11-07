@@ -119,7 +119,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.6.3` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.6.4` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -170,7 +170,6 @@ nova: { ... }
 | `clock` | true/false | `true` | Clock chip. |
 | `currency` | text | `auto` | `auto` uses Home Assistant's currency; or a code such as `GBP`. |
 | `settings_path` | text | `/config` | Where the System page's settings button goes. |
-| `kiosk_path` | text | current page | Dashboard path used by “Show header and sidebar”. |
 | `theme` | theme id | `classic` | Colour theme; see [Themes](#themes). An unknown id falls back to Classic. |
 | `accent` | hex colour | – | Optional accent colour that replaces the theme's own, such as `"#2457ff"`. |
 | `layout` | `auto` \| `tablet` \| `phone` | `auto` | `auto` uses the phone layout when the card is narrower than 700 px (the card's own width, not the screen's) and the tablet layout otherwise. `tablet` or `phone` forces one. See [Phone layout](#phone-layout). |
@@ -378,11 +377,14 @@ All screenshots use made-up example data.
 
 ## Wall tablet setup
 
-- **Hide Home Assistant's header and sidebar** with [kiosk-mode](https://github.com/NemesisRE/kiosk-mode) from HACS. Add `kiosk_mode: { kiosk: true }` to the dashboard's raw config (**Edit dashboard › ⋮ › Raw configuration editor**).
-- **Get them back** by adding `?disable_km` to the dashboard URL, or press **Show header and sidebar** on Oriel's System page.
+- **Full screen button**: the round button at the right of Oriel's header (tablet layout only) hides Home Assistant's header and sidebar and asks the browser for full screen, which also hides its bars and the system bars where the app allows it. Tap it again to bring everything back. No add-on is needed.
+  - The choice is kept on each device. After a reload the header and sidebar stay hidden until you tap the button; the browser's own full screen needs a tap, so its bars come back after a reload.
+  - It hides them by adding a small style to Home Assistant's page, with the rules the [kiosk-mode](https://github.com/NemesisRE/kiosk-mode) project uses. A future Home Assistant update could change its page; if the header stops hiding, update Oriel.
+  - Not shown in the phone layout or in the card editor's preview, and the header and sidebar come back when you leave the dashboard.
+  - Already using kiosk-mode? It still works alongside; add `?disable_km` to the dashboard URL to get out of it.
 - **Panel view**: Oriel is meant to be the only card on a panel view, so it can fill the screen.
 - **Screen size**: designed for landscape tablets from about 1280 × 800 up to 1700 wide. Larger screens scale up; very tall or narrow screens get bands at the edges.
-- Keep the screen awake and the browser full screen with your tablet's own kiosk browser or settings.
+- Keep the screen awake with your tablet's own kiosk browser or settings.
 
 ## Privacy and safety
 

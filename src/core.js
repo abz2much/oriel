@@ -147,7 +147,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-vis
 const HTML = `
 <div id="wrap"><div id="screen">
   <div id="hdr"><div id="hchips" class="abs"></div>
-  <div id="hdr-r" class="abs"><button class="round ghost" id="bAlarm" aria-label="${esc(S.alarm)}">${icon('shield')}</button><button class="round ghost" id="bDoor" aria-label="${esc(S.front_door)}">${icon('door')}</button><button class="round ghost" id="bWin" aria-label="${esc(S.windows)}" title="${esc(S.windows)}">${icon('win')}</button></div></div>
+  <div id="hdr-r" class="abs"><button class="round ghost" id="bAlarm" aria-label="${esc(S.alarm)}">${icon('shield')}</button><button class="round ghost" id="bDoor" aria-label="${esc(S.front_door)}">${icon('door')}</button><button class="round ghost" id="bWin" aria-label="${esc(S.windows)}" title="${esc(S.windows)}">${icon('win')}</button><button class="round ghost" id="bFs" aria-pressed="false" aria-label="${esc(S.full_screen)}" title="${esc(S.full_screen)}">${icon('fsOn')}</button></div></div>
   <nav id="rail" class="abs glass mid"></nav>
   <nav id="tabs" class="abs glass mid" aria-label="${esc(S.pages)}"></nav>
   <div id="pages">
@@ -257,6 +257,7 @@ export class OrielShell extends HTMLElement {
     try { this._idleInit(); } catch (e) { console.warn('[oriel] idle clock', e); }
     this._phone = false; try { this._phoneInit(); } catch (e) { console.warn('[oriel] phone layout', e); }
     try { this._arInit(); } catch (e) { console.warn('[oriel] auto rotation', e); }
+    try { this._fsInit({ enter: S.full_screen, exit: S.exit_full_screen }, (on) => icon(on ? 'fsOff' : 'fsOn')); } catch (e) { console.warn('[oriel] full screen', e); }
     this._fit();
     this._ro = new ResizeObserver(() => this._fit());
     this._ro.observe(this);
@@ -269,6 +270,7 @@ export class OrielShell extends HTMLElement {
     if (!this._built) return;
     Object.keys(this._pages || {}).forEach((k) => { const p = this._pages[k]; if (p.def.stop) { try { p.def.stop.call(this); } catch (e) { /* nothing to stop */ } } });
     try { this._idleStop(); this._sheetsStop(); this._arStop(); this._navStop(); } catch (e) { /* nothing to stop */ }
+    try { this._fsStop(); } catch (e) { /* nothing to put back */ } /* Home Assistant's header and sidebar come back when the card leaves the page */
     if (this._ro) this._ro.disconnect();
     window.removeEventListener('resize', this._onWin);
     clearInterval(this._tick); clearInterval(this._etick); this._etick = null;
