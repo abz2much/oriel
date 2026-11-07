@@ -11,9 +11,6 @@ dev/migrate.mjs
 dev/compare-original.mjs
 THEMES-PROMPT.md
 .claude/
-NAV-WINDOW-PROMPT.md
-FAMILY-CLIMATE-PROMPT.md
-MOCKUPS-AND-README-PROMPT.md
 dev/compare-mockups.mjs
-LIVING-FIXES-PROMPT.md
 dev/real-config.mjs
+dev/mockups/
