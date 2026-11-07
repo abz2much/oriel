@@ -74,7 +74,7 @@ const pageOpts = (cfg, keep) => { /* a config with only some pages */ const c = 
   await a.page.mouse.move(box[0], box[1]); await a.page.mouse.down(); await a.page.mouse.move(box[0], box[1] + 40); await a.page.mouse.move(box[0], box[1] + 120); await a.page.mouse.up();
   check('More: swiping down closes it', !(await sel(a.page)).open);
   await sr(a.page, (r) => r.querySelector('#tabs [data-more]').click()); /* the sheet must be open to measure its tiles */
-  const sizes = await sr(a.page, (r) => [...r.querySelectorAll('#tabs a, #moreG .mt, #moreX, #hdr-r button')].map((x) => { const q = x.getBoundingClientRect(); return [x.id || x.dataset.t || 'more', Math.round(q.width), Math.round(q.height)]; }).filter((x) => x[1] < 44 || x[2] < 44));
+  const sizes = await sr(a.page, (r) => [...r.querySelectorAll('#tabs a, #moreG .mt, #moreX, #hdr-r button')].filter((x) => x.getClientRects().length > 0).map((x) => { /* shown buttons only (the full screen button is tablet only) */ const q = x.getBoundingClientRect(); return [x.id || x.dataset.t || 'more', Math.round(q.width), Math.round(q.height)]; }).filter((x) => x[1] < 44 || x[2] < 44));
   check('tab bar, More tiles and header buttons are at least 44 x 44 (the close button gets an invisible 44 px area)', sizes.filter((x) => x[0] !== 'moreX').length === 0, JSON.stringify(sizes));
   check('tab bar and sheet: no errors, no service calls', a.errors.length === 0 && (await a.page.evaluate(() => window.__calls.length)) === 0, a.errors.join(' | ')); await a.page.close();
   // five or fewer pages: no More, System stays a tab

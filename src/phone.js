@@ -302,6 +302,7 @@ addMethods({
   _phoneChanged() {
     this._phoneHouse(); this._phoneMore(false); this._phoneMark(); this._phonePill(); this._phoneTitles(); this._phoneChips(); this._phoneOverlays(); this._sheetsChanged(); this._navPlace(false); /* the rail or the tab bar just appeared: measure it */
     if (this._idle) this._idleSync();
+    this._fsSync(); /* the full screen button is tablet only: the phone layout brings Home Assistant's header and sidebar back */
     requestAnimationFrame(() => { if (this._built && this._h) this._update(); }); /* pages re-measure at the new size */
   },
 

@@ -2,6 +2,24 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.6.4] - 2026-11-07
+
+### Added
+- **Full screen button** at the right of the header (tablet layout only). A tap hides Home Assistant's header and sidebar and asks the browser for full screen (its bars and the system bars, where the app allows it); another tap brings everything back. No add-on is needed.
+  - The choice is kept on each device, so after a reload the header and sidebar stay hidden until the button is tapped. The browser's own full screen needs a tap, so its bars come back after a reload.
+  - Oriel adds one small style to Home Assistant's page, with the rules the kiosk-mode project uses, and removes it when the button is tapped off, in the phone layout, in the card editor's preview, and when you leave the dashboard.
+  - A browser that refuses full screen, or has none, still gets the header and sidebar hidden, with no error.
+
+### Removed
+- **System: "Show header and sidebar"**, and the `general.kiosk_path` option that only it used. The full screen button replaces it. With the kiosk-mode add-on, `?disable_km` on the dashboard URL still gets you out.
+
+### Changed
+- **Tablet baseline replaced on purpose** (now `dev/baseline/oriel-0.6.4.js`): the header's round buttons and the Nova pill move 54 px left for the new button, and System's Tablet card is one button shorter (its Debug card grows to fill the column). Nothing else moves.
+
+### Tests
+- New `dev/fullscreen.mjs` (part of `npm test`), in a fake Home Assistant page with the real nesting: the button hides and shows the header, sidebar and drawer shell; the choice is stored per device and survives a reload without asking the browser for full screen; a refusing or missing browser full screen gives no error; no button and nothing hidden in the phone layout or the card editor's preview; turning between layouts follows the choice; the card leaving the page puts everything back; outside Home Assistant a tap does not throw; System has no kiosk button.
+- `dev/phone.mjs`: the 44 px check on header buttons measures only the buttons that show.
+
 ## [0.6.3] - 2026-11-07
 
 ### Fixed

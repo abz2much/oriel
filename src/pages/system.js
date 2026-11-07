@@ -74,7 +74,6 @@ const HTML = () => `<div id="syWrap">
     <div class="row"><span>${esc(S.suggestions_waiting)}</span><b id="syNs">-</b></div><div class="row"><span>${esc(S.next_reminder)}</span><b id="syNr">-</b></div></div>
   <div id="syTab" class="abs glass mid card"><div class="hd"><span data-t="tab">${esc(S.tablet)}</span></div><div style="height:10px"></div>
     <button class="btn" id="syBtnR">${ic('reload')}<span>${esc(S.reload_dashboard)}<small>${esc(S.reload_hint)}</small></span></button>
-    <button class="btn" id="syBtnK">${ic('exit')}<span>${esc(S.show_header)}<small>${esc(S.show_header_hint)}</small></span></button>
     <button class="btn" id="syBtnS">${ic('gear')}<span>${esc(S.ha_settings)}<small>${esc(S.ha_settings_hint)}</small></span></button>
     <button class="btn" id="syBtnN">${ic('moon')}<span>${esc(S.nova_nap)}<small>${esc(S.nova_nap_hint)}</small></span></button>
     <button class="btn" id="syBtnA" role="switch" aria-checked="false">${ic('reload')}<span>${esc(S.auto_rotate)}<small id="syArSub"></small></span><i class="tg" aria-hidden="true"></i></button>
@@ -92,10 +91,6 @@ const SystemExt = {
     this._sy = { pg, $, toastT: null, tick: null };
     const H = c.host || {}, U = c.updates || {}, B = c.backups || {};
     $('syBtnR').addEventListener('click', () => { try { location.reload(); } catch (e) { /* nothing */ } });
-    $('syBtnK').addEventListener('click', () => {
-      const base = g.kiosk_path || (location.pathname.replace(/\/+$/, '') || '/');
-      this.navigate(base + '?disable_km'); setTimeout(() => { try { location.reload(); } catch (e) { /* nothing */ } }, 150);
-    });
     $('syBtnS').addEventListener('click', () => this.navigate(g.settings_path || '/config'));
     $('syBtnA').addEventListener('click', () => { this._arSet(!this._arWanted()); this._syAuto(); }); /* per device; takes effect at once */
     $('syHealth').addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#syUpBtn')) this.navigate('/config/updates'); }); /* Home Assistant's updates page; the button is rebuilt, so the listener sits on its parent */

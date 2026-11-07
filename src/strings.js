@@ -19,6 +19,8 @@ export const S = {
   alarm: 'Alarm',
   front_door: 'Front door',
   windows: 'Windows',
+  full_screen: 'Full screen',
+  exit_full_screen: 'Exit full screen',
   person_home: 'Home',
   person_away: 'Away',
 
@@ -408,8 +410,6 @@ export const S = {
   tablet: 'Tablet',
   reload_dashboard: 'Reload dashboard',
   reload_hint: 'Fixes a stale page',
-  show_header: 'Show header and sidebar',
-  show_header_hint: 'Leaves kiosk mode',
   ha_settings: 'Home Assistant settings',
   ha_settings_hint: 'Opens the full settings',
   nova_nap: 'Nova nap for 1 hour',
@@ -585,7 +585,7 @@ export const ED = {
   'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock', 'general.layout': 'Layout (auto: phone layout when the card is narrower than 700 px)', 'g.general.main': 'General', 'g.general.idle_clock': 'Idle clock', 'g.general.auto_rotate': 'Auto rotation',
   'general.idle_clock.presence': 'Presence sensor (on while someone is in the room)', 'general.idle_clock.minutes': 'Minutes empty before the clock shows (1 to 60)',
   'general.auto_rotate.enabled': 'Move through the pages by itself', 'general.auto_rotate.idle_seconds': 'Seconds on each page (5 to 3600)', 'general.auto_rotate.after_touch_seconds': 'Seconds to wait after a touch or a page change (5 to 86400)',
-  'general.currency': 'Currency (“auto” follows Home Assistant)', 'general.settings_path': 'Settings path', 'general.kiosk_path': 'Dashboard path for leaving kiosk mode',
+  'general.currency': 'Currency (“auto” follows Home Assistant)', 'general.settings_path': 'Settings path',
 
   // home
   'home.energy_card.solar_power': 'Solar power', 'home.energy_card.house_power': 'House power (also the history chart)', 'home.energy_card.battery_soc': 'Battery charge (%)', 'home.price': 'Electricity price',
