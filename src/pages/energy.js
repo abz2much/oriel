@@ -82,13 +82,13 @@ const CSS = `
 #enBatC .pk .p{font-size:20px;font-weight:200;text-align:right;font-variant-numeric:tabular-nums}
 #enBatC .pk small{grid-column:1/-1;font-size:12px;color:rgba(var(--oriel-on-dark),.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #enToday{left:972px;top:84px;width:284px;min-height:350px;padding:16px}
-#enTg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;grid-auto-rows:minmax(84px,auto)} /* a row grows when a tile needs more room (the standing charge wraps to a second line) */
-#enTg .tl{border-radius:18px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);padding:9px 11px;height:auto;display:flex;flex-direction:column;justify-content:space-between;gap:2px;cursor:pointer;min-width:0;color:rgb(var(--oriel-ink))}
+#enTg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;grid-auto-rows:minmax(82px,auto)} /* a row grows when a tile needs more room (larger text) */
+#enTg .tl{border-radius:18px;background:rgba(var(--oriel-glass),.34);border:1px solid rgba(var(--oriel-glass),.5);padding:9px;height:auto;display:flex;flex-direction:column;justify-content:space-between;gap:2px;cursor:pointer;min-width:0;color:rgb(var(--oriel-ink))}
 #enTg .tl small{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));display:flex;align-items:center;gap:5px;white-space:nowrap}
-#enTg .tl small .ic{width:14px;height:14px}
+#enTg .tl small .ic{width:14px;height:14px;flex:none} #enTg .tl small span{min-width:0;overflow:hidden;text-overflow:ellipsis} /* a label that has no room ends in … */
 #enTg .tl b{font-weight:300;font-size:25px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #enTg .tl b em{font-style:normal;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));margin-left:2px}
-#enTg .tl .n{font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))}
+#enSc{font-size:12px;line-height:1.3;margin-top:6px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62))} /* the standing charge, under the tiles; wraps when the text is larger */
 #enTg .tl.good b{color:rgb(var(--oriel-good))}#enTg .tl.bad b{color:rgb(var(--oriel-bad))}
 #enChart{left:100px;top:450px;width:400px;height:272px;padding:16px}
 #enChart .k{font-size:30px;font-weight:200;margin-top:6px;font-variant-numeric:tabular-nums}
@@ -109,7 +109,7 @@ const CSS = `
 #enCons .ap2{height:46px;border-radius:16px;margin-top:6px;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:13px;background:rgba(var(--oriel-glass),.28);border:1px solid rgba(var(--oriel-glass),.5);cursor:pointer;color:rgb(var(--oriel-ink))}
 #enCons .ap2 small{margin-left:auto;font-size:12px;color:rgba(var(--oriel-ink),var(--oriel-soft,.62));white-space:nowrap}
 #enCons .ap2.run{background:rgba(var(--oriel-glass),.66);box-shadow:0 0 0 1.5px ${ENERGY.running},0 0 16px 2px ${ENERGY.running}}
-#enCons .ap2.run small{color:rgb(var(--oriel-ink))}
+#enCons .ap2.run small{color:rgb(var(--oriel-ink))} #enCons .ap2.nofit{display:none}
 #enHealth{left:100px;top:734px;width:1156px;height:42px;border-radius:21px;display:flex;align-items:center;gap:6px;padding:0 8px 0 10px}
 #enHealth .chip{height:28px;font-size:12px;padding:0 10px;gap:6px}
 #enHealth .sp{flex:1}
@@ -154,6 +154,7 @@ const HTML = () => `<div id="enWrap">
   <div id="enToday" class="abs glass">
     <div class="hd"><span>${esc(S.today)}</span><span class="chip sm tp" id="enPrice">–</span></div>
     <div id="enTg"></div>
+    <div id="enSc" class="hide"></div>
   </div>
   <div id="enChart" class="abs black tap">
     <div class="hd"><span>${esc(S.house_use_vs)}</span></div>
@@ -228,9 +229,9 @@ const EnergyExt = {
     E.tiles = [['sun', S.solar_yield, TD.solar_yield, ''], ['home2', S.house_use, TD.house_use, ''], ['down', S.grid_import, TD.grid_import, 'bad'], ['up', S.grid_export, TD.grid_export, 'good'], ['eur', S.net_cost, TD.net_cost, 'bad', true], ['bat', S.battery_charged, TD.battery_charged, '']]
       .filter((x) => isEnt(x[2])).map((x) => {
         const d = document.createElement('div'); d.className = 'tl ' + x[3];
-        d.innerHTML = `<small>${ic(x[0])}<span></span></small><b>–</b><span class="n">&nbsp;</span>`; d.querySelector('small span').textContent = x[1];
+        d.innerHTML = `<small>${ic(x[0])}<span></span></small><b>–</b>`; d.querySelector('small span').textContent = x[1];
         $('enTg').appendChild(d); this._enTap(d, x[2]);
-        return { x, money: !!x[4], d, b: d.querySelector('b'), n: d.querySelector('.n') };
+        return { x, money: !!x[4], d, b: d.querySelector('b') };
       });
     $('enPrice').classList.toggle('hide', !isEnt(c.price));
     $('enToday').classList.toggle('hide', !E.tiles.length && !isEnt(c.price));
@@ -281,6 +282,20 @@ const EnergyExt = {
   },
 
   /* ---------- update ---------- */
+  /* The right column stacks by real heights: Big consumers sits 16 px under Today (never higher than 450, where it always sits at normal size) and still ends at 722,
+     so a Today card that grows (larger text) pushes it down instead of running under it. Rows that no longer fit in Big consumers are left out rather than spill past the card.
+     On the phone the cards are one column and size themselves: nothing to do. */
+  _enPack() {
+    const E = this._en; if (!E) return;
+    const $ = E.$, cons = $('enCons'), today = $('enToday'), rows = [...$('enMach').children];
+    if (this._phone) { cons.style.top = cons.style.height = ''; rows.forEach((d) => d.classList.remove('nofit')); return; }
+    if (!cons.offsetHeight) return; /* the page is not showing: measure when it is */
+    const top = Math.max(450, today.classList.contains('hide') ? 0 : today.offsetTop + today.offsetHeight + 16);
+    cons.style.top = top + 'px'; cons.style.height = (722 - top) + 'px';
+    rows.forEach((d) => d.classList.remove('nofit'));
+    const room = cons.clientHeight - parseFloat(getComputedStyle(cons).paddingBottom);
+    rows.forEach((d) => { if (d.offsetTop + d.offsetHeight > room) d.classList.add('nofit'); }); /* a row's offsetTop is from the card (its offset parent) */
+  },
   _updateEnergy() {
     const c = this._enc, E = this._en; if (!E) return;
     const $ = E.$, now = new Date(), lang = this.lang();
@@ -329,13 +344,15 @@ const EnergyExt = {
     // today tiles
     E.tiles.forEach((tl) => {
       const s = this.st(tl.x[2]);
-      if (!s || !Number.isFinite(parseFloat(s.state))) { tl.b.innerHTML = '–'; tl.n.innerHTML = '&nbsp;'; zero(tl.b); return; }
+      if (!s || !Number.isFinite(parseFloat(s.state))) { tl.b.innerHTML = '–'; zero(tl.b); return; }
       const v = parseFloat(s.state);
       if (tl.x[3]) { tl.d.classList.toggle('good', (tl.x[3] === 'good') !== (v < 0)); tl.d.classList.toggle('bad', (tl.x[3] === 'bad') !== (v < 0)); }
-      if (tl.money) { tl.b.textContent = this.money(v); const sc = Number(c.today.standing_charge); tl.n.textContent = sc ? t('incl_standing', { v: this.money(sc) }) : ' '; }
-      else { tl.b.innerHTML = v.toFixed(1) + '<em>kWh</em>'; tl.n.innerHTML = '&nbsp;'; }
+      if (tl.money) tl.b.textContent = this.money(v);
+      else tl.b.innerHTML = v.toFixed(1) + '<em>kWh</em>';
       zero(tl.b);
     });
+    const sc = Number(c.today.standing_charge), scOn = !!sc && E.tiles.some((tl) => tl.money); /* the standing charge belongs to Net cost: shown only with that tile */
+    $('enSc').classList.toggle('hide', !scOn); $('enSc').textContent = scOn ? t('standing_note', { v: this.money(sc) }) : '';
     const pr = this.num(c.price); $('enPrice').textContent = pr === null ? '–' : t('price_now', { price: this.money(pr) });
     this._enForecast(now);
     // consumers
@@ -436,6 +453,6 @@ registerPage({
   css: CSS,
   enabled(c) { return hasEntities(c.energy); },
   init() { return this._enInitPage(); },
-  update() { this._updateEnergy(); },
+  update() { this._updateEnergy(); this._enPack(); },
   methods: EnergyExt,
 });

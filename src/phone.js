@@ -144,6 +144,7 @@ const PHONE_CSS = `
 #wrap.phone #nvQs::after{top:calc(min(0px,calc(50% - 23px)) - 3px);bottom:calc(min(0px,calc(50% - 23px)) + 3px)}
 #wrap.phone #enFc .ch{flex-wrap:wrap}
 #wrap.phone #enCons .hp{height:auto;min-height:96px;gap:6px}
+#wrap.phone #enCons{top:auto!important;height:auto!important} /* the tablet stacks it under Today with inline styles */
 #wrap.phone #enHealth{height:auto;flex-wrap:wrap;padding:10px 12px;border-radius:24px;gap:8px} #wrap.phone #enHealth .sp{display:none}
 /* Security */
 #wrap.phone #scHero{height:auto;padding:16px 18px;overflow:hidden} #wrap.phone #scState{font-size:50px;margin-top:12px}

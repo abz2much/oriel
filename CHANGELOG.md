@@ -2,6 +2,21 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.6.3] - 2026-11-07
+
+### Fixed
+- **Energy: Big consumers covered the bottom of the Today card** when the tablet shows larger text (Android text scaling, a minimum font size). Since 0.6.1 the Today tiles grow to fit larger text, but Big consumers stayed at a fixed place below, so with six tiles and a standing charge the last row slid under it.
+  - The Today tiles no longer keep an empty second line. Rows are 82 px (were 84 px) and the side padding is 9 px (was 11 px), so the card stays 350 px at normal text.
+  - The standing charge moved out of the Net cost tile to a line under the tiles: “Net cost includes €0.97 standing charge”. It shows only with a standing charge and the Net cost tile, and wraps when the text is larger.
+  - A tile label with no room ends in “…”. “Battery charged” is now “Charged”, so it fits.
+  - If Today still grows, Big consumers moves down under it (never higher than before) and keeps its bottom edge. Appliance rows that do not fit are left out instead of spilling past the card. This also fixes three or more appliances spilling past the card at normal text. The phone layout is unchanged.
+
+### Changed
+- **Tablet baseline replaced on purpose** (now `dev/baseline/oriel-0.6.3.js`): only the Today tiles change (2 px shorter, 2 px less side padding). The Today card and Big consumers are where they were at normal text.
+
+### Tests
+- `dev/overflow.mjs` now uses all six Today tiles, a standing charge and three appliances. On Energy, at five tablet sizes, at normal and 25% larger text: no two cards overlap, every Big consumers row stays inside its card, the standing charge shows in full, and at normal text every Today label shows in full.
+
 ## [0.6.2] - 2026-10-28
 
 - The idle clock no longer shows the small “Empty for N minutes · walk in or tap to go back” line at the bottom. Nothing else on it changes.
