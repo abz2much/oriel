@@ -167,6 +167,7 @@ export const THEMES = {
   'quantum-ice': { name: 'Quantum Ice', style: 'light', base: '#DFF7FF', accent: '#2457FF' },
   'pine-mist': { name: 'Pine Mist', style: 'light', base: '#DAF1DE', accent: '#235347', depth: 1.3 },
   ember: { name: 'Ember', style: 'light', base: '#FFFCF4', accent: '#FF6115' },
+  dusk: { name: 'Dusk', style: 'dark', base: '#2A1E16', accent: '#FFD9A0' },
 };
 
 const STATUS_VARIANTS = ['bad-ink', 'bad-line', 'bad-line-2', 'bad-glow', 'bad-mark', 'bad-dot', 'bad-bg-2', 'bad-ink-2', 'bad-on-dark', 'warn-line', 'warn-mark', 'warn-bg-2', 'warn-ink', 'good-2', 'good-mark', 'good-bar', 'good-bg', 'good-ink', 'off', 'off-2'];

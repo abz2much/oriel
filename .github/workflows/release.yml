@@ -29,7 +29,7 @@ jobs:
           node-version: 22
           cache: npm
       - if: steps.v.outputs.exists == 'false'
-        run: npm ci && npx playwright install --with-deps chromium
+        run: npm ci && (npx playwright install --with-deps chromium || npx playwright install chromium) # falls back to the browser alone if the Ubuntu package mirror cannot be reached
       - if: steps.v.outputs.exists == 'false'
         name: Build and test
         run: |

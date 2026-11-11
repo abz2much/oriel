@@ -19,7 +19,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install the browser (falls back to the browser alone if the Ubuntu package mirror cannot be reached)
+        run: npx playwright install --with-deps chromium || npx playwright install chromium
       - name: Build
         run: npm run build
       - name: dist/ must match the source

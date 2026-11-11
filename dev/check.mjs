@@ -10,7 +10,8 @@
    9. the sliding indicator and the card fade (dev/nav-motion.mjs), and auto rotation (dev/auto-rotate.mjs)
    9b. the full screen button hides and shows Home Assistant's header and sidebar in a fake Home Assistant page (dev/fullscreen.mjs)
    10. every theme passes contrast (dev/contrast.mjs), the navigation glass included
-   11. no text outside its box or clipped on Energy, Vacuum and System at five tablet sizes, at normal and 25% larger text (dev/overflow.mjs) */
+   11. no text outside its box or clipped on Energy, Vacuum and System at five tablet sizes, at normal and 25% larger text (dev/overflow.mjs)
+   12. the scene style (dev/scene.mjs) */
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -74,6 +75,9 @@ ok('contrast: every theme passes on every surface, the rail and the phone bar (o
 
 try { execFileSync(process.execPath, ['dev/overflow.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('text overflow checks (dev/overflow.mjs)'); }
 ok('no text outside its box or clipped on Energy, Vacuum and System at 1024x768, 1180x820, 1280x800, 1366x1024 and 1920x1200, at normal and 25% larger text');
+
+try { execFileSync(process.execPath, ['dev/scene.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || '', e.stderr || ''); fail('scene style checks (dev/scene.mjs)'); }
+ok('scene style: title, drawing and one row of panels on Energy, Climate, Household, Security, Vacuum and System; panels go back for classic and the phone');
 
 try { execFileSync(process.execPath, ['dev/tablet-geometry.mjs'], { encoding: 'utf8' }); } catch (e) { console.error(e.stdout || ''); fail('the tablet layout changed (dev/tablet-geometry.mjs)'); }
 ok('tablet layout matches the 0.6.4 bundle (rendered in the same run)');

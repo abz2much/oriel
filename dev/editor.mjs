@@ -96,12 +96,12 @@ await p.screenshot({ path: (process.env.OUT || 'dev/out') + '/editor-house.png',
 
 // 5b. Climate and Family: summaries, auto-detect (accept only), wrong-type and missing warnings, the second-list note
 await R(() => { window.__out = []; window.__ed.setConfig({ type: 'custom:oriel-shell' }); }); await p.waitForTimeout(100);
-const sums = await R(() => [...window.__ed.shadowRoot.querySelectorAll('.sec')].filter((x) => /Climate|Family/.test(x.querySelector('.tt b').textContent)).map((x) => x.querySelector('.tt small').textContent));
+const sums = await R(() => [...window.__ed.shadowRoot.querySelectorAll('.sec')].filter((x) => /Climate|Household/.test(x.querySelector('.tt b').textContent)).map((x) => x.querySelector('.tt small').textContent));
 check('climate and family: "not set up · page hidden" while empty', sums.length === 2 && sums.every((x) => /Not set up.*page hidden/.test(x)), sums.join(' | '));
-await clickText('.tg', 'Family'); await p.waitForTimeout(100);
+await clickText('.tg', 'Household'); await p.waitForTimeout(100);
 const todoHelp = await R(() => window.__ed.shadowRoot.textContent);
 check('family: editor says the to-do card needs a second list', /Needs a second to-do list/.test(todoHelp));
-await R(() => [...window.__ed.shadowRoot.querySelectorAll('.sec')].find((s) => s.querySelector('.tt b').textContent === 'Family').querySelector('.ad').click()); await p.waitForTimeout(150);
+await R(() => [...window.__ed.shadowRoot.querySelectorAll('.sec')].find((s) => s.querySelector('.tt b').textContent === 'Household').querySelector('.ad').click()); await p.waitForTimeout(150);
 const fRows = await R(() => [...window.__ed.shadowRoot.querySelectorAll('.dlg .row')].map((r) => r.textContent));
 const fBefore = await R(() => window.__out.length);
 check('family auto-detect offers lists, calendars and bins; nothing applied yet', fRows.length >= 3 && fBefore === 0 && fRows.some((r) => /Black bin/.test(r) || /bins/.test(r)), fRows.length + ' rows');
@@ -127,7 +127,8 @@ const openGeneral = () => R(() => { const s = [...window.__ed.shadowRoot.querySe
 await openGeneral(); await p.waitForTimeout(100);
 await R(() => window.__ed.shadowRoot.querySelector('.ddb').click()); await p.waitForTimeout(100);
 const nOpts = await R(() => window.__ed.shadowRoot.querySelectorAll('.ddl .opt').length);
-check('theme: dropdown lists every theme with a preview', nOpts === 12 && (await R(() => window.__ed.shadowRoot.querySelectorAll('.ddl .opt .sw').length)) === 12, nOpts + ' options');
+const NT = (fs.readFileSync('src/theme/themes.js', 'utf8').match(/^  [\w'-]+: \{ name: '/gm) || []).length; /* every theme in THEMES */
+check('theme: dropdown lists every theme with a preview', nOpts === NT && (await R(() => window.__ed.shadowRoot.querySelectorAll('.ddl .opt .sw').length)) === NT, nOpts + ' options of ' + NT);
 await p.screenshot({ path: (process.env.OUT || 'dev/out') + '/editor-theme.png', fullPage: true });
 await R(() => window.__ed.shadowRoot.querySelector('.ddl .opt[data-id="ember"]').click()); await p.waitForTimeout(100);
 out = await R(() => window.__out[window.__out.length - 1]);

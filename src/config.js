@@ -7,7 +7,7 @@ export const DEFAULT_CONFIG = {
     weather: '', weather_label: '', people: [], people_display: 'initial',
     alarm: '', front_door: '', windows: [], clock: true, currency: 'auto',
     settings_path: '/config', pages_order: null,
-    theme: 'classic', accent: '', idle_clock: { presence: '', minutes: 5 }, layout: 'auto',
+    theme: 'classic', accent: '', page_style: 'classic', idle_clock: { presence: '', minutes: 5 }, layout: 'auto',
     auto_rotate: { enabled: false, idle_seconds: 60, after_touch_seconds: 300 },
   },
   home: {

@@ -14,7 +14,7 @@ Every page and every section is optional. You set it up with a visual editor; YA
 | **Living room** | Room status, doors and windows, blinds, speaker, scenes, lights with brightness/white/colour, streamer selector, now playing, TV inputs, movie mode, apps and a remote. |
 | **Energy** | Live flow between solar, house, battery and grid, battery card with packs, today's totals, a house-use chart, solar forecast, big consumers and an inverter health strip. Read-only. |
 | **Climate** | Weather with feels-like, wind, humidity, high and low, a 5-day row and a next-12-hours chart. Thermostats with − and + in the thermostat's own step and a heating boost. A last-12-hours line graph of each thermostat's current temperature. Room temperatures with the coldest and warmest named. |
-| **Family** | Shopping list you can tick, add to and clear. A merged calendar (today, tomorrow, this week). Bin collections with the next date for each, and a clear "Tomorrow". An optional second to-do list. Nova's reminders when Nova is on. |
+| **Household** | Shopping list you can tick, add to and clear. A merged calendar (today, tomorrow, this week). Bin collections with the next date for each, and a clear "Tomorrow". An optional second to-do list. Nova's reminders when Nova is on. |
 | **Security** | Alarm status, doors and windows, presence by floor, camera snapshots with live view on tap, recent events and device health. Read-only: it never arms, disarms or unlocks anything. |
 | **Vacuum** | One or more robot vacuums: status, controls with confirm steps, cleaning settings, schedule, and for Dreame vacuums the room map, parts and base station. |
 | **Nova** | Chat and controls for the separate Nova assistant integration. Off unless you turn it on. |
@@ -55,7 +55,7 @@ general:
 
 <table>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
-<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-climate.jpg" alt="Climate page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-family.jpg" alt="Family page"></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-climate.jpg" alt="Climate page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-family.jpg" alt="Household page"></td></tr>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-security.jpg" alt="Security page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-vacuum.jpg" alt="Vacuum page"></td></tr>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-system.jpg" alt="System page with the debug panel"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/empty-home.jpg" alt="Home with nothing configured"></td></tr>
 </table>
@@ -86,6 +86,7 @@ general:
 | Quantum Ice | `quantum-ice` | Light | ice glass, quantum blue |
 | Pine Mist | `pine-mist` | Light | pale mint, deep pine |
 | Ember | `ember` | Light | porcelain, neon orange |
+| Dusk | `dusk` | Dark, warm | warm umber, candlelight |
 
 <table>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/classic.jpg" alt="Classic theme"><br>Classic</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/midnight-signal.jpg" alt="Midnight Signal theme"><br>Midnight Signal</td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/themes/plum-dusk.jpg" alt="Plum Dusk theme"><br>Plum Dusk</td></tr>
@@ -99,6 +100,20 @@ general:
 - **Contrast:** every theme, Classic included, is checked by script for 4.5:1 on body text and 3:1 on large text and icons (`node dev/contrast.mjs`, 77 checks per theme). Classic keeps its look, with slightly stronger soft text and darker green, amber and red text than the original so that it passes too.
 - **An unknown theme id** shows Classic on the tablet, and the editor warns you. An accent that is not a hex colour is ignored, with a warning.
 - **Future idea:** a dim mode for night. Neon accents (Midnight Signal, Forest Mint) can glare on a wall tablet in a dark room.
+
+## Scene style
+
+An optional tablet look: `general.page_style: scene` (or **General › Page style on the tablet** in the editor). Off by default.
+
+- **On Energy, Climate, Household, Security, Vacuum and System:** a big page title with today's date at the top left, a drawing of what the page is about behind it on the right, and the page's own cards in one row along the bottom. The row scrolls sideways when the cards do not fit.
+- **The drawings:** a house with roof solar, a battery unit and the grid (Energy); a room with a radiator under the window and a thermostat (Climate); a kitchen with a wall calendar and the bins outside (Household); the front of a house with a doorbell camera, a patio door and a driveway camera (Security); a robot on its dock in a living room (Vacuum); network kit on a sideboard (System). They are drawn in code and work for any home; they do not show your own devices or values. Your values are on the cards.
+- **Same cards:** the cards are the classic ones, with the same controls, pop-ups and confirm steps. Only where they sit changes.
+- **Home, Living room and Nova** keep their own layouts. The phone layout ignores the style.
+- Pairs well with the **Dusk** theme, and works with every theme.
+
+<table>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/scene-energy.jpg" alt="Scene style: Energy"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/scene-household.jpg" alt="Scene style: Household"></td></tr>
+</table>
 
 ## Requirements
 
@@ -119,7 +134,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.6.4` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.7.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
@@ -131,7 +146,7 @@ With nothing set you get the greeting, the clock, a plain glass house and the Sy
 
 ## The editor
 
-- **Sections** fold open and closed: General, Home, Living room, Energy, Climate, Family, Security, Vacuum, System, Nova. Big sections have tabs.
+- **Sections** fold open and closed: General, Home, Living room, Energy, Climate, Household, Security, Vacuum, System, Nova. Big sections have tabs.
 - **Lists** (lights, tiles, cameras, rooms…) take any number of items: add, remove, drag to reorder, or use the up and down buttons.
 - **Auto-detect** looks at your entities (domain, device class, unit and words in the name) and suggests matches. Strong matches are ticked, weak ones are not. Nothing changes until you press **Apply**, and fields you have already filled are never touched.
 - **Warnings** appear as you type when an entity does not exist, is the wrong type for the field, or is not a valid entity ID. They never stop you saving; a missing entity just shows “–” on the tablet.
@@ -175,6 +190,7 @@ nova: { ... }
 | `layout` | `auto` \| `tablet` \| `phone` | `auto` | `auto` uses the phone layout when the card is narrower than 700 px (the card's own width, not the screen's) and the tablet layout otherwise. `tablet` or `phone` forces one. See [Phone layout](#phone-layout). |
 | `idle_clock` | object | Optional idle clock screen, see [Idle clock](#idle-clock-not-a-page). `presence`: the sensor (empty: no idle clock). `minutes`: how long the sensor must be off first (default 5, 1 to 60). |
 | `auto_rotate` | object | off | Optional auto rotation, see [Auto rotation](#auto-rotation-not-a-page). `enabled` (default `false`), `idle_seconds` (default 60), `after_touch_seconds` (default 300). |
+| `page_style` | `classic` \| `scene` | `classic` | Tablet only. `scene` gives Energy, Climate, Household, Security, Vacuum and System a big title, a drawing of the page's subject and the page's cards in one row along the bottom that scrolls sideways. See [Scene style](#scene-style). |
 | `pages_order` | list | home, living, energy, climate, family, security, vacuum, nova | Order of pages in the rail (YAML only). System always comes last. |
 
 ### home
@@ -188,7 +204,7 @@ nova: { ... }
 | `today` | list, up to 9 | Tiles: `label`, `icon`, `entity`, `tone` (`neutral`, `good`, `bad`). |
 | `quick_actions` | list, up to 4 | `type` (`script`, `shopping`, `more_info`), `label`, `icon`, `entity`, `subtitle`, `primary` (green). |
 | `shopping` | entity (todo) | Shopping list opened by a `shopping` quick action. |
-| `calendar` | true/false | Default `true`. The “Coming up” card under the room panel: the next three events from `family.calendars`, soonest first, today's first, finished ones left out. Each row has a coloured bar for its calendar, the title, Today / Tomorrow / the weekday, and the time (“All day”). Nothing in the next 7 days shows “Nothing coming up” and the date of the next event within 14 days, if there is one. Tap it to open the Family page. It is hidden when there are no calendars, and when the room panel is so tall that not even one row fits. Rows are never cut: fewer are shown instead. |
+| `calendar` | true/false | Default `true`. The “Coming up” card under the room panel: the next three events from `family.calendars`, soonest first, today's first, finished ones left out. Each row has a coloured bar for its calendar, the title, Today / Tomorrow / the weekday, and the time (“All day”). Nothing in the next 7 days shows “Nothing coming up” and the date of the next event within 14 days, if there is one. Tap it to open the Household page. It is hidden when there are no calendars, and when the room panel is so tall that not even one row fits. Rows are never cut: fewer are shown instead. |
 | `room_panel.title` | text | Right-hand panel title, e.g. your kitchen. |
 | `room_panel.motion` | entity (binary_sensor) | Motion chip. |
 | `room_panel.lights` | list | `name`, `entity` (light or switch), `icon`, `all_off` (include in “All lights off”, default true). |
@@ -247,6 +263,8 @@ The page appears once any entity here is set. Every card hides when nothing in i
 The last-12-hours graph asks Home Assistant for the thermostat history **with attributes** (`current_temperature` is an attribute), as hourly averages. Unavailable and unknown readings leave a gap, never a zero. Both lines are solid, blue and orange (a pair people with red-green colour blindness can tell apart), and told apart by their end markers too: a circle for the first thermostat, a square for the second.
 
 ### family
+
+The page is called **Household** on screen; its config key stays `family`, so existing configs keep working.
 
 The page appears once any entity here is set.
 
@@ -360,7 +378,7 @@ The same card, pages, themes and config work on a phone. Nothing in your config 
 - **Pop-ups:** the shopping list, camera, light tune panel, vacuum settings and the confirm steps open as bottom sheets over the whole screen. The page behind does not scroll, the back button or gesture closes the sheet instead of leaving the page, and each sheet has a visible close button and closes with a swipe down. Sheets stay above the on-screen keyboard.
 - **Confirm steps** (vacuum start, cleaning rooms, Nova lockdown): Cancel, then a large Confirm button set well apart from it. A tap that was meant for the page cannot press it in the first moments after it opens. Read-only pages stay read-only; the alarm and locks are not controllable from Oriel on any layout.
 - **Home:** the whole house is drawn at the card's width. Room and power labels keep their size (12 px or more) and only the labels that fit without overlapping are shown, power labels first.
-- **What is different from the tablet:** the idle clock is not used on a phone; the Energy charts and the Climate graph are drawn at the card's width; the Calendar and bins are one list; lists on Family show every item (the page scrolls), and the Calendar's "+ N more" expands.
+- **What is different from the tablet:** the idle clock is not used on a phone; the Energy charts and the Climate graph are drawn at the card's width; the Calendar and bins are one list; lists on Household show every item (the page scrolls), and the Calendar's "+ N more" expands.
 - **Same data, same cost:** the phone does not poll any more often than the tablet. Camera snapshots refresh no faster than on the tablet and stop when the page is not showing.
 
 <table>
@@ -368,7 +386,7 @@ The same card, pages, themes and config work on a phone. Nothing in your config 
 <td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-home.jpg" alt="Phone: Home" width="190"><br>Home</td>
 <td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-living.jpg" alt="Phone: Living room" width="190"><br>Living room</td>
 <td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-climate.jpg" alt="Phone: Climate" width="190"><br>Climate</td>
-<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-family.jpg" alt="Phone: Family" width="190"><br>Family</td>
+<td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-family.jpg" alt="Phone: Household" width="190"><br>Household</td>
 <td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/phone-more.jpg" alt="Phone: the More sheet" width="190"><br>More</td>
 </tr>
 </table>
@@ -391,7 +409,7 @@ All screenshots use made-up example data.
 - No remote requests: the Outfit font is bundled in the file, icons are inline SVG, and nothing is loaded from the internet. (Only this README's pictures load from GitHub, when you read it in GitHub or HACS; the card itself never does.)
 - The Security and Energy pages are read-only. Oriel never arms, disarms, unlocks or opens anything.
 - Vacuum starts, room cleaning and resets always ask for confirmation, with an extra warning at night.
-- Climate and Family change only what you ask for: a thermostat target, the heating boost, and ticking, adding or clearing items on your shopping and to-do lists. Nothing there touches alarms, locks or doors.
+- Climate and Household change only what you ask for: a thermostat target, the heating boost, and ticking, adding or clearing items on your shopping and to-do lists. Nothing there touches alarms, locks or doors.
 - No names are shown for who changed the alarm, only whether it was automatic.
 
 ## Troubleshooting
@@ -420,7 +438,7 @@ All controls are real buttons with labels, there is a visible focus ring for key
 npm install
 npx playwright install chromium   # once, for the harness
 npm run build                     # dist/oriel.js (minified); npm run dev for a readable build
-npm test                          # version and README checks, card in every dev config, editor checks, Climate and Family page checks
+npm test                          # version and README checks, card in every dev config, editor checks, Climate and Household page checks, scene style
 npm run shots                     # screenshots of every page to dev/out/
 ```
 
@@ -429,7 +447,7 @@ npm run shots                     # screenshots of every page to dev/out/
 - Colours live in `src/theme/`: `tokens.js` (the CSS variables and Classic's values), `themes.js` (the themes and the rules that build them from two seed colours) and `fixed.js` (colours that never change). No other file holds a colour.
 - `node dev/theme-shots.mjs <theme ...>` screenshots every page and pop-up per theme with a frozen clock; `node dev/sheet.mjs <theme ...>` makes a contact sheet; `node dev/themediff.mjs <before> <after>` compares two runs pixel by pixel; `node dev/contrast.mjs` writes the contrast report.
 - User-facing text lives in `src/strings.js` (UK English). Pages live in `src/pages/`, the editor in `src/editor/`.
-- Phone layout: `npm run shots:phone` takes every page at 390×844, 360×740 and 412×915 (and a `-full.png` of the whole scrolled page) into `dev/out/phone/`; `node dev/phone.mjs` checks every page at those sizes (no sideways scrolling, nothing past the edge, text and tap targets) and `node dev/phone-sheets.mjs` opens every pop-up. `node dev/tablet-geometry.mjs` renders the current bundle and `dev/baseline/oriel-0.4.0.js` (the bundle from before the phone layout) in the same run and checks that every block and control on the tablet sits in the same place; after a deliberate tablet change, replace the baseline in the same pull request and say why in the changelog. `node dev/layout-shots.mjs` plus `node dev/tablet-diff.mjs <before> <after>` compare tablet screenshots.
+- Phone layout: `npm run shots:phone` takes every page at 390×844, 360×740 and 412×915 (and a `-full.png` of the whole scrolled page) into `dev/out/phone/`; `node dev/phone.mjs` checks every page at those sizes (no sideways scrolling, nothing past the edge, text and tap targets) and `node dev/phone-sheets.mjs` opens every pop-up. `node dev/tablet-geometry.mjs` renders the current bundle and `dev/baseline/oriel-0.4.0.js` (the bundle from before the phone layout) in the same run and checks that every block and control on the tablet sits in the same place; after a deliberate tablet change, replace the baseline in the same pull request and say why in the changelog. `node dev/scene.mjs` checks the scene style and `node dev/scene-shots.mjs [theme]` takes every page in it into `dev/out/scene/`. `node dev/layout-shots.mjs` plus `node dev/tablet-diff.mjs <before> <after>` compare tablet screenshots.
 - `dist/oriel.js` is committed, because HACS installs from it. CI fails if it is out of date.
 
 Releases are made by the release workflow: bump the version in `package.json`, `src/version.js` and `CHANGELOG.md`, merge to `main`, and the workflow builds, tests, tags and publishes the release.
