@@ -734,6 +734,7 @@ export class OrielShell extends HTMLElement {
   _update() {
     if (!this._built || !this._h) return;
     try { this._syncPages(); } catch (e) { console.error('[oriel] pages', e); }
+    try { this._sceneSync(); } catch (e) { console.warn('[oriel] scene style', e); }
     try { this._updateHeader(); } catch (e) { console.warn('[oriel] header', e); }
     try { this._updateHome(); } catch (e) { console.warn('[oriel] home', e); }
     Object.keys(this._pages).forEach((k) => { const d = this._pages[k].def; if (d.always) { try { d.always.call(this); } catch (e) { console.warn('[oriel] ' + k, e); } } });

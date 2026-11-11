@@ -300,6 +300,7 @@ addMethods({
 
   /* the layout just flipped between phone and tablet */
   _phoneChanged() {
+    try { this._sceneSync(); } catch (e) { console.warn('[oriel] scene style', e); } /* the scene style is tablet only: panels go back before the phone layout measures them */
     this._phoneHouse(); this._phoneMore(false); this._phoneMark(); this._phonePill(); this._phoneTitles(); this._phoneChips(); this._phoneOverlays(); this._sheetsChanged(); this._navPlace(false); /* the rail or the tab bar just appeared: measure it */
     if (this._idle) this._idleSync();
     this._fsSync(); /* the full screen button is tablet only: the phone layout brings Home Assistant's header and sidebar back */

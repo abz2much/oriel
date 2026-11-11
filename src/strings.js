@@ -582,14 +582,14 @@ export const ED = {
 
   // general
   'general.weather': 'Weather', 'general.weather_label': 'Weather label (empty: “Outside”)', 'general.people': 'People shown in the header',
-  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock', 'general.layout': 'Layout (auto: phone layout when the card is narrower than 700 px)', 'g.general.main': 'General', 'g.general.idle_clock': 'Idle clock', 'g.general.auto_rotate': 'Auto rotation',
+  'general.people_display': 'Show people as', 'general.alarm': 'Alarm panel', 'general.front_door': 'Front door sensor', 'general.windows': 'Window sensors', 'general.clock': 'Show the clock', 'general.layout': 'Layout (auto: phone layout when the card is narrower than 700 px)', 'general.page_style': 'Page style on the tablet (scene: a big title, a drawing and the cards in one row)', 'g.general.main': 'General', 'g.general.idle_clock': 'Idle clock', 'g.general.auto_rotate': 'Auto rotation',
   'general.idle_clock.presence': 'Presence sensor (on while someone is in the room)', 'general.idle_clock.minutes': 'Minutes empty before the clock shows (1 to 60)',
   'general.auto_rotate.enabled': 'Move through the pages by itself', 'general.auto_rotate.idle_seconds': 'Seconds on each page (5 to 3600)', 'general.auto_rotate.after_touch_seconds': 'Seconds to wait after a touch or a page change (5 to 86400)',
   'general.currency': 'Currency (“auto” follows Home Assistant)', 'general.settings_path': 'Settings path',
 
   // home
   'home.energy_card.solar_power': 'Solar power', 'home.energy_card.house_power': 'House power (also the history chart)', 'home.energy_card.battery_soc': 'Battery charge (%)', 'home.price': 'Electricity price',
-  'home.today': 'Tiles', 'home.today.tone': 'Colour of the value', 'home.shopping': 'Shopping list (to-do)', 'home.coming_up': 'Coming up', 'home.calendar': 'Show the “Coming up” card (uses the calendars on the Family page)',
+  'home.today': 'Tiles', 'home.today.tone': 'Colour of the value', 'home.shopping': 'Shopping list (to-do)', 'home.coming_up': 'Coming up', 'home.calendar': 'Show the “Coming up” card (uses the calendars on the Household page)',
   'home.quick_actions': 'Actions (up to 4)', 'home.quick_actions.subtitle': 'Small text under the label', 'home.quick_actions.primary': 'Highlight in green',
   'home.room_panel.title': 'Panel title', 'home.room_panel.motion': 'Motion or presence sensor',
   'home.room_panel.boost.start': 'Heating boost: start script', 'home.room_panel.boost.cancel': 'Heating boost: cancel script', 'home.room_panel.boost.timer': 'Heating boost: timer',
@@ -701,7 +701,7 @@ Object.assign(S, {
 /* ---------- Climate and Family pages ---------- */
 Object.assign(S, {
   page_climate: 'Climate',
-  page_family: 'Family',
+  page_family: 'Household',
 
   // climate: weather
   feels_like: 'Feels like {t}°',
@@ -768,7 +768,7 @@ export const WX = {
 };
 
 Object.assign(ED, {
-  'sec.climate': 'Climate', 'sec.family': 'Family',
+  'sec.climate': 'Climate', 'sec.family': 'Household',
   'hint.climate': 'Weather, thermostats, the last 12 hours and room temperatures. The page appears in the side rail once any entity here is set. Each card hides when nothing in it is set.',
   'hint.family': 'Shopping list, calendar, bin collections and a second to-do list. The page appears in the side rail once any entity here is set. Reminders come from Nova and show only when Nova is on.',
   'g.climate.weather': 'Weather', 'g.climate.thermostats': 'Thermostats', 'g.climate.rooms': 'Rooms',
