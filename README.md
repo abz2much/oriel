@@ -105,11 +105,11 @@ general:
 
 An optional tablet look: `general.page_style: scene` (or **General › Page style on the tablet** in the editor). Off by default.
 
-- **On Energy, Climate, Household, Security, Vacuum and System:** a big page title with today's date at the top left, a drawing of what the page is about behind it on the right, and the page's own cards in one row along the bottom. The row scrolls sideways when the cards do not fit.
-- **The drawings:** a house with roof solar, a battery unit and the grid (Energy); a room with a radiator under the window and a thermostat (Climate); a kitchen with a wall calendar and the bins outside (Household); the front of a house with a doorbell camera, a patio door and a driveway camera (Security); a robot on its dock in a living room (Vacuum); network kit on a sideboard (System). They are drawn in code and work for any home; they do not show your own devices or values. Your values are on the cards.
-- **Same cards:** the cards are the classic ones, with the same controls, pop-ups and confirm steps. Only where they sit changes.
-- **Home, Living room and Nova** keep their own layouts. The phone layout ignores the style.
-- Pairs well with the **Dusk** theme, and works with every theme.
+- **On Energy, Climate, Household, Security, Vacuum and System:** a line and a big page title at the top left (for example *Live · 18:04 · £0.24/kWh now* or *Read-only · last event 17:52*), status chips under it from your entities (alarm, open doors, heating, bins and so on), and a drawing of what the page is about on the right with live labels on it.
+- **Compact cards** in one row along the bottom, sized to fit the screen without scrolling sideways. **Tap a card** to open the page's full card in a pop-up, with all its controls and confirm steps; tap outside it, the × or Escape to close. On Climate the compact − and + change the thermostat exactly as the full card does.
+- **Its own look:** while a scene page shows, the card uses the warm dusk look of the scene style (warm light, frosted glass, white text), whatever theme you picked. Home, Living room and Nova keep your theme and their layouts.
+- **Phone:** the phone layout ignores the style.
+- The drawings are generic and drawn in code; the labels and chips only appear for entities you have set.
 
 <table>
 <tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/scene-energy.jpg" alt="Scene style: Energy"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/scene-household.jpg" alt="Scene style: Household"></td></tr>
@@ -134,7 +134,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.7.0` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.7.1` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 

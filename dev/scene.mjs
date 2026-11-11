@@ -1,11 +1,13 @@
 /* Scene style checks (general.page_style: scene). Exit 1 on the first problem.
    1. With the scene style on the tablet, each scene page (Energy, Climate, Household, Security, Vacuum, System) has a title,
-      a drawing (an <svg> with a viewBox) and its panels in one row along the bottom: inside the canvas, below the title,
-      no two panels overlapping.
-   2. Home, Living room and Nova keep their own layout (no row, no drawing).
-   3. No page errors and no service calls.
-   4. Switching back to classic puts every panel back where the classic layout has it.
-   5. The phone layout ignores the scene style.
+      a line above it, status chips, a drawing (an <svg> with a viewBox) with live labels, and compact cards in one row:
+      inside the canvas, below the title, none overlapping, and no sideways scrolling with the full test config.
+   2. The page's own (classic) cards are hidden and cannot be tapped; tapping a compact card opens the matching classic
+      card in a pop-up, inside the canvas; closing it puts the card back.
+   3. Climate: the compact − and + do what the classic buttons do (one climate.set_temperature call each).
+   4. Home and Living room keep their own layout. No page errors; no service calls unless a control is pressed.
+   5. Switching back to classic puts every panel back where the classic layout has it; the phone ignores the style and
+      a card that turns from tablet to phone and back gets its panels back on the phone.
    6. The Family page is labelled Household; the Dusk theme exists. */
 import fs from 'node:fs';
 import { chromium } from 'playwright';
@@ -33,7 +35,7 @@ async function mount(cfg, vp = { width: 1280, height: 800 }) {
   await page.clock.runFor(100);
   await page.waitForFunction(() => customElements.get('oriel-shell'));
   await page.evaluate(({ cfg, st, ws, api }) => {
-    window.__calls = [];
+    window.__calls = []; window.__ws = []; window.__api = [];
     const e = document.querySelector('oriel-shell');
     e.setConfig(cfg);
     e.hass = { states: st, services: { light: {}, climate: {}, script: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP', components: [] },
@@ -59,23 +61,66 @@ try {
   for (const k of SCENE) {
     await go(page, k);
     const info = await page.evaluate((k) => {
-      const pg = document.querySelector('oriel-shell')._pages[k].el, h = pg.querySelector('.scHero'), svg = pg.querySelector('.scArt svg'), row = pg.querySelector('.scRow');
-      const r = (e) => { if (!e) return null; const b = e.getBoundingClientRect(); return { t: b.top, b: b.bottom, l: b.left, r: b.right }; };
-      return { title: h && h.querySelector('h1') ? h.querySelector('h1').textContent : '', vb: svg ? svg.getAttribute('viewBox') : '', hero: r(h), row: r(row) };
+      const sh = document.querySelector('oriel-shell'), pg = sh._pages[k].el, h = pg.querySelector('.scHero'), svg = pg.querySelector('.scArt svg'), row = pg.querySelector('.scRow');
+      const wrap = sh.shadowRoot.getElementById('wrap'), o = wrap.getBoundingClientRect(), s = o.width / wrap.offsetWidth || 1;
+      const r = (e) => { const b = e.getBoundingClientRect(); return { id: e.dataset.open || e.className, l: (b.left - o.left) / s, t: (b.top - o.top) / s, r: (b.right - o.left) / s, b: (b.bottom - o.top) / s }; };
+      const classic = [...pg.querySelectorAll('.glass,.dark,.black')].filter((x) => !x.closest('.scRow,.scPop') && !x.parentElement.closest('.glass,.dark,.black') && x.offsetWidth > 0);
+      return {
+        title: h && h.querySelector('h1') ? h.querySelector('h1').textContent : '', meta: h ? (h.querySelector('.meta') || {}).textContent || '' : '',
+        chips: h ? h.querySelectorAll('.scChip').length : 0, vb: svg ? svg.getAttribute('viewBox') : '', labels: pg.querySelectorAll('.scArt .scLab').length,
+        hero: h ? r(h) : null, cards: row ? [...row.querySelectorAll('.scC')].map(r) : [], overflow: row ? row.scrollWidth - row.clientWidth : 0,
+        shown: classic.filter((x) => getComputedStyle(x).visibility !== 'hidden' || getComputedStyle(x).pointerEvents !== 'none').map((x) => x.id),
+      };
     }, k);
     if (!info.title) fail(`${k}: no title`);
+    if (!info.meta.trim()) fail(`${k}: no line above the title`);
+    if (!info.chips) fail(`${k}: no status chips under the title`);
     if (!/^-?[\d.]+ -?[\d.]+ [\d.]+ [\d.]+$/.test(info.vb || '')) fail(`${k}: no drawing with a viewBox`);
-    const ps = await panels(page, k);
-    if (!ps.length) fail(`${k}: no panels shown`);
-    const out = ps.filter((p) => !p.inRow); if (out.length) fail(`${k}: panels not in the row: ${out.map((p) => p.id).join(', ')}`);
-    ps.forEach((p) => { if (p.b > 800.5 || p.t < 0) fail(`${k}: ${p.id} is outside the canvas vertically (${p.t.toFixed(0)}–${p.b.toFixed(0)})`); });
-    ps.forEach((p) => { if (p.t < info.hero.b - 0.5) fail(`${k}: ${p.id} (top ${p.t.toFixed(0)}) overlaps the title block (bottom ${info.hero.b.toFixed(0)})`); });
-    for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
-      const a = ps[i], b = ps[j];
-      if (a.l < b.r - 0.5 && b.l < a.r - 0.5 && a.t < b.b - 0.5 && b.t < a.b - 0.5) fail(`${k}: ${a.id} and ${b.id} overlap`);
+    if (!info.labels) fail(`${k}: no live labels on the drawing`);
+    if (info.cards.length < 3) fail(`${k}: only ${info.cards.length} compact cards`);
+    if (info.overflow > 1) fail(`${k}: the row scrolls sideways by ${info.overflow}px with the full config`);
+    if (info.shown.length) fail(`${k}: classic cards still showing or tappable: ${info.shown.join(', ')}`);
+    info.cards.forEach((p) => { if (p.b > 800.5 || p.t < 0 || p.l < 0) fail(`${k}: card ${p.id} is outside the canvas`); if (p.t < info.hero.b - 0.5) fail(`${k}: card ${p.id} overlaps the title block`); });
+    for (let i = 0; i < info.cards.length; i++) for (let j = i + 1; j < info.cards.length; j++) {
+      const a = info.cards[i], b = info.cards[j];
+      if (a.l < b.r - 0.5 && b.l < a.r - 0.5 && a.t < b.b - 0.5 && b.t < a.b - 0.5) fail(`${k}: cards ${a.id} and ${b.id} overlap`);
     }
-    ok(`${k}: title “${info.title}”, a drawing, ${ps.length} panels in one row inside the canvas (width ${W})`);
+    /* tap each card that opens a classic card: the pop-up shows it inside the canvas; close puts it back */
+    const opens = await page.evaluate((k) => [...document.querySelector('oriel-shell')._pages[k].el.querySelectorAll('.scRow .scC[data-open]')].map((c) => c.dataset.open), k);
+    if (!opens.length) fail(`${k}: no compact card opens a full card`);
+    for (const id of opens) {
+      await page.evaluate(({ k, id }) => document.querySelector('oriel-shell')._pages[k].el.querySelector(`.scRow .scC[data-open="${id}"]`).click(), { k, id });
+      await page.clock.runFor(300);
+      const pop = await page.evaluate((id) => {
+        const sh = document.querySelector('oriel-shell'), w = sh.shadowRoot.getElementById('wrap'), o = w.getBoundingClientRect(), s = o.width / w.offsetWidth || 1;
+        const pp = sh.shadowRoot.querySelector('.scPop'), el = sh.shadowRoot.getElementById(id);
+        if (!pp || !el) return { ok: false, why: !pp ? 'no pop-up' : 'no ' + id };
+        const b = el.getBoundingClientRect(), cs = getComputedStyle(el);
+        return { ok: pp.contains(el) && cs.visibility !== 'hidden', l: (b.left - o.left) / s, t: (b.top - o.top) / s, r: (b.right - o.left) / s, b: (b.bottom - o.top) / s, why: pp.contains(el) ? 'hidden' : 'not in the pop-up' };
+      }, id);
+      if (!pop.ok) fail(`${k}: tapping the ${id} card does not show it (${pop.why})`);
+      if (pop.t < -0.5 || pop.b > 800.5) fail(`${k}: the ${id} pop-up is outside the canvas (${pop.t.toFixed(0)}–${pop.b.toFixed(0)})`);
+      await page.evaluate(() => document.querySelector('oriel-shell').shadowRoot.querySelector('.scPop .scX').click());
+      await page.clock.runFor(300);
+      const back = await page.evaluate((id) => { const sh = document.querySelector('oriel-shell'), el = sh.shadowRoot.getElementById(id); return !sh.shadowRoot.querySelector('.scPop') && !!el && !el.closest('.scPop'); }, id);
+      if (!back) fail(`${k}: closing the ${id} pop-up does not put the card back`);
+    }
+    ok(`${k}: “${info.title}”, “${info.meta.trim()}”, ${info.chips} chips, ${info.labels} labels, ${info.cards.length} compact cards with no sideways scroll; ${opens.length} open the full card and close again`);
   }
+  if (await page.evaluate(() => window.__calls.length)) fail('opening and closing cards made service calls');
+  /* climate: the compact + and − are the classic buttons */
+  await go(page, 'climate');
+  const bump = await page.evaluate(async () => {
+    const sh = document.querySelector('oriel-shell'), b = sh._pages.climate.el.querySelector('.scRow [data-act^="bump:"][data-act*=":1:"]');
+    if (!b) return 'no + button';
+    window.__calls = []; b.click(); return '';
+  });
+  if (bump) fail('climate: ' + bump);
+  await page.clock.runFor(3000);
+  const cc = await page.evaluate(() => window.__calls.filter((c) => c[0] === 'climate' && c[1] === 'set_temperature').length);
+  if (cc !== 1) fail(`climate: the compact + made ${cc} set_temperature calls, expected 1`);
+  await page.evaluate(() => { window.__calls = []; });
+  ok('climate: the compact + calls climate.set_temperature once, like the full card');
   for (const k of OWN) {
     await go(page, k);
     const has = await page.evaluate((k) => { const pg = document.querySelector('oriel-shell')._pages[k].el; return !!(pg.querySelector('.scRow') || pg.querySelector('.scArt')); }, k);
@@ -86,8 +131,7 @@ try {
   if (!fam.includes('Household') || fam.includes('Family')) fail('the rail should say Household, not Family: ' + fam.join(', '));
   ok('the rail says Household');
   if (errors.length) fail('page errors: ' + errors.join(' | '));
-  const calls = await page.evaluate(() => window.__calls.length); if (calls) fail(calls + ' service calls');
-  ok('no page errors, no service calls');
+  ok('no page errors');
 
   /* back to classic: every panel where a classic render has it */
   const classic = structuredClone(base);
@@ -99,7 +143,7 @@ try {
     const [a, b] = [await panels(page, k), await panels(ref.page, k)];
     if (a.length !== b.length) fail(`${k}: ${a.length} panels after switching back, ${b.length} in classic`);
     a.forEach((p, i) => { const q = b[i]; if (p.id !== q.id || ['l', 't', 'r', 'b'].some((z) => Math.abs(p[z] - q[z]) > 0.5)) fail(`${k}: ${p.id} is not back in place after switching to classic`); });
-    const left = await page.evaluate((k) => !!document.querySelector('oriel-shell')._pages[k].el.querySelector('.scRow,.scHero,.scArt'), k);
+    const left = await page.evaluate((k) => !!document.querySelector('oriel-shell')._pages[k].el.querySelector('.scRow,.scHero,.scArt,.scPop,.scHid'), k);
     if (left) fail(`${k}: scene parts left behind after switching to classic`);
   }
   ok('switching back to classic puts every panel back in place and removes the scene parts');
@@ -121,6 +165,8 @@ try {
   await ref2.page.close();
   await fl.page.setViewportSize({ width: 390, height: 844 }); await fl.page.waitForTimeout(500); await fl.page.clock.runFor(800);
   const onPhone = await parents();
+  const hidOnPhone = await fl.page.evaluate(() => document.querySelector('oriel-shell').shadowRoot.querySelectorAll('.scHid,.scRow,.scHero,.scArt').length);
+  if (hidOnPhone) fail(`on the phone ${hidOnPhone} scene parts or hidden cards are left`);
   onPhone.forEach((p, i) => { if (p !== want[i]) fail(`${SCENE[i]}: on the phone the panels are not back in their classic places:\n  got  ${p}\n  want ${want[i]}`); });
   /* inline widths match a card that was a phone from the start (some pages set widths themselves) */
   const widths = (pg) => pg.evaluate((keys) => { const sh = document.querySelector('oriel-shell'); return keys.flatMap((k) => [...sh._pages[k].el.querySelectorAll('.glass,.dark,.black')].filter((x) => !x.parentElement.closest('.glass,.dark,.black')).map((x) => x.id + ':' + x.style.width)); }, SCENE);
@@ -130,7 +176,7 @@ try {
   const diffW = gotW.filter((x, i) => x !== wantW[i]);
   if (diffW.length) fail('panels keep the scene width on the phone: ' + diffW.join(', ') + ' (a fresh phone card has ' + wantW.filter((x, i) => x !== gotW[i]).join(', ') + ')');
   await fl.page.setViewportSize({ width: 1280, height: 800 }); await fl.page.waitForTimeout(500); await fl.page.clock.runFor(800);
-  for (const k of SCENE) { await go(fl.page, k); const ps = await panels(fl.page, k); if (!ps.length || ps.some((p) => !p.inRow)) fail(`${k}: panels not back in the row after phone → tablet`); }
+  for (const k of SCENE) { await go(fl.page, k); const n = await fl.page.evaluate((k) => document.querySelector('oriel-shell')._pages[k].el.querySelectorAll('.scRow .scC').length, k); if (!n) fail(`${k}: no compact cards after phone → tablet`); }
   if (fl.errors.length) fail('flip page errors: ' + fl.errors.join(' | '));
   ok('tablet → phone → tablet: the panels go back to their classic places on the phone and into the row again on the tablet');
   await fl.page.close();

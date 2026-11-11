@@ -394,6 +394,7 @@ export class OrielShell extends HTMLElement {
     const prev = this._page; /* opts.auto: auto rotation moved the page (a person did not) */
     this._page = key;
     this._phoneMark();
+    try { this._sceneMark(); if (this._sceneSync && this._sceneOn()) this._sceneSync(); } catch (e) { console.warn('[oriel] scene style', e); }
     Object.keys(this._pages).forEach((k) => this._pages[k].el.classList.toggle('off', k !== key));
     this.$('rail').querySelectorAll('a[data-k]').forEach((a) => { const on = a.dataset.k === key; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     if (pg.def.update && this._h) { try { pg.def.update.call(this); } catch (e) { console.warn('[oriel] ' + key + ' update', e); } }
