@@ -2,7 +2,7 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## [0.7.0] - 2026-11-11
 
 ### Added
 - **Scene style** (`general.page_style: scene`, tablet only, off by default). Energy, Climate, Household, Security, Vacuum and System get a big title with today's date, a drawing of what the page is about, and their cards in one row along the bottom that scrolls sideways. The cards are the classic ones, moved, not rebuilt: same controls, pop-ups and confirm steps. Home, Living room and Nova keep their layouts; the phone layout ignores the style and gets every card back where it was. The drawings are in `src/scenes/art.js`, decorative only (they read no state).
@@ -15,7 +15,7 @@ All notable changes are listed here. Versions follow [semantic versioning](https
 ### Tests
 - New `dev/scene.mjs` (part of `npm test`): with the scene style each scene page has a title, a drawing and all its cards in one row, inside the canvas, below the title, none overlapping; Home and Living room keep their layouts; no page errors or service calls; switching back to classic puts every card back; the phone ignores the style; a card that turns from tablet to phone and back puts the cards back on the phone and into the row again on the tablet.
 - The editor test counts themes from `src/theme/themes.js` instead of a fixed 12, and looks for the Household section.
-- The classic tablet layout still matches the 0.6.4 baseline.
+- The classic tablet layout still matches the 0.6.4 baseline (unchanged on purpose).
 
 ## [0.6.4] - 2026-11-07
 
