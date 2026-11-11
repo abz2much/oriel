@@ -570,6 +570,10 @@ const system = (h) => {
 };
 
 const DRAW = { energy, climate, family, security, vacuum, system };
+/* A point of a drawing (its own 3D coordinates) in the drawing's viewBox units, for the live labels. */
+export const sceneXY = (x, y, z) => [OX + (x - y) * CO * S, OY + (x + y) * 0.5 * S - z * S];
+/* The drawing's viewBox ('' when the page has none). */
+export function sceneViewBox(key) { const m = /viewBox="([^"]+)"/.exec(sceneArt(key)); return m ? m[1] : ''; }
 const cache = {};
 /* The drawing for a page key, or '' when the page has none. Built once, then reused. */
 export function sceneArt(key) {

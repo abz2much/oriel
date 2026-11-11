@@ -2,6 +2,19 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.7.1] - 2026-11-11
+
+### Changed
+- **The scene style now matches the approved mockups.** On Energy, Climate, Household, Security, Vacuum and System:
+  - **Compact cards** replace the full cards in the bottom row, sized to fit without sideways scrolling. Tapping one opens the page's full card in a pop-up, with every control and confirm step; × , a tap outside or Escape closes it. The full cards stay in place, hidden, so their code is unchanged.
+  - **The line above the title and status chips** come from your entities (Energy: live time and price; Climate: the weather; Household: today's events; Security: read-only and the last event; Vacuum: the last clean; System: the version and uptime).
+  - **Live labels on the drawings** (solar, house, battery, grid; thermostat, outside, heating; calendar, list, bins; front door, open door or window, camera motion, alarm; vacuum and dock; Home Assistant, connections, backups). A label whose entity is not set is left out.
+  - **The scene look** (warm dusk light, frosted glass, white text) is part of the style and no longer depends on the theme. Home, Living room and Nova keep your theme.
+- Climate's compact − and + call the same code as the full card.
+
+### Tests
+- `dev/scene.mjs` now checks the line, chips, labels and compact cards on every scene page, no sideways scrolling with the full test config, the full cards hidden and not tappable, every compact card opening its full card in a pop-up inside the screen and closing again, and the compact + making one `climate.set_temperature` call.
+
 ## [0.7.0] - 2026-11-11
 
 ### Added

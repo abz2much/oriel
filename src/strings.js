@@ -799,3 +799,34 @@ Object.assign(S, {
   bins_sub: 'From your waste collection calendars', from_nova: 'From Nova',
   hour_n: 'Hour {h}',
 });
+
+/* ---------- Scene style (general.page_style: scene): titles, chips, compact cards and drawing labels ---------- */
+Object.assign(S, {
+  sc_scroll: 'Scroll for more', sc_close: 'Close', sc_more: '+ {n} more', sc_tap_full: 'Tap for the full card',
+  // energy
+  sc_live: 'Live', sc_price_now: '{p}/kWh now', sc_generating: 'Generating {v}', sc_solar_idle: 'Solar idle', sc_house: 'House {v}',
+  sc_exporting: 'Exporting {v}', sc_importing: 'Importing {v}', sc_grid_idle: 'Grid idle', sc_bat_charging: 'Battery charging {v}', sc_bat_discharging: 'Battery discharging {v}', sc_bat_idle: 'Battery idle',
+  sc_inv_on: 'Inverter online', sc_inv_off: 'Inverter offline', sc_battery: 'Battery', sc_charging: 'Charging', sc_discharging: 'Discharging', sc_reserve: 'Reserve {n}%', sc_of_kwh: '{a} of {b} kWh',
+  sc_today: 'Today', sc_solar_yield: 'Solar yield', sc_grid_import: 'Grid import', sc_grid_export: 'Grid export', sc_net_cost: 'Net cost',
+  sc_house_use: 'House use today', sc_so_far: 'so far', sc_forecast: 'Solar forecast', sc_left_today: 'Left today {v}', sc_tomorrow_v: 'Tomorrow {v}',
+  sc_heat_pump: 'Heat pump', sc_v_today: '{v} today', sc_solar: 'Solar', sc_grid_export_l: 'Grid · export', sc_grid_import_l: 'Grid · import', sc_house_l: 'House',
+  // climate
+  sc_feels: 'feels {t}°', sc_wind: 'wind {v}', sc_humidity: 'humidity {n}%', sc_heating_n: '{n} heating', sc_idle_n: '{n} idle',
+  sc_coldest: 'Coldest: {n} {t}°', sc_warmest: 'Warmest: {n} {t}°', sc_outside: 'Outside', sc_now_t: 'now {t}°', sc_heating_now: 'Heating · now {t}°', sc_idle_now: 'Idle · now {t}°',
+  sc_rooms: 'Rooms', sc_last12: 'Last 12 hours', sc_tap_graph: 'Tap for the graph', sc_thermostat: 'Thermostat', sc_set: 'Set {t}°', sc_heating: 'Heating', sc_boost: 'Boost heating',
+  // household
+  sc_events_today: '{n} events today', sc_event_today: '1 event today', sc_on_list: '{n} on the shopping list', sc_to_do_n: '{n} to do', sc_next: 'Next: {t}',
+  sc_shopping: 'Shopping list', sc_items: '{n} items', sc_calendar: 'Calendar', sc_later: 'Later', sc_this_week: 'This week', sc_todo: 'To do', sc_bins: 'Bins',
+  sc_nothing: 'Nothing planned', sc_list_empty: 'Nothing on the list', sc_bin_due: '{b} {d}',
+  // security
+  sc_read_only: 'Read-only', sc_last_event: 'last event {t}', sc_n_open: '{n} open', sc_x_open: '{x} open', sc_all_closed: 'All closed',
+  sc_front_closed: 'Front door closed', sc_front_open: 'Front door open', sc_someone: 'Someone in {r}', sc_nobody: 'Nobody detected',
+  sc_alarm: 'Alarm', sc_doors: 'Doors & windows', sc_cameras: 'Cameras', sc_events: 'Recent events', sc_presence: 'Presence', sc_motion: 'Motion {t}', sc_no_events: 'No events',
+  sc_live_tap: 'Live on tap', sc_front_door: 'Front door', sc_camera: 'Camera', sc_open: 'Open', sc_closed: 'Closed',
+  // vacuum
+  sc_last_clean: 'Last clean {a}', sc_next_run: 'Next: {t}', sc_start: 'Start cleaning', sc_ask_first: 'Asks first', sc_settings: 'Cleaning settings', sc_schedule: 'Schedule', sc_parts: 'Parts', sc_dock: 'Dock',
+  // system
+  sc_ha: 'Home Assistant {v}', sc_up: 'up {d}', sc_connected: 'All connected', sc_offline: '{n} offline', sc_backup: 'Backup {t}', sc_low_bat: '{n} low batteries', sc_updates: '{n} updates', sc_update: '1 update', sc_updates_l: 'Updates',
+  sc_host: 'Host', sc_cpu: 'Processor', sc_mem: 'Memory', sc_disk: 'Disk', sc_attention: 'Low batteries', sc_conns: 'Connections', sc_tablet: 'Tablet', sc_up_to_date: 'Up to date', sc_none_low: 'None low', sc_backups: 'Backups',
+  sc_days: '{n} days', sc_day: '1 day', sc_hours: '{n} h',
+});
