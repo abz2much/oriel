@@ -2,6 +2,15 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+- A Buy Me a Coffee link in the README and a Sponsor button on GitHub (`.github/FUNDING.yml`).
+- HACS validation (`.github/workflows/validate.yml`) on every push, pull request and weekly, as HACS requires for its default list.
+
+### Changed
+- `LICENSE` is the plain MIT text again so GitHub and HACS recognise it; the note about the bundled Outfit font stays in the README's Licence section and `src/fonts/OFL.txt`.
+
 ## [0.7.2] - 2026-11-13
 
 ### Fixed

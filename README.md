@@ -4,6 +4,8 @@ A wall-tablet dashboard for Home Assistant, in one custom card. Frosted glass in
 
 Every page and every section is optional. You set it up with a visual editor; YAML still works.
 
+If Oriel is useful to you, you can [☕ buy me a coffee](https://buymeacoffee.com/abz2much). It is free either way.
+
 ![Oriel home screen with example data](https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-home.jpg)
 
 ## What you get
@@ -451,6 +453,10 @@ npm run shots                     # screenshots of every page to dev/out/
 - `dist/oriel.js` is committed, because HACS installs from it. CI fails if it is out of date.
 
 Releases are made by the release workflow: bump the version in `package.json`, `src/version.js` and `CHANGELOG.md`, merge to `main`, and the workflow builds, tests, tags and publishes the release.
+
+## Support
+
+Oriel is free and stays free. If you would like to say thanks, you can [☕ buy me a coffee](https://buymeacoffee.com/abz2much).
 
 ## Licence
 
