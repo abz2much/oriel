@@ -2,7 +2,9 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
-## Unreleased
+## [0.7.3] - 2026-11-13
+
+No changes to the card itself.
 
 ### Added
 - A Buy Me a Coffee link in the README and a Sponsor button on GitHub (`.github/FUNDING.yml`).
