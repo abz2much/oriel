@@ -106,8 +106,8 @@ general:
 An optional tablet look: `general.page_style: scene` (or **General › Page style on the tablet** in the editor). Off by default.
 
 - **On Energy, Climate, Household, Security, Vacuum and System:** a line and a big page title at the top left (for example *Live · 18:04 · £0.24/kWh now* or *Read-only · last event 17:52*), status chips under it from your entities (alarm, open doors, heating, bins and so on), and a drawing of what the page is about on the right with live labels on it.
-- **Compact cards** in one row along the bottom, sized to fit the screen without scrolling sideways. **Tap a card** to open the page's full card in a pop-up, with all its controls and confirm steps; tap outside it, the × or Escape to close. On Climate the compact − and + change the thermostat exactly as the full card does.
-- **Its own look:** while a scene page shows, the card uses the warm dusk look of the scene style (warm light, frosted glass, white text), whatever theme you picked. Home, Living room and Nova keep your theme and their layouts.
+- **Compact cards** in one row along the bottom, sized to fit the screen without scrolling sideways. **Tap a card** to open the page's full card in a pop-up, with all its controls and confirm steps; tap outside it, the × or Escape to close. On Climate the compact − and + change the thermostat exactly as the full card does. On Vacuum, with a Dreame room map, **Clean a room** opens the map with its room buttons.
+- **Its own look:** with the scene style on, every page (Home, Living room and Nova included) uses the warm dusk look of the style (warm light, frosted glass, white text), whatever theme you picked. Home, Living room and Nova keep their layouts.
 - **Phone:** the phone layout ignores the style.
 - The drawings are generic and drawn in code; the labels and chips only appear for entities you have set.
 
@@ -134,7 +134,7 @@ HACS adds the resource for you.
 
 1. Download `oriel.js` from the latest release (or `dist/oriel.js` in this repository).
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.7.1` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In **Settings › Dashboards › ⋮ › Resources**, add `/local/oriel/oriel.js?v=0.7.2` as a **JavaScript module**. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 

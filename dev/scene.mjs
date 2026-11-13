@@ -25,7 +25,7 @@ const SCENE = ['energy', 'climate', 'family', 'security', 'vacuum', 'system'];
 const OWN = ['home', 'living'];
 
 const browser = await chromium.launch();
-async function mount(cfg, vp = { width: 1280, height: 800 }) {
+async function mount(cfg, vp = { width: 1280, height: 800 }, extra = {}) {
   const page = await browser.newPage({ viewport: vp });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -40,7 +40,7 @@ async function mount(cfg, vp = { width: 1280, height: 800 }) {
     e.setConfig(cfg);
     e.hass = { states: st, services: { light: {}, climate: {}, script: {} }, language: 'en-GB', locale: { language: 'en-GB' }, config: { currency: 'GBP', components: [] },
       callService: (d, s, data) => { window.__calls.push([d, s, data]); return Promise.resolve(); }, callWS: eval('(' + ws + ')'), callApi: eval('(' + api + ')') };
-  }, { cfg, st: mkStates(), ws: CALLWS_SRC, api: CALLAPI_SRC });
+  }, { cfg, st: Object.assign(mkStates(), extra), ws: CALLWS_SRC, api: CALLAPI_SRC });
   await page.clock.runFor(600);
   return { page, errors };
 }
@@ -180,6 +180,38 @@ try {
   if (fl.errors.length) fail('flip page errors: ' + fl.errors.join(' | '));
   ok('tablet → phone → tablet: the panels go back to their classic places on the phone and into the row again on the tablet');
   await fl.page.close();
+
+  /* the scene look is on every page while the scene style is on (Home, Living room and Nova included), and off with classic */
+  {
+    const m = await mount(scene);
+    for (const k of ['home', 'living', 'energy']) {
+      await go(m.page, k);
+      const on = await m.page.evaluate(() => document.querySelector('oriel-shell').shadowRoot.getElementById('wrap').classList.contains('scnow'));
+      if (!on) fail(`${k}: the scene look is not on while the scene style is on`);
+    }
+    await m.page.close();
+    const c2 = await mount(classic);
+    if (await c2.page.evaluate(() => document.querySelector('oriel-shell').shadowRoot.getElementById('wrap').classList.contains('scnow'))) fail('the scene look is on with the classic style');
+    await c2.page.close();
+    ok('the scene look covers every page (Home, Living room and Nova too) and only with the scene style');
+  }
+
+  /* a Dreame vacuum with a room map: a compact card opens the map with its room buttons */
+  {
+    const dv = structuredClone(scene);
+    dv.vacuum.vacuums[0] = Object.assign({}, dv.vacuum.vacuums[0], { integration: 'dreame', map_camera: 'camera.robot_map' });
+    const m = await mount(dv, undefined, { 'camera.robot_map': { state: 'idle', attributes: { friendly_name: 'Robot map', entity_picture: '', rooms: { 1: { name: 'Kitchen', order: 1 }, 2: { name: 'Hall', order: 2 }, 3: { name: 'Living room', order: 3 } } } } });
+    await go(m.page, 'vacuum');
+    const has = await m.page.evaluate(() => !!document.querySelector('oriel-shell')._pages.vacuum.el.querySelector('.scRow .scC[data-open="vcMapP"]'));
+    if (!has) fail('vacuum: no compact card opens the room map (room cleaning is unreachable)');
+    await m.page.evaluate(() => document.querySelector('oriel-shell')._pages.vacuum.el.querySelector('.scRow .scC[data-open="vcMapP"]').click());
+    await m.page.clock.runFor(400);
+    const rooms = await m.page.evaluate(() => { const sh = document.querySelector('oriel-shell'), pop = sh.shadowRoot.querySelector('.scPop'); return pop ? pop.querySelectorAll('#vcRooms .vcR').length : -1; });
+    if (rooms < 3) fail(`vacuum: the room map pop-up shows ${rooms} room buttons, expected 3`);
+    if (m.errors.length) fail('vacuum room map page errors: ' + m.errors.join(' | '));
+    ok(`vacuum: a "Clean a room" card opens the room map with its ${rooms} room buttons`);
+    await m.page.close();
+  }
 
   const themes = fs.readFileSync('src/theme/themes.js', 'utf8');
   if (!/\bdusk: \{ name: 'Dusk'/.test(themes)) fail('there is no Dusk theme');

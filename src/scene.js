@@ -20,15 +20,20 @@ const DAY = 86400000;
 const LOOK = `--oriel-page:radial-gradient(520px 420px at 78% 12%,rgba(214,150,72,.55),transparent 70%),radial-gradient(640px 520px at 22% 78%,rgba(120,78,44,.5),transparent 70%),radial-gradient(420px 320px at 60% 36%,rgba(255,196,120,.16),transparent 70%),linear-gradient(165deg,#3a2a1e 0%,#24190f 60%,#140e09 100%);
  --oriel-glass:255,255,255;--oriel-ink:255,255,255;--oriel-raised:104,82,64;--oriel-raised-lo:78,60,46;--oriel-on-dark-text:255,250,244;--oriel-on-dark:255,255,255;
  --oriel-accent:255,226,182;--oriel-accent-hi:255,236,206;--oriel-accent-lo:236,196,140;--oriel-accent-strong:255,214,150;--oriel-accent-ink:255,222,170;--oriel-on-accent:46,30,16;--oriel-accent-fill:255,226,182;--oriel-ink-on-accent:46,30,16;
- --oriel-ink-fill:255,226,182;--oriel-shadow:0,0,0;--oriel-shadow-glass:0,0,0;--oriel-good:170,232,170;--oriel-warn:255,210,120;--oriel-bad:255,170,150;--oriel-off:200,190,180;
+ --oriel-ink-fill:20,14,10;--oriel-shadow:0,0,0;--oriel-shadow-glass:0,0,0;--oriel-good:170,232,170;--oriel-warn:255,210,120;--oriel-bad:255,170,150;--oriel-off:200,190,180;
  --oriel-bad-bg:150,62,46;--oriel-bad-ink:255,226,218;--oriel-bad-line:200,100,80;--oriel-warn-bg:130,96,30;--oriel-warn-ink:255,236,200;--oriel-good-bg:60,110,60;--oriel-ok-fill:90,140,90;
  --oriel-rail:20,14,10;--oriel-rail-ink:255,250,244;--oriel-chip:255,255,255;--oriel-chip-ink:40,28,18;--oriel-dark-a:30,22,16;--oriel-dark-b:16,11,8;--oriel-black:12,9,7;
+ --oriel-room:90,70,54;--oriel-room-2:100,80,63;--oriel-room-3:94,74,58;--oriel-room-4:88,69,54;--oriel-room-5:104,84,66;--oriel-room-6:98,78,61;--oriel-house-wall:120,96,76;
+ --oriel-slab:96,76,60;--oriel-house-side:70,54,42;--oriel-floor-side:78,61,48;--oriel-house-label:236,224,210;--oriel-house-line:200,180,160;
+ --oriel-kit-top:120,98,80;--oriel-kit-top-2:126,104,86;--oriel-kit-top-3:116,95,77;--oriel-kit-left:92,72,56;--oriel-kit-left-2:86,67,52;--oriel-kit-left-3:96,76,60;--oriel-kit-side:76,59,46;--oriel-kit-right:80,62,48;--oriel-kit-shade:72,56,43;
+ --oriel-nova-a:120,96,76;--oriel-nova-b:70,54,42;--oriel-on-nova:255,255,255;--oriel-nova-glass:255,255,255;--oriel-my-bubble:255,226,182;
  --oriel-sheet-a:70,54,42;--oriel-sheet-b:46,34,26;--oriel-scrim:10,6,4;--oriel-pill:120,96,76;--oriel-soft:.72;--oriel-soft-page:.8`;
 
 const CSS = `
 #wrap.scene.scnow{${LOOK}}
 #wrap.scene.scnow #screen{background:var(--oriel-page)}
 #wrap.scene.scnow .glass{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);box-shadow:0 18px 40px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.18)}
+#wrap.scene.scnow #stage .pill rect[rx]{fill:rgba(18,13,10,.74)!important;stroke:rgba(255,255,255,.22)!important}
 #wrap.scene.scnow .dark{background:rgba(10,7,5,.5);border-color:rgba(255,255,255,.12)}
 #wrap.scene .scHid{visibility:hidden!important;pointer-events:none!important}
 #wrap.scene .scHero{position:absolute;left:calc(var(--dx,0px) + 120px);top:150px;max-width:640px;pointer-events:none;z-index:2;color:#fff}
@@ -78,6 +83,8 @@ const CSS = `
 #wrap.scene .scC .rd:active{transform:scale(.94)}
 #wrap.scene .scC .ctl{gap:6px}
 #wrap.scene .scC .ctl .big{flex:1;text-align:center;margin:0;font-size:40px;white-space:nowrap;min-width:0}
+#wrap.scene .scC .btn{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;overflow:hidden}
+#wrap.scene .scC .btn span{font-size:12px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.16);white-space:nowrap}
 #wrap.scene .scC .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:10px}
 #wrap.scene .scC .g2 .big{font-size:30px;margin-top:0}
 #wrap.scene .scC .cols{display:flex;align-items:flex-end;gap:8px;height:84px;margin-top:auto}
@@ -119,8 +126,8 @@ const SPOT = {
 
 addMethods({
   _sceneOn() { return !!(this._c && this._c.general.page_style === 'scene') && !this._phone; },
-  /* the dusk look follows the page: on while a scene page shows */
-  _sceneMark() { const w = this.$('wrap'); if (w) w.classList.toggle('scnow', this._sceneOn() && SCENE_KEYS.includes(this._page)); },
+  /* the scene look covers every page while the style is on (Home, Living room and Nova keep their layouts) */
+  _sceneMark() { const w = this.$('wrap'); if (w) w.classList.toggle('scnow', this._sceneOn()); },
   _sceneSync() {
     const wrap = this.$('wrap'); if (!wrap || !this._pages) return;
     const on = this._sceneOn();
@@ -416,6 +423,11 @@ const SCENE_BUILD = {
     const err = this.sv(m.error); if (err && !bad(err) && !/^(no_error|none|ok|0)$/i.test(err)) out.chips.push({ t: tidy(err), k: 'bad' });
     (m.station || []).forEach((x) => { const v = this.sv(x.entity); if (isEnt(x.entity) && v && !bad(v) && x.ok_state && v !== x.ok_state) out.chips.push({ t: (x.name || this.name(x.entity)) + ': ' + tidy(v), k: 'bad' }); });
     out.cards.push({ open: 'vcHero', cls: 'lit', w: 230, h: `${ic('play')}<span class="st">${esc(S.sc_ask_first)}</span><b class="nm">${esc(S.sc_start)}</b><small>${esc(m.name || this.name(m.entity))}</small>` });
+    const vsc = this._pages.vacuum && this._pages.vacuum.scene, mapP = vsc && vsc.panels.find((x) => x.id === 'vcMapP');
+    if (mapP && !mapP.classList.contains('hide')) {
+      const rooms = (this._vcRoomList ? this._vcRoomList() : []).slice().sort((a, b) => (a.o || 0) - (b.o || 0));
+      out.cards.push({ open: 'vcMapP', w: 260, h: `<h3>${esc(S.sc_rooms_clean)}</h3><div class="btn">${rooms.slice(0, 6).map((r) => `<span>${esc(r.n)}</span>`).join('')}</div>${rooms.length > 6 ? `<small style="margin-top:auto">${esc(t('sc_more', { n: rooms.length - 6 }))}</small>` : ''}` });
+    }
     const set = (m.settings || []).filter((x) => isEnt(x.entity));
     if (set.length) out.cards.push({ open: 'vcSet', w: 280, h: `<h3>${esc(S.sc_settings)}</h3><ul class="ls">${set.slice(0, 4).map((x) => li(x.label || this.name(x.entity), tidy(this.sv(x.entity) || '–'))).join('')}</ul>` });
     if ((m.schedule || []).length) out.cards.push({ open: 'vcSch', w: 260, h: `<h3>${esc(S.sc_schedule)}</h3><ul class="ls">${m.schedule.slice(0, 3).map((x) => li(x.label || x.at || '', x.at || '')).join('')}</ul>` });

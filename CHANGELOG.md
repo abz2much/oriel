@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.7.2] - 2026-11-13
+
+### Fixed
+- **Vacuum (scene style): room cleaning was unreachable.** A **Clean a room** card now lists the rooms from the map and opens the map card with its room buttons, for Dreame vacuums with a map camera.
+- **Home, Living room and Nova kept the theme's colours** while the scene style was on. The scene look now covers every page; their layouts are unchanged.
+- Home in the scene look: the room names on the glass house are dark pills (they were white text on white), and the Boost heating button is dark so its text reads.
+
+### Tests
+- `dev/scene.mjs`: the scene look is on for Home, Living room and Energy with the scene style and off with classic; a Dreame vacuum with a room map gets a Clean a room card that opens the map with all its room buttons.
+
 ## [0.7.1] - 2026-11-11
 
 ### Changed
