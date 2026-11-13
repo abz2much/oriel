@@ -4,7 +4,7 @@ A wall-tablet dashboard for Home Assistant, in one custom card. Frosted glass in
 
 Every page and every section is optional. You set it up with a visual editor; YAML still works.
 
-If Oriel is useful to you, you can [☕ buy me a coffee](https://buymeacoffee.com/abz2much). It is free either way.
+<a href="https://buymeacoffee.com/abz2much"><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/bmc-button.png" alt="Buy me a coffee" height="44"></a>
 
 ![Oriel home screen with example data](https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-home.jpg)
 
@@ -456,7 +456,9 @@ Releases are made by the release workflow: bump the version in `package.json`, `
 
 ## Support
 
-Oriel is free and stays free. If you would like to say thanks, you can [☕ buy me a coffee](https://buymeacoffee.com/abz2much).
+Oriel is free and stays free. If you would like to say thanks:
+
+<a href="https://buymeacoffee.com/abz2much"><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/bmc-button.png" alt="Buy me a coffee" height="44"></a>
 
 ## Licence
 
