@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+- A Buy Me a Coffee link in the README and a Sponsor button on GitHub (`.github/FUNDING.yml`).
+- HACS validation (`.github/workflows/validate.yml`) on every push, pull request and weekly, as HACS requires for its default list.
+
+### Changed
+- The README is shorter and reordered (what Oriel is, install, quick start, pages, looks, support). The full option reference, feature details and development notes moved to `docs/configuration.md`, `docs/features.md` and `docs/development.md`. It also corrects two things that were out of date: there are thirteen themes, and the scene style's cards fit without scrolling.
+- `LICENSE` is the plain MIT text again so GitHub and HACS recognise it; the note about the bundled Outfit font stays in the README's Licence section and `src/fonts/OFL.txt`.
+
 ## [0.7.2] - 2026-11-13
 
 ### Fixed
