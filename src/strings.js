@@ -824,7 +824,7 @@ Object.assign(S, {
   sc_alarm: 'Alarm', sc_doors: 'Doors & windows', sc_cameras: 'Cameras', sc_events: 'Recent events', sc_presence: 'Presence', sc_motion: 'Motion {t}', sc_no_events: 'No events',
   sc_live_tap: 'Live on tap', sc_front_door: 'Front door', sc_camera: 'Camera', sc_open: 'Open', sc_closed: 'Closed',
   // vacuum
-  sc_last_clean: 'Last clean {a}', sc_next_run: 'Next: {t}', sc_start: 'Start cleaning', sc_ask_first: 'Asks first', sc_settings: 'Cleaning settings', sc_schedule: 'Schedule', sc_parts: 'Parts', sc_dock: 'Dock',
+  sc_last_clean: 'Last clean {a}', sc_next_run: 'Next: {t}', sc_start: 'Start cleaning', sc_rooms_clean: 'Clean a room', sc_ask_first: 'Asks first', sc_settings: 'Cleaning settings', sc_schedule: 'Schedule', sc_parts: 'Parts', sc_dock: 'Dock',
   // system
   sc_ha: 'Home Assistant {v}', sc_up: 'up {d}', sc_connected: 'All connected', sc_offline: '{n} offline', sc_backup: 'Backup {t}', sc_low_bat: '{n} low batteries', sc_updates: '{n} updates', sc_update: '1 update', sc_updates_l: 'Updates',
   sc_host: 'Host', sc_cpu: 'Processor', sc_mem: 'Memory', sc_disk: 'Disk', sc_attention: 'Low batteries', sc_conns: 'Connections', sc_tablet: 'Tablet', sc_up_to_date: 'Up to date', sc_none_low: 'None low', sc_backups: 'Backups',
