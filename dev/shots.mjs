@@ -1,5 +1,5 @@
 /* Dev harness: renders dist/oriel.js with mock states and screenshots every page that shows in the rail.
-   Usage: node dev/shots.mjs [config ...]   (default: empty minimal full)
+   Usage: node dev/shots.mjs [config ...]   (default: empty minimal full)   THEME=<theme id> renders in that theme
    Output: dev/out/<config>-<page>.png (or OUT=<dir> JPEG=1 for compressed copies, as used for docs/screenshots). Every service call and websocket call is logged, none is sent anywhere. */
 import fs from 'node:fs';
 import { chromium } from 'playwright';
@@ -15,6 +15,7 @@ const browser = await chromium.launch();
 let failed = 0;
 for (const name of names) {
   const cfg = JSON.parse(fs.readFileSync(`dev/configs/${name}.json`, 'utf8'));
+  if (process.env.THEME) { cfg.general = cfg.general || {}; cfg.general.theme = process.env.THEME; } /* THEME=<id> renders every page in that theme */
   const page = await browser.newPage({ viewport: { width: W, height: H } });
   await page.emulateMedia({ reducedMotion: 'reduce' }); /* no card fade or slide in the pictures */
   const errors = [];

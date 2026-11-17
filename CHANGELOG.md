@@ -2,6 +2,14 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.7.5] - 2026-11-17
+
+No changes to the card itself.
+
+### Changed
+- README: the eight page pictures now each show a different colour theme (Midnight Signal, Ember, Deep Teal, Berry Sky, Slate Harbour, Pine Mist, Plum Dusk and Quantum Ice), with the page and theme named under each one. The picture at the top stays in Classic, the default.
+- `dev/shots.mjs` takes `THEME=<theme id>` to render every page in one theme.
+
 ## [0.7.4] - 2026-11-17
 
 No changes to the card itself.
