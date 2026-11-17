@@ -39,15 +39,16 @@ You need Home Assistant 2024.1 or newer, and a tablet or phone to show it on.
 
 ### With HACS
 
-1. In Home Assistant, open HACS, then the three-dot menu, then Custom repositories.
-2. Add `https://github.com/abz2much/oriel` with the type Dashboard.
-3. Find Oriel in HACS, download it, and reload your browser when asked. HACS adds the resource for you.
+1. In Home Assistant, open HACS and search for Oriel.
+2. Download it, and reload your browser when asked. HACS adds the resource for you.
+
+If Oriel does not show up in the search, add it as a custom repository: in HACS open the three-dot menu, then Custom repositories, add `https://github.com/abz2much/oriel` with the type Dashboard, then search again.
 
 ### By hand
 
 1. Download `oriel.js` from the latest release.
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In Settings › Dashboards › ⋮ › Resources, add `/local/oriel/oriel.js?v=0.7.3` as a JavaScript module. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In Settings › Dashboards › ⋮ › Resources, add `/local/oriel/oriel.js?v=0.7.4` as a JavaScript module. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
