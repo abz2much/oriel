@@ -2,6 +2,13 @@
 
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org/).
 
+## [0.7.4] - 2026-11-17
+
+No changes to the card itself.
+
+### Changed
+- Oriel is now in the HACS default list. The README's install steps start with searching HACS for Oriel; adding it as a custom repository is kept as a fallback.
+
 ## [0.7.3] - 2026-11-13
 
 No changes to the card itself.
