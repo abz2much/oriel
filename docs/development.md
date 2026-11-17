@@ -26,6 +26,7 @@ npm run shots                     # screenshots of every page into dev/out/
 - `node dev/theme-shots.mjs <theme ...>` screenshots every page and pop-up per theme with a frozen clock. `node dev/sheet.mjs <theme ...>` makes a contact sheet, `node dev/themediff.mjs <before> <after>` compares two runs pixel by pixel, and `node dev/contrast.mjs` writes the contrast report.
 - Phone layout: `npm run shots:phone` takes every page at 390×844, 360×740 and 412×915 (plus a full scrolled page) into `dev/out/phone/`. `node dev/phone.mjs` checks every page at those sizes (no sideways scrolling, nothing past the edge, text and tap targets), and `node dev/phone-sheets.mjs` opens every pop-up.
 - `node dev/tablet-geometry.mjs` renders the current bundle and the baseline in `dev/baseline/` in the same run, and checks that every block and control on the tablet sits in the same place. After a deliberate tablet change, replace the baseline in the same pull request and say why in the changelog. `node dev/layout-shots.mjs` and `node dev/tablet-diff.mjs <before> <after>` compare tablet screenshots.
+- README pictures: `JPEG=1 OUT=docs/screenshots node dev/shots.mjs full` takes every page of the full config. Add `THEME=<theme id>` to take them in one theme; the eight page pictures in the README each use a different theme, named under the picture.
 - `node dev/scene.mjs` checks the scene style, and `node dev/scene-shots.mjs [theme]` takes every page in it into `dev/out/scene/`.
 
 ## Releases

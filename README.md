@@ -25,13 +25,13 @@ A page shows up in the side rail as soon as one of its entities is set.
 | System | Home Assistant and host status, backups, connections, low batteries, unavailable entities, tablet controls, auto rotation and an optional debug panel. Always shown. |
 
 <table>
-<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page"></td></tr>
-<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-climate.jpg" alt="Climate page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-family.jpg" alt="Household page"></td></tr>
-<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-security.jpg" alt="Security page"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-vacuum.jpg" alt="Vacuum page"></td></tr>
-<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-system.jpg" alt="System page with the debug panel"></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/empty-home.jpg" alt="Home with nothing configured"></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-living.jpg" alt="Living room page in the Midnight Signal theme"><br><sub>Living room · Midnight Signal</sub></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-energy.jpg" alt="Energy page in the Ember theme"><br><sub>Energy · Ember</sub></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-climate.jpg" alt="Climate page in the Deep Teal theme"><br><sub>Climate · Deep Teal</sub></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-family.jpg" alt="Household page in the Berry Sky theme"><br><sub>Household · Berry Sky</sub></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-security.jpg" alt="Security page in the Slate Harbour theme"><br><sub>Security · Slate Harbour</sub></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-vacuum.jpg" alt="Vacuum page in the Pine Mist theme"><br><sub>Vacuum · Pine Mist</sub></td></tr>
+<tr><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/full-system.jpg" alt="System page with the debug panel in the Plum Dusk theme"><br><sub>System · Plum Dusk</sub></td><td><img src="https://raw.githubusercontent.com/abz2much/oriel/main/docs/screenshots/empty-home.jpg" alt="Home with nothing configured in the Quantum Ice theme"><br><sub>Home with nothing set · Quantum Ice</sub></td></tr>
 </table>
 
-All screenshots use made-up example data.
+All screenshots use made-up example data. The pages above each show a different colour theme; the picture at the top is the default, Classic.
 
 ## Install
 
@@ -48,7 +48,7 @@ If Oriel does not show up in the search, add it as a custom repository: in HACS 
 
 1. Download `oriel.js` from the latest release.
 2. Copy it to `/config/www/oriel/oriel.js`.
-3. In Settings › Dashboards › ⋮ › Resources, add `/local/oriel/oriel.js?v=0.7.4` as a JavaScript module. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
+3. In Settings › Dashboards › ⋮ › Resources, add `/local/oriel/oriel.js?v=0.7.5` as a JavaScript module. Raise the `?v=` number each time you update the file, then hard-refresh the tablet.
 
 ## Quick start
 
